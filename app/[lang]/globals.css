@@ -132,11 +132,19 @@
   background: #9368f33d;
 }
 .mainColor {
-  color: #9368F3;
+  color: #5d60ef;
 }
 .bkMainColor{
-  background: #9368F3;
+  background: #5d60ef;
 }
+.hover-mainColor:hover{
+  background: #5d60efbf;
+  color: #fff;
+}
+.scoundColor{
+  color: #81878f;
+}
+
 .lightColor {
   color: #9368f33d;
 }

@@ -43,6 +43,8 @@ const CarouselComponent = ({
   const [activeIndex, setActiveIndex] = useState(itemsPerView); // start from first real item
   const [isTransitioning, setIsTransitioning] = useState(true);
 
+  
+
   // Duplicate items for infinite loop: [cloneLast..original..cloneFirst]
   const extendedItems = [
     ...items.slice(-itemsPerView),
@@ -107,7 +109,7 @@ const CarouselComponent = ({
   const translateX = `-${activeIndex * (100 / itemsPerView)}%`;
 
   return (
-    <div className={`relative overflow-hidden ${maxWidth} ${className}`}>
+    <div className={`relative overflow-hidden ${maxWidth} ${className}`} dir="ltr">
       <Carousel className="w-full">
         <CarouselContent
           style={{
@@ -174,156 +176,3 @@ const CarouselComponent = ({
 };
 
 export default CarouselComponent;
-
-
-
-
-
-// "use client";
-
-// import { useEffect, useRef, useState, useCallback } from "react";
-// import { Card, CardContent } from "@/components/ui/card";
-// import {
-//   Carousel,
-//   CarouselContent,
-//   CarouselItem,
-//   CarouselNext,
-//   CarouselPrevious,
-// } from "@/components/ui/carousel";
-
-// type CarouselComponentProps = {
-//   items: React.ReactNode[];
-//   className?: string;
-//   maxWidth?: string;
-//   height?: string;
-//   autoplay?: boolean;
-//   interval?: number;
-//   showArrows?: boolean;
-//   showDots?: boolean;
-//   itemsPerView?: number;
-//   useCardWrapper?: boolean;
-//   cardClassName?: string;
-//   cardContentClassName?: string;
-// };
-
-// const CarouselComponent = ({
-//   items,
-//   className = "",
-//   maxWidth = "w-full",
-//   height = "h-auto",
-//   autoplay = true,
-//   interval = 3000,
-//   showArrows = false,
-//   showDots = true,
-//   itemsPerView = 1,
-//   useCardWrapper = true,
-//   cardClassName = "w-full border-0 shadow-none py-2 rounded-none",
-//   cardContentClassName = "flex items-center justify-center p-0",
-// }: CarouselComponentProps) => {
-//   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-//   const [activeIndex, setActiveIndex] = useState(0);
-
-//   const goToSlide = useCallback(
-//     (index: number) => {
-//       if (index < 0) index = items.length - 1;
-//       if (index >= items.length) index = 0;
-//       setActiveIndex(index);
-//     },
-//     [items.length]
-//   );
-
-//   const goToNext = useCallback(() => {
-//     setActiveIndex((prev) => (prev + 1) % items.length);
-//   }, [items.length]);
-
-//   const goToPrev = useCallback(() => {
-//     setActiveIndex((prev) => (prev - 1 + items.length) % items.length);
-//   }, [items.length]);
-
-//   useEffect(() => {
-//     if (!autoplay) return;
-
-//     const startAutoplay = () => {
-//       intervalRef.current = setInterval(goToNext, interval);
-//     };
-
-//     const stopAutoplay = () => {
-//       if (intervalRef.current) clearInterval(intervalRef.current);
-//     };
-
-//     startAutoplay();
-
-//     return () => {
-//       stopAutoplay();
-//     };
-//   }, [autoplay, interval, goToNext]);
-
-//   const itemWidth = `${100 / itemsPerView}%`;
-//   const translateX = `-${activeIndex * (100 / itemsPerView)}%`;
-
-//   return (
-//     <div className={`relative overflow-hidden ${maxWidth} ${className}`}>
-//       <Carousel opts={{ align: "start", loop: false }} className="w-full">
-//         <CarouselContent
-//           style={{
-//             display: "flex",
-//             transition: "transform 0.5s ease",
-//             transform: `translateX(${translateX})`,
-//           }}
-//         >
-//           {items.map((item, index) => (
-//             <CarouselItem
-//               key={index}
-//               style={{ flex: `0 0 ${itemWidth}` }}
-//             >
-//               <div className="p-1">
-//                 {useCardWrapper ? (
-//                   <Card className={cardClassName}>
-//                     <CardContent
-//                       className={`${cardContentClassName} ${height}`}
-//                     >
-//                       {item}
-//                     </CardContent>
-//                   </Card>
-//                 ) : (
-//                   <div className={`${cardContentClassName} ${height}`}>
-//                     {item}
-//                   </div>
-//                 )}
-//               </div>
-//             </CarouselItem>
-//           ))}
-//         </CarouselContent>
-
-//         {showArrows && (
-//           <>
-//             <CarouselPrevious
-//               onClick={goToPrev}
-//               className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/60"
-//             />
-//             <CarouselNext
-//               onClick={goToNext}
-//               className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 text-white p-2 rounded-full hover:bg-black/60"
-//             />
-//           </>
-//         )}
-//       </Carousel>
-
-//       {showDots && (
-//         <div className="flex justify-center mt-5 gap-2">
-//           {items.map((_, index) => (
-//             <button
-//               key={index}
-//               onClick={() => goToSlide(index)}
-//               className={`h-4 w-4 rounded-full transition-all cursor-pointer ${
-//                 activeIndex === index ? "bkMainColor" : "bg-gray-400"
-//               }`}
-//             />
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
-
-// export default CarouselComponent;

@@ -13,7 +13,8 @@ const nextConfig: NextConfig = {
       "https://encrypted-tbn0.gstatic.com",
       "https://firebasestorage.googleapis.com",
       "firebasestorage.googleapis.com",
-      "i.pravatar.cc"
+      "i.pravatar.cc",
+      "pravatar.cc"
     ], // add imgur domain here
   },
 };
