@@ -28,6 +28,28 @@
             "InvalidEmailOrPasswordSwal": "'Login Failed', 'Invalid email or password. Please try again.', 'error'",
             "NetworkError": "Network Error', 'Please check your network connection and try again.', 'error'",
             "SomethingWentWrong": "'Error', 'Something went wrong. Please try again later.', 'error'"
+        },
+        "forgetPassword": {
+            "title": "Forget Password",
+            "email": "Email Address",
+            "sending" : "Sending Verification Code",
+            "send": "send verification code",
+            "forgetPasswordButton": "Password recovery"
+        },
+        "verifyCode" : {
+            "title": "Verification Code",
+            "email": "Email Address",
+            "code": "Verification Code",
+            "verify": " verify"
+        },
+        "resetPassword" : {
+            "title": "Password Recovery",
+            "email": "Email Address",
+            "code": " Verification Code",
+            "password": " new password",
+            "confirmPassword": "confirm password",
+            "processing" : "Processing Password Recovery",
+            "confirmBtn": "confirm"
         }
     }
-}
+} 
