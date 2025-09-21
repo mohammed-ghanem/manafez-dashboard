@@ -22,6 +22,27 @@ const SideBar = () => {
                                 <Settings size={18} /> Settings
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/dashboard/settings"
+                                className="flex items-center
+                                 gap-2 p-2 rounded font-semibold scoundColor hover-mainColor">
+                                <Settings size={18} /> Settings
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/dashboard/settings"
+                                className="flex items-center
+                                 gap-2 p-2 rounded font-semibold scoundColor hover-mainColor">
+                                <Settings size={18} /> Settings
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/dashboard/settings"
+                                className="flex items-center
+                                 gap-2 p-2 rounded font-semibold scoundColor hover-mainColor">
+                                <Settings size={18} /> Settings
+                            </Link>
+                        </li>
                     </ul>
                 </nav>
             </aside>

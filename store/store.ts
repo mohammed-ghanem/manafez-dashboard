@@ -3,6 +3,7 @@ import categoriesReducer from './categories/categoriesSlice'
 import productsReducer from './products/productsSlice'
 import cartReducer from './cart/cartSlice'
 import wishlistReducer from "./wishlist/wishlistSlice";
+import authReducer from "./auth/authSlice";
 
 
 export const store = configureStore({
@@ -11,6 +12,8 @@ export const store = configureStore({
         products: productsReducer,
         cart: cartReducer,
         wishlist: wishlistReducer,
+        auth: authReducer,
+        
         
     }
 })

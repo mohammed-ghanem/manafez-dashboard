@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -127,9 +130,14 @@
   }
 }
 
-
+.font-cairo {
+    font-family: Cairo, sans-serif!important;
+}
+.grdianBK{
+    background: radial-gradient(circle, #d5d6ff 20%, #fff 60%);
+}
 .backgroundDarkPurple {
-  background: #9368f33d;
+  background: #5d60efbf;
 }
 .mainColor {
   color: #5d60ef;
