@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     domains: [
+      "backend.wecandevmode.online",
       "https://placehold.co",
       "i.imgur.com",
       "placeimg.com",

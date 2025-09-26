@@ -5,12 +5,12 @@ import {
   Search,
   Menu,
   X,
-  User,
 } from "lucide-react";
 import LangUseParams from "@/translate/LangUseParams";
 import GlobeBtn from "./GlobeBtn";
 import ShoppingCartIcon from "./ShopingCartIcon";
 import WishlistIcon from "./WishlistIcon";
+import UserDropdown from "./UserDropdown";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,13 +18,6 @@ const Navbar = () => {
   // 👇 Get cart count from Redux
 
   const lang = LangUseParams(); // Access dynamic [lang] parameter
-
-  // const navItems = [
-  //   { title: "Home", href: "/" },
-  //   { title: "Products", href: "/products" },
-  //   { title: "categories", href: "/categories" },
-  //   { title: "about", href: "/about" },
-  // ];
 
   return (
     <nav className=" top-0 z-50" dir={lang === "ar" ? "rtl" : "ltr"}>
@@ -59,9 +52,8 @@ const Navbar = () => {
             {/* Cart count icon*/}
             <ShoppingCartIcon />
 
-            {/* User Icon */}
-            <User className="w-5 h-5 cursor-pointer" />
-
+            {/* User Dropdown */}
+            <UserDropdown/>
             {/* Mobile Menu Button */}
             <button
               className="md:hidden focus:outline-none"
