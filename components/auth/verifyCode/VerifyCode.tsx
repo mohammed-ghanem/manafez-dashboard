@@ -15,7 +15,7 @@ import otp from "@/public/assets/images/otp.svg";
 
 const VerifyCode = () => {
   const dispatch = useAppDispatch();
-  const { loading } = useAppSelector(s => s.auth);
+  const { status } = useAppSelector(state => state.auth);
   const lang = LangUseParams();
   const translate = TranslateHook();
   const router = useRouter();
@@ -29,16 +29,33 @@ const VerifyCode = () => {
     if (qEmail) setEmail(qEmail);
   }, [search]);
 
+
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const res = await dispatch(ActVerifyCode({ email, code }));
-    if (ActVerifyCode.fulfilled.match(res)) {
+    try {
+      await dispatch(ActVerifyCode({ email, code })).unwrap();
       toast.success(translate?.pages.verifyCode?.success || "Code verified");
-      router.push(`/${lang}/reset-password?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
-    } else {
-      toast.error((res.payload as string) || "Invalid code");
+      router.push(
+      `/${lang}/reset-password?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`
+      );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      toast.error(err || "Invalid code");
     }
   };
+
+
+  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   const res = await dispatch(ActVerifyCode({ email, code }));
+  //   if (ActVerifyCode.fulfilled.match(res)) {
+  //     toast.success(translate?.pages.verifyCode?.success || "Code verified");
+  //     router.push(`/${lang}/reset-password?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
+  //   } else {
+  //     toast.error((res.payload as string) || "Invalid code");
+  //   }
+  // };
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>
@@ -53,7 +70,11 @@ const VerifyCode = () => {
               <label className={`block text-sm font-bold leading-6 mainColor ${lang === "en" ? "text-start" : "text-end"}`}>
                 {translate?.pages.verifyCode?.email || "Email"}
               </label>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 block w-full p-2 border bg-white border-gray-300 rounded-md shadow-sm outline-none" />
+              <input type="email"
+                disabled
+                required value={email} onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full p-2 border bg-white border-gray-300
+                 rounded-md shadow-sm outline-none" />
             </div>
 
             <div className="mb-4">
@@ -66,18 +87,18 @@ const VerifyCode = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading === "pending"}
+                disabled={status === "loading"}
                 className="w-full bkMainColor text-white font-bold py-3 px-4 mt-5
                  rounded-lg flex justify-center items-center cursor-pointer">
-                  {loading === "pending"
-                    ?
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      {translate?.pages.verifyCode?.verifying || "Verifying..."}
-                    </>
-                    :
-                    (translate?.pages.verifyCode?.verify || "Verify")
-                  }
+                {status === "loading"
+                  ?
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    {translate?.pages.verifyCode?.verifying || "Verifying..."}
+                  </>
+                  :
+                  (translate?.pages.verifyCode?.verify || "Verify")
+                }
               </button>
             </div>
           </form>

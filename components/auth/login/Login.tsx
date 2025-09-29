@@ -13,7 +13,7 @@ import LangUseParams from "@/translate/LangUseParams";
 
 const Login = () => {
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector((state) => state.auth);
+  const { status, error } = useAppSelector((state) => state.auth);
 
   const lang = LangUseParams();
   const translate = TranslateHook();
@@ -116,11 +116,11 @@ const Login = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading === "pending"}
+                  disabled={status === "loading"}
                 className="w-full bkMainColor text-white font-bold
                  py-3 px-4 mt-5 rounded-lg flex justify-center items-center cursor-pointer"
               >
-                {loading === "pending" ? (
+                {status === "loading" ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     {translate?.pages.login.processing || "Processing..."}

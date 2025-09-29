@@ -15,7 +15,7 @@ import forgetPass from "@/public/assets/images/forgetPass.svg";
 
 const ForgetPassword = () => {
     const dispatch = useAppDispatch();
-    const { loading } = useAppSelector(s => s.auth);
+    const { status } = useAppSelector(state => state.auth);
     const lang = LangUseParams();
     const translate = TranslateHook();
     const router = useRouter();
@@ -61,12 +61,12 @@ const ForgetPassword = () => {
                         <div>
                             <button
                                 type="submit"
-                                disabled={loading === "pending"}
+                                disabled={status === "loading"}
                                 className="w-full bkMainColor text-white 
                                 font-bold py-3 px-4 mt-5 rounded-lg flex justify-center
                                  items-center cursor-pointer"
                             >
-                                {loading === "pending"
+                                {status === "loading"
                                     ?
                                     <>
                                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />

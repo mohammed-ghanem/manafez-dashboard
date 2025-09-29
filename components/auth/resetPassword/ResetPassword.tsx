@@ -15,7 +15,7 @@ import restpass from "@/public/assets/images/restpass.svg";
 
 const ResetPassword = () => {
     const dispatch = useAppDispatch();
-    const { loading } = useAppSelector(s => s.auth);
+    const { status } = useAppSelector(state => state.auth);
     const lang = LangUseParams();
     const translate = TranslateHook();
     const router = useRouter();
@@ -79,8 +79,8 @@ const ResetPassword = () => {
                         </div>
 
                         <div>
-                            <button type="submit" disabled={loading === "pending"} className="w-full bkMainColor text-white font-bold py-3 px-4 mt-5 rounded-lg flex justify-center items-center">
-                                {loading === "pending"
+                            <button type="submit" disabled={status === "loading"} className="w-full bkMainColor text-white font-bold py-3 px-4 mt-5 rounded-lg flex justify-center items-center">
+                                {status === "loading"
                                     ?
                                     <>
                                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
