@@ -50,6 +50,14 @@
             "confirmPassword": "تاكيد كلمة المرور",
             "processing" : "جارى تغيير كلمة المرور",
             "confirmBtn": "تاكيد"
+        },
+        "changePassword" : {
+            "title": "تغيير كلمة المرور",
+            "oldPassword": "كلمة المرور القديمة",
+            "password": "  كلمة المرور الجديدة",
+            "confirmPassword": "تاكيد كلمة المرور الجديدة",
+            "processing" : "جارى تغيير كلمة المرور",
+            "confirmBtn": "تاكيد"
         }
     }
 }

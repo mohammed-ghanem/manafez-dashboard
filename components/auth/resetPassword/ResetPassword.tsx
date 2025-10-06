@@ -44,6 +44,7 @@ const ResetPassword = () => {
         if (ActResetPassword.fulfilled.match(res)) {
             toast.success(translate?.pages.resetPassword?.success || "Password reset successful");
             router.push(`/${lang}/login`);
+            
         } else {
             toast.error((res.payload as string) || "Reset failed");
         }

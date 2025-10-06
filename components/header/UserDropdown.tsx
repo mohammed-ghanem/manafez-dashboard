@@ -1,29 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useAppSelector, useAppDispatch } from "@/store/hooks";
-import { ActLogout } from "../../store/auth/thunkActions/ActAuth";
+import { useAppSelector } from "@/store/hooks";
 import { ChevronDown } from "lucide-react";
 import { User } from "lucide-react";
 import Image from "next/image";
+import LogoutButton from "../auth/logout/LogoutButton";
+import Link from "next/link";
+import LangUseParams from "@/translate/LangUseParams";
 
 const UserDropdown = () => {
     const [open, setOpen] = useState(false);
-    const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.auth.user);
+    const lang = LangUseParams();
 
     if (!user) {
-        return <span className="cursor-pointer">
-            <User className="w-5 h-5 cursor-pointer" />
-            Login
-        </span>;
+        return <span className="cursor-pointer"><User className="w-5 h-5 cursor-pointer" /></span>;
     }
-
-    const handleLogout = async () => {
-        await dispatch(ActLogout());
-        window.location.replace("/login"); // full reload, no back button to dashboard
-    };
-
     return (
         <div className="relative">
             <div
@@ -45,14 +38,14 @@ const UserDropdown = () => {
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-50">
                     <ul className="py-1">
                         <li className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer">
-                            Reset Password
+                            <Link href={`/${lang}/change-password`}>Change Password</Link>
                         </li>
-                        <li
-                            className="px-4 py-2 text-red-600 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleLogout()}
-                        >
-                            Logout
+                        <li>
+
+                            <LogoutButton>Logout</LogoutButton>
                         </li>
+
+
                     </ul>
                 </div>
             )}

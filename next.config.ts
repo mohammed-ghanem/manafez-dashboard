@@ -15,7 +15,10 @@ const nextConfig: NextConfig = {
       "https://firebasestorage.googleapis.com",
       "firebasestorage.googleapis.com",
       "i.pravatar.cc",
-      "pravatar.cc"
+      "pravatar.cc",
+      "www.marthastewart.com",
+      "newimage.url",
+      "www.textmagic.com"
     ], // add imgur domain here
   },
 };

@@ -50,6 +50,14 @@
             "confirmPassword": "confirm password",
             "processing" : "Processing Password Recovery",
             "confirmBtn": "confirm"
+        },
+        "changePassword" : {
+            "title": "Change Password",
+            "oldPassword": " old password",
+            "password": " new password",
+            "confirmPassword": "confirm new password",
+            "processing" : "Processing Change Password",
+            "confirmBtn": "confirm"
         }
     }
 } 
