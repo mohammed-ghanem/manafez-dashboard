@@ -16,6 +16,7 @@ interface IUser {
   email?: string;
   image?: string;
   mobile?: string;
+  roles?: string;
 }
 
 interface IAuthState {

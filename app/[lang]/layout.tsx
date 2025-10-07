@@ -7,9 +7,15 @@ import Navbar from "@/components/header/Navbar";
 import { Providers } from "../../providers/Providers"; // Import the client-side provider
 import SideBar from "@/components/sidebar/SideBar";
 import { ReactNode } from "react";
+import { Cairo } from "next/font/google";
 
+const cairo = Cairo({
+    subsets: ["latin"],
+    weight: ["400", "500", "600", "700"], // choose what you need
+    variable: "--font-cairo",
+});
 
-
+ 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,7 +43,7 @@ export default async function RootLayout({
  const { lang } = await params; // 👈 await it
   const dir = lang === "ar" ? "rtl" : "ltr";
   return (
-    <html lang={lang} dir={dir}>
+    <html lang={lang} dir={dir} className={cairo.variable}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <div className="flex h-screen">

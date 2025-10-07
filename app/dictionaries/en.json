@@ -58,6 +58,28 @@
             "confirmPassword": "confirm new password",
             "processing" : "Processing Change Password",
             "confirmBtn": "confirm"
+        },
+        "updateProfile" : {
+            "title": "Update Profile",
+            "titleUpdate" : "Update your personal information",
+            "name": "Full name",
+            "email": "Email",
+            "processing" : "Processing Update Profile",
+            "confirmBtn": "Confirm"
+        },
+        "profile" : {
+            "title": " Profile",
+            "titleUpdate": "Update your personal information",
+            "name": " Full name",
+            "email": " Email Address",
+            "phone": " Phone Number",
+            "processing" : " Processing Update Profile",
+            "confirmBtn": " Confirm",
+            "noData": " No data available",
+            "memberSince": " Member Since",
+            "personalDetails": " Profile Details",
+            "editProfile": " Edit Profile"
+         
         }
     }
 } 
