@@ -15,196 +15,110 @@ export const ActFetchRoles = createAsyncThunk<
   "roles/fetchAll",
   async (_, { rejectWithValue, getState }) => {
     try {
-      console.log('🔄 Starting roles fetch...');
-      
-      // Get authentication state
-      const state = getState();
-      const { token, user } = state.auth;
-      
-      console.log('🔐 Auth state:', { 
-        hasToken: !!token,
-        tokenLength: token?.length,
-        user: user?.email,
-        userRoles: user?.roles
-      });
+      const { token } = getState().auth;
+      if (!token) return rejectWithValue("Authentication required");
 
-      if (!token) {
-        return rejectWithValue("Authentication token not found");
-      }
-
-      console.log('🌐 Making API call to /roles...');
-      console.log('📡 Full URL:', `${api.defaults.baseURL}/roles`);
+      const response = await api.get("/dashboard-api/v1/roles");
       
-      // Make the API call
-      const response = await api.get("/roles");
-      
-      console.log('✅ API Response received:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: response.headers,
-        data: response.data
-      });
-
-      // Handle different API response structures
-      let rolesData: Role[] = [];
-      
-      if (response.data && typeof response.data === 'object') {
-        if (Array.isArray(response.data.data)) {
-          rolesData = response.data.data;
-        } else if (Array.isArray(response.data)) {
-          rolesData = response.data;
-        } else if (response.data.roles && Array.isArray(response.data.roles)) {
-          rolesData = response.data.roles;
-        } else if (response.data.items && Array.isArray(response.data.items)) {
-          rolesData = response.data.items;
-        }
-      }
-      
-      console.log(`📊 Extracted ${rolesData.length} roles:`, rolesData);
+      const rolesData = extractRolesFromResponse(response.data);
       
       if (rolesData.length === 0) {
-        console.warn('⚠️ No roles found in response');
+        console.warn('No roles found in API response');
+        return [];
       }
-      
-      return rolesData;
+
+      return removeDuplicateRoles(rolesData);
 
     } catch (error: any) {
-      console.error('❌ Roles fetch error details:', {
-        name: error.name,
-        message: error.message,
-        code: error.code,
-        response: {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          headers: error.response?.headers
-        },
-        request: {
-          url: error.config?.url,
-          method: error.config?.method,
-          headers: error.config?.headers,
-          baseURL: error.config?.baseURL
-        }
-      });
-
-      // Enhanced error handling
-      if (error.response) {
-        // Server responded with error status
-        switch (error.response.status) {
-          case 401:
-            return rejectWithValue("Unauthorized - Please check your authentication");
-          case 403:
-            return rejectWithValue("Forbidden - You don't have permission to view roles");
-          case 404:
-            return rejectWithValue("Roles endpoint not found (404) - Check if /roles route exists on backend");
-          case 500:
-            return rejectWithValue("Server error - Backend server issue");
-          default:
-            const serverMessage = error.response.data?.message 
-              || error.response.data?.error
-              || `Server error: ${error.response.status}`;
-            return rejectWithValue(serverMessage);
-        }
-      } else if (error.request) {
-        // Request was made but no response received
-        return rejectWithValue("No response from server - Check if backend is running");
-      } else {
-        // Something else happened
-        return rejectWithValue(error.message || "Unknown error occurred");
-      }
+      const errorMessage = getErrorMessage(error);
+      return rejectWithValue(errorMessage);
     }
   }
 );
 
+// Extract roles from various API response structures
+const extractRolesFromResponse = (responseData: any): Role[] => {
+  if (!responseData) return [];
 
+  // Handle nested data structure: { data: array } with potential nested data arrays
+  if (Array.isArray(responseData.data)) {
+    return responseData.data.flatMap(extractRolesFromItem);
+  }
+  
+  // Handle direct array of roles
+  if (Array.isArray(responseData)) {
+    return responseData;
+  }
+  
+  // Handle roles property
+  if (Array.isArray(responseData.roles)) {
+    return responseData.roles;
+  }
+  
+  // Handle single role objects
+  if (responseData.data && typeof responseData.data === 'object') {
+    return [responseData.data];
+  }
+  
+  if (responseData.id) {
+    return [responseData];
+  }
 
+  return [];
+};
 
-// // src/store/roles/thunkActions/ActFetchRoles.ts
-// import { createAsyncThunk } from "@reduxjs/toolkit";
-// import api from "@/services/api";
-// import { Role } from "../types";
-// import { RootState } from "@/store/store";
+// Extract roles from individual items that might contain nested data
+const extractRolesFromItem = (item: any): Role[] => {
+  // If item has nested data array, extract all roles from it
+  if (item.data && Array.isArray(item.data)) {
+    return item.data.map(nestedRole => ({
+      ...nestedRole,
+      id: nestedRole.id || item.id // Fallback to parent ID
+    }));
+  }
+  
+  // If item is a valid role, use it directly
+  if (isValidRole(item)) {
+    return [item];
+  }
+  
+  return [];
+};
 
-// export const ActFetchRoles = createAsyncThunk<
-//   Role[], 
-//   void, 
-//   { 
-//     rejectValue: string;
-//     state: RootState;
-//   }
-// >(
-//   "roles/fetchAll",
-//   async (_, { rejectWithValue, getState }) => {
-//     try {
-//       console.log('🔄 Starting roles fetch...');
-      
-//       // Get authentication state
-//       const state = getState();
-//       const { token, user } = state.auth;
-      
-//       console.log('🔐 Auth state:', { 
-//         isAuthenticated: !!token,
-//         user: user?.email,
-//         tokenExists: !!token
-//       });
+// Check if object has basic role structure
+const isValidRole = (item: any): boolean => {
+  return item?.id && (item.name || item.name_ar || item.name_en || item.slug);
+};
 
-//       if (!token) {
-//         console.warn('⚠️ No authentication token found');
-//         return rejectWithValue("Authentication required");
-//       }
+// Remove duplicate roles based on ID
+const removeDuplicateRoles = (roles: Role[]): Role[] => {
+  const uniqueRoles = roles.filter((role, index, self) => 
+    index === self.findIndex(r => r.id === role.id)
+  );
+  
+  console.log(`Loaded ${uniqueRoles.length} unique roles`);
+  return uniqueRoles;
+};
 
-//       // Make authenticated request
-//       const response = await api.get("/roles", {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         }
-//       });
-      
-//       console.log('✅ Roles fetched successfully:', {
-//         status: response.status,
-//         dataCount: response.data.data?.length || response.data.length || 0,
-//         dataStructure: Object.keys(response.data)
-//       });
+// Centralized error message handling
+const getErrorMessage = (error: any): string => {
+  // HTTP status based errors
+  if (error.response?.status) {
+    const statusMessages: Record<number, string> = {
+      401: "Authentication failed - Please login again",
+      403: "You don't have permission to view roles",
+      404: "Roles endpoint not found",
+      500: "Server error - Please try again later",
+    };
+    
+    return statusMessages[error.response.status] || `Server error: ${error.response.status}`;
+  }
 
-//       // Handle different API response structures
-//       const rolesData = response.data.data || response.data || [];
-      
-//       if (!Array.isArray(rolesData)) {
-//         console.error('❌ Unexpected data format:', rolesData);
-//         return rejectWithValue("Invalid data format received from server");
-//       }
-      
-//       console.log(`📊 Loaded ${rolesData.length} roles`);
-//       return rolesData;
-
-//     } catch (error: any) {
-//       console.error('❌ Roles fetch error:', {
-//         message: error.message,
-//         status: error.response?.status,
-//         statusText: error.response?.statusText,
-//         data: error.response?.data,
-//         url: error.config?.url
-//       });
-
-//       // Handle specific error cases
-//       if (error.response?.status === 401) {
-//         return rejectWithValue("Authentication failed - Please login again");
-//       } else if (error.response?.status === 403) {
-//         return rejectWithValue("You don't have permission to view roles");
-//       } else if (error.response?.status === 404) {
-//         return rejectWithValue("Roles endpoint not found - Please check backend routes");
-//       } else if (error.response?.status === 500) {
-//         return rejectWithValue("Server error - Please try again later");
-//       } else if (error.code === 'NETWORK_ERROR') {
-//         return rejectWithValue("Network error - Check your connection");
-//       }
-
-//       const errorMessage = error.response?.data?.message 
-//         || error.response?.data?.error
-//         || error.message 
-//         || "Failed to load roles";
-
-//       return rejectWithValue(errorMessage);
-//     }
-//   }
-// );
+  // Extract message from various error formats
+  return (
+    error.response?.data?.message ||
+    error.response?.data?.error ||
+    error.message ||
+    "Failed to load roles"
+  );
+};
