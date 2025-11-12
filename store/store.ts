@@ -6,7 +6,7 @@ import productsReducer from "./products/productsSlice";
 import cartReducer from "./cart/cartSlice";
 import wishlistReducer from "./wishlist/wishlistSlice";
 import authReducer from "./auth/authSlice";
-
+import rolesReducer from "./roles/rolesSlice";
 // Persist config only for auth slice
 const authPersistConfig = {
   key: "auth",
@@ -24,6 +24,7 @@ export const store = configureStore({
     cart: cartReducer,
     wishlist: wishlistReducer,
     auth: persistedAuthReducer, // persisted version
+    roles: rolesReducer, // ✅ add this line
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
