@@ -119,7 +119,7 @@ function ProfileDetails() {
             {/* Email Field */}
             <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <Mail className="w-5 h-5 text-green-600" />
+                <Mail className="w-5 h-5 mainColor" />
               </div>
               <div className="flex-1">
                 <p className={`text-sm font-medium text-gray-500

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/store/roles/thunkActions/ActFetchRoles.ts
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/services/api";
@@ -71,7 +72,7 @@ const extractRolesFromResponse = (responseData: any): Role[] => {
 const extractRolesFromItem = (item: any): Role[] => {
   // If item has nested data array, extract all roles from it
   if (item.data && Array.isArray(item.data)) {
-    return item.data.map(nestedRole => ({
+    return item.data.map((nestedRole : any) => ({
       ...nestedRole,
       id: nestedRole.id || item.id // Fallback to parent ID
     }));
