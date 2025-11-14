@@ -1,37 +1,34 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { Permission } from "./types";
-import { ActFetchPermissions } from "./thunkActions/ActFetchPermissions";
-
-type PermissionState = {
-  permissions: Permission[];
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-};
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { PermissionState, Permission } from "./types";
+import { ActFetchPermissions } from "./thunkActions";
 
 const initialState: PermissionState = {
   permissions: [],
-  status: "idle",
+  loading: false,
   error: null,
 };
 
-const permissionSlice = createSlice({
+const permissionsSlice = createSlice({
   name: "permissions",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(ActFetchPermissions.pending, (s) => {
-        s.status = "loading";
+      .addCase(ActFetchPermissions.pending, (state) => {
+        state.loading = true;
       })
-      .addCase(ActFetchPermissions.fulfilled, (s, a) => {
-        s.status = "succeeded";
-        s.permissions = a.payload;
-      })
-      .addCase(ActFetchPermissions.rejected, (s, a) => {
-        s.status = "failed";
-        s.error = a.payload as string;
+      .addCase(
+        ActFetchPermissions.fulfilled,
+        (state, action: PayloadAction<Permission[]>) => {
+          state.loading = false;
+          state.permissions = action.payload;
+        }
+      )
+      .addCase(ActFetchPermissions.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export default permissionSlice.reducer;
+export default permissionsSlice.reducer;

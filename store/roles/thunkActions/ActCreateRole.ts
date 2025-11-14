@@ -1,28 +1,42 @@
-// src/store/roles/thunkActions/ActCreateRole.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import roleService from "@/services/roleService";
-import { Role } from "../types";
+import api from "@/services/api";
 
-interface CreateRoleData {
-  name: string;
-  description?: string;
-}
-
-export const ActCreateRole = createAsyncThunk<
-  Role, 
-  CreateRoleData, 
-  { rejectValue: string }
->(
-  "roles/create",
-  async (roleData, { rejectWithValue }) => {
+export const ActCreateRole = createAsyncThunk(
+  "roles",
+  async (body: any, { rejectWithValue }) => {
     try {
-      const response = await roleService.createRole(roleData);
-      return response.data.data || response.data;
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message 
-        || error.message 
-        || "Failed to create role";
-      return rejectWithValue(errorMessage);
+      const res = await api.post("/roles", body);
+      return res.data.data.role;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || "Create failed");
     }
   }
 );
+
+
+
+
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// // store/roles/thunkActions.ts
+// import { createAsyncThunk } from "@reduxjs/toolkit";
+// import api from "@/services/api"; // your axios instance
+
+// type CreateRolePayload = {
+//   name: string;
+//   permissions: number[]; // or string[] depending on backend
+// };
+
+// export const ActCreateRole = createAsyncThunk(
+//   "roles/create",
+//   async (payload: CreateRolePayload, { rejectWithValue }) => {
+//     try {
+//       const res = await api.post("/roles", payload);
+//       // adjust if response shape differs
+//       return res.data.data ?? res.data;
+//     } catch (err: any) {
+//       // return backend message if available
+//       return rejectWithValue(err?.response?.data?.message ?? err.message);
+//     }
+//   }
+// );

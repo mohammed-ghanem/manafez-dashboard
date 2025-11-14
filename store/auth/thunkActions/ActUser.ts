@@ -15,7 +15,7 @@ export const ActFetchProfile = createAsyncThunk(
         return rejectWithValue("No authentication token found");
       }
 
-      const resp = await api.get("/dashboard-api/v1/auth/profile", {
+      const resp = await api.get("/auth/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -47,7 +47,7 @@ export const ActUpdateProfile = createAsyncThunk(
         return rejectWithValue("No authentication token found");
       }
 
-      const resp = await api.post("/dashboard-api/v1/auth/update-profile", payload, {
+      const resp = await api.post("/auth/update-profile", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

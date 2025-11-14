@@ -19,7 +19,7 @@ export const ActFetchRoles = createAsyncThunk<
       const { token } = getState().auth;
       if (!token) return rejectWithValue("Authentication required");
 
-      const response = await api.get("/dashboard-api/v1/roles");
+      const response = await api.get("/roles");
       
       const rolesData = extractRolesFromResponse(response.data);
       
