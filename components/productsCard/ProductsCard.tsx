@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { ActProducts, productCleanRecord } from "@/store/products/productsSlice";
-import Image from "next/image";
+import Image from "next/image"; 
 import { useEffect } from "react";
 import type { IProduct } from "@/types/product";
 import { addToCartThunk } from "@/store/cart/thunkActions/ActCart";

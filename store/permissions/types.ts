@@ -5,7 +5,7 @@ export interface Permission {
 }
 
 export interface PermissionState {
-  permissions: Permission[];
+  record: Permission[];
   loading: boolean;
   error: string | null;
 }

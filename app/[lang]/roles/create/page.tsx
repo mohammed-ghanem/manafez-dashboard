@@ -1,3 +1,19 @@
+import CreateRole from "@/components/roles/CreateRole"
+
+const page = () => {
+  return (
+    <div>
+        <CreateRole />
+    </div>
+  )
+}
+
+export default page
+
+
+
+
+
 // import RoleCreateForm from "@/components/roles/RoleCreateForm";
 
 // export default function CreateRolePage() {

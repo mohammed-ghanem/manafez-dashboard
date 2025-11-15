@@ -3,7 +3,7 @@ import { PermissionState, Permission } from "./types";
 import { ActFetchPermissions } from "./thunkActions";
 
 const initialState: PermissionState = {
-  permissions: [],
+  record: [],     
   loading: false,
   error: null,
 };
@@ -21,7 +21,7 @@ const permissionsSlice = createSlice({
         ActFetchPermissions.fulfilled,
         (state, action: PayloadAction<Permission[]>) => {
           state.loading = false;
-          state.permissions = action.payload;
+          state.record = action.payload;  
         }
       )
       .addCase(ActFetchPermissions.rejected, (state, action) => {
