@@ -1,18 +1,9 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Role } from "./types";
-import { ActFetchRoles } from "./thunkActions/ActFetchRoles";
-import { ActCreateRole } from "./thunkActions/ActCreateRole";
+import { createSlice } from "@reduxjs/toolkit";
+import { ActFetchRoleById } from "./thunkActions/ActFetchRoleById";
 import { ActUpdateRole } from "./thunkActions/ActUpdateRole";
-import { ActDeleteRole } from "./thunkActions/ActDeleteRole";
-
-interface RolesState {
-  roles: Role[];
-  selectedRole: Role | null;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  operationStatus: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-  operationError: string | null;
-}
+import { ActFetchRoles } from "./thunkActions/ActFetchRoles";
+import { ActFetchPermissions } from "../permissions/thunkActions";
+import { RolesState, Role } from "./types";
 
 const initialState: RolesState = {
   roles: [],
@@ -21,105 +12,234 @@ const initialState: RolesState = {
   operationStatus: "idle",
   error: null,
   operationError: null,
+  loading: false,
+  singleLoading: false,
 };
 
-const rolesSlice = createSlice({
+export const rolesSlice = createSlice({
   name: "roles",
   initialState,
-  reducers: {
-    clearError: (state) => {
-      state.error = null;
-      state.operationError = null;
-    },
-    clearOperationStatus: (state) => {
-      state.operationStatus = "idle";
-      state.operationError = null;
-    },
-    setSelectedRole: (state, action: PayloadAction<Role | null>) => {
-      state.selectedRole = action.payload;
-    },
-    resetOperationState: (state) => {
-      state.operationStatus = "idle";
-      state.operationError = null;
-      state.selectedRole = null;
-    },
-  },
+  reducers: {},
+
   extraReducers: (builder) => {
-    // Fetch Roles
     builder
+      // Fetch all
       .addCase(ActFetchRoles.pending, (state) => {
+        state.loading = true;
         state.status = "loading";
-        state.error = null;
       })
       .addCase(ActFetchRoles.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.roles = action.payload;
-        state.error = null;
+        state.loading = false;
+        state.status = "success";
+        state.roles = action.payload as Role[];
       })
       .addCase(ActFetchRoles.rejected, (state, action) => {
+        state.loading = false;
         state.status = "failed";
-        state.error = action.payload || "Failed to fetch roles";
-      });
-
-    // Create Role
-    builder
-      .addCase(ActCreateRole.pending, (state) => {
-        state.operationStatus = "loading";
-        state.operationError = null;
+        state.error = action.payload as string;
       })
-      .addCase(ActCreateRole.fulfilled, (state, action) => {
-        state.operationStatus = "succeeded";
-        state.roles.unshift(action.payload); // better UX
-        state.operationError = null;
-      })
-      .addCase(ActCreateRole.rejected, (state, action) => {
-        state.operationStatus = "failed";
-        state.operationError  = (action.payload as string) || action.error?.message || "Failed to create role";
-      });
 
-    // Update Role
-    builder
+      // Fetch one
+      .addCase(ActFetchRoleById.pending, (state) => {
+        state.singleLoading = true;
+      })
+      .addCase(ActFetchRoleById.fulfilled, (state, action) => {
+        state.singleLoading = false;
+        state.selectedRole = action.payload as Role;
+      })
+      .addCase(ActFetchRoleById.rejected, (state, action) => {
+        state.singleLoading = false;
+        state.error = action.payload as string;
+      })
+
+      // Update role
       .addCase(ActUpdateRole.pending, (state) => {
         state.operationStatus = "loading";
-        state.operationError = null;
       })
-      .addCase(ActUpdateRole.fulfilled, (state, action) => {
-        state.operationStatus = "succeeded";
-        const index = state.roles.findIndex(role => role.id === action.payload.id);
-        if (index !== -1) {
-          state.roles[index] = action.payload;
-        }
-        state.selectedRole = null;
-        state.operationError = null;
+      .addCase(ActUpdateRole.fulfilled, (state) => {
+        state.operationStatus = "success";
       })
       .addCase(ActUpdateRole.rejected, (state, action) => {
         state.operationStatus = "failed";
-        state.operationError = action.payload || "Failed to update role";
-      });
+        state.operationError = action.payload as string;
+      })
 
-    // Delete Role
-    builder
-      .addCase(ActDeleteRole.pending, (state) => {
-        state.operationStatus = "loading";
-        state.operationError = null;
+      // Fetch permissions
+      .addCase(ActFetchPermissions.pending, (state) => {
+        state.status = "loading";
       })
-      .addCase(ActDeleteRole.fulfilled, (state, action) => {
-        state.operationStatus = "succeeded";
-        state.roles = state.roles.filter(role => role.id !== action.payload);
-        state.operationError = null;
+      .addCase(ActFetchPermissions.fulfilled, (state) => {
+        state.status = "success";
       })
-      .addCase(ActDeleteRole.rejected, (state, action) => {
-        state.operationStatus = "failed";
-        state.operationError = action.payload || "Failed to delete role";
+      .addCase(ActFetchPermissions.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { 
-  clearError, 
-  clearOperationStatus, 
-  setSelectedRole, 
-  resetOperationState 
-} = rolesSlice.actions;
-
 export default rolesSlice.reducer;
+
+
+
+
+
+
+// import { createSlice } from "@reduxjs/toolkit";
+// import { ActFetchRoleById } from "./thunkActions/ActFetchRoleById";
+// import { ActUpdateRole } from "./thunkActions/ActUpdateRole";
+// import { ActFetchRoles } from "./thunkActions/ActFetchRoles";
+// import { ActFetchPermissions } from "../permissions/thunkActions";
+
+// export interface Permission {
+//   id: number;
+//   name: string;
+// }
+
+// export interface Role {
+//   id: number;
+//   name: string;
+//   name_en: string;
+//   name_ar: string;
+//   permissions: Permission[];
+// }
+
+// interface RolesState {
+//   roles: Role[];
+//   selectedRole: Role | null;
+//   status: string;
+//   operationStatus: string;
+//   error: string | null;
+//   operationError: string | null;
+
+//   // loading flags
+//   loading: boolean;
+//   singleLoading: boolean;
+// }
+
+// const initialState: RolesState = {
+//   roles: [],
+//   selectedRole: null,
+//   status: "",
+//   operationStatus: "",
+//   error: null,
+//   operationError: null,
+//   loading: false,
+//   singleLoading: false,
+// };
+
+// export const rolesSlice = createSlice({
+//   name: "roles",
+//   initialState,
+//   reducers: {},
+
+//   extraReducers: (builder) => {
+//     // Fetch all roles
+//     builder.addCase(ActFetchRoles.pending, (state) => {
+//       state.loading = true;
+//     });
+//     builder.addCase(ActFetchRoles.fulfilled, (state, action) => {
+//       state.loading = false;
+//       state.roles = action.payload;
+//     });
+//     builder.addCase(ActFetchRoles.rejected, (state, action) => {
+//       state.loading = false;
+//       state.error = action.payload as string;
+//     });
+
+//     // Fetch single role
+//     builder.addCase(ActFetchRoleById.pending, (state) => {
+//       state.singleLoading = true;
+//     });
+//     builder.addCase(ActFetchRoleById.fulfilled, (state, action) => {
+//       state.singleLoading = false;
+//       state.selectedRole = action.payload;
+//     });
+//     builder.addCase(ActFetchRoleById.rejected, (state, action) => {
+//       state.singleLoading = false;
+//       state.error = action.payload as string;
+//     });
+
+//     // Update role
+//     builder.addCase(ActUpdateRole.pending, (state) => {
+//       state.operationStatus = "loading";
+//     });
+//     builder.addCase(ActUpdateRole.fulfilled, (state) => {
+//       state.operationStatus = "success";
+//     });
+//     builder.addCase(ActUpdateRole.rejected, (state, action) => {
+//       state.operationStatus = "failed";
+//       state.operationError = action.payload as string;
+//     });
+
+//     // Fetch permissions
+//     builder.addCase(ActFetchPermissions.pending, (state) => {
+//       state.status = "loading";
+//     });
+//     builder.addCase(ActFetchPermissions.fulfilled, (state, action) => {
+//       state.status = "success";
+//     });
+//     builder.addCase(ActFetchPermissions.rejected, (state, action) => {
+//       state.status = "failed";
+//       state.error = action.payload as string;
+//     });
+//   },
+// });
+
+// export default rolesSlice.reducer;
+
+
+
+
+
+
+
+
+// import { createSlice } from "@reduxjs/toolkit";
+// import { Role } from "./types";
+// import { ActFetchRoles } from "./thunkActions/ActFetchRoles";
+
+
+// interface RolesState {
+//   roles: Role[];
+//   selectedRole: Role | null;
+//   status: "idle" | "loading" | "succeeded" | "failed";
+//   operationStatus: "idle" | "loading" | "succeeded" | "failed";
+//   error: string | null;
+//   operationError: string | null;
+// }
+
+// const initialState: RolesState = {
+//   roles: [],
+//   selectedRole: null,
+//   status: "idle",
+//   operationStatus: "idle",
+//   error: null,
+//   operationError: null,
+// };
+
+
+// const rolesSlice = createSlice({
+//   name: "roles",
+//   initialState: { data: [], loading: false },
+//   reducers: {},
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(ActFetchRoles.pending, (state) => {
+//         state.loading = true;
+//       })
+//       .addCase(ActFetchRoles.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.data = action.payload;
+//       })
+//       .addCase(ActFetchRoles.rejected, (state) => {
+//         state.loading = false;
+//       });
+//   },
+// });
+
+
+
+
+
+// export default rolesSlice.reducer;
