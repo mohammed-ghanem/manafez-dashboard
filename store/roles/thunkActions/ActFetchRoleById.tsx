@@ -9,7 +9,7 @@ export const ActFetchRoleById = createAsyncThunk(
       const res = await api.get(`/roles/${id}`);
       return res.data.data.role; 
     } catch (err: any) {
-      return rejectWithValue(err.response?.data || "Failed to fetch role");
+      return rejectWithValue(err.response?.data || err.message);
     }
   }
 );
