@@ -6,7 +6,7 @@
     "loading":{
         "title":"تحميل"
     },
-    "pages":{
+    "pages":{ 
         "login": {
             "loginTitle": "تسجيل الدخول ",
             "email": "البريد الالكترونى",
@@ -82,5 +82,9 @@
             "editProfile": "تحديث الملف الشخصى"
          
         }
+    },
+    "sidebar": {
+        "dashboard": "الرئيسية",
+        "roles": "الصلاحيات والمهام"
     }
 }

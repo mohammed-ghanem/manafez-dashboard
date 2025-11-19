@@ -7,14 +7,14 @@ export const ActToggleRoleStatus = createAsyncThunk(
     async ({ id, is_active }: { id: number; is_active: boolean }, { rejectWithValue }) => {
       try {
         const formData = new FormData();
-        formData.append("_method", "put");
+        
         formData.append("is_active", is_active ? "1" : "0");
   
-        const res = await api.post(`/roles/${id}`, formData, {
+        const res = await api.post(`/roles/toggle-role/${id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
   
-        return res.data.data.role;
+        return res.data.data.data;
       } catch (err: any) {
         return rejectWithValue(err.response?.data || err.message);
       }

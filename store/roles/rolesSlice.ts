@@ -5,6 +5,7 @@ import { ActFetchRoles } from "./thunkActions/ActFetchRoles";
 import { ActFetchPermissions } from "../permissions/thunkActions";
 import { RolesState, Role } from "./types";
 import { ActToggleRoleStatus } from "./thunkActions/ActToggleRoleStatus";
+import { ActDeleteRole } from "./thunkActions/ActDeleteRole";
 
 const initialState: RolesState = {
   roles: [],
@@ -75,13 +76,27 @@ export const rolesSlice = createSlice({
       .addCase(ActFetchPermissions.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
-      });
+      })
       // Toggle status
-      builder.addCase(ActToggleRoleStatus.fulfilled, (state, action) => {
+      .addCase(ActToggleRoleStatus.fulfilled, (state, action) => {
         const updated = action.payload;
         const index = state.roles.findIndex((r) => r.id === updated.id);
         if (index !== -1) state.roles[index] = updated;
-      });
+      })
+      // delete roles
+        .addCase(ActDeleteRole.pending, (state) => {
+          state.loading = true;
+        })
+        .addCase(ActDeleteRole.fulfilled, (state, action) => {
+          state.loading = false;
+          state.roles = state.roles.filter((r) => r.id !== action.meta.arg);
+
+
+        })
+        .addCase(ActDeleteRole.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload as string;
+        });
       
   },
 });

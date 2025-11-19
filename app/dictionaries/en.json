@@ -81,5 +81,10 @@
             "editProfile": " Edit Profile"
          
         }
+    },
+    "sidebar" : {
+        "dashboard": "Dashboard",
+        "roles": "Roles & Permissions"
+        
     }
 } 
