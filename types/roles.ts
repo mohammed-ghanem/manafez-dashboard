@@ -1,3 +1,4 @@
+// types/roles.ts
 export type Control = {
     id: number;
     name: string;

@@ -35,8 +35,11 @@ import {
   Trash2, 
   UserCheck, 
   UserX,
-  Shield
+  Shield,
+  Lock
 } from "lucide-react";
+
+
 
 type Props = {
   role: Role;
@@ -47,7 +50,15 @@ export default function RoleRow({ role }: Props) {
   const lang = LangUseParams();
   const router = useRouter();
 
+
+  // Protected role names (add any other protected variants here)
+  const protectedNames = ["admin", "ادمن"];
+  const normalized = role.name?.trim().toLowerCase() ?? "";
+  const isProtected = protectedNames.includes(normalized);
+
+
   const handleToggle = () => {
+    if (isProtected) return;
     dispatch(
       ActToggleRoleStatus({
         id: role.id,
@@ -57,10 +68,12 @@ export default function RoleRow({ role }: Props) {
   };
 
   const handleDelete = () => {
+    if (isProtected) return;
     dispatch(ActDeleteRole(role.id));
   };
 
   const handleEdit = () => {
+    if (isProtected) return;
     router.push(`${lang}/roles/edit/${role.id}`);
   };
 
@@ -87,6 +100,11 @@ export default function RoleRow({ role }: Props) {
                   >
                     {role.is_active ? "نشط" : "غير نشط"}
                   </Badge>
+                  {isProtected && (
+                    <Badge className="bg-gray-100 text-gray-700 flex items-center gap-1">
+                      <Lock className="h-3 w-3" /> محمي
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-gray-500 font-mono bg-gray-50 px-2 py-1 rounded-md inline-block mt-1">
                   {role.slug}
@@ -103,11 +121,17 @@ export default function RoleRow({ role }: Props) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={handleEdit} className="flex items-center gap-2">
+              <DropdownMenuItem 
+              onClick={handleEdit} 
+              disabled={isProtected}
+              className="flex items-center gap-2">
                 <Edit3 className="h-4 w-4" />
                 تعديل الدور
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleToggle} className="flex items-center gap-2">
+              <DropdownMenuItem 
+              onClick={handleToggle}
+              disabled={isProtected}
+              className="flex items-center gap-2">
                 {role.is_active ? (
                   <UserX className="h-4 w-4 text-orange-600" />
                 ) : (
@@ -119,6 +143,7 @@ export default function RoleRow({ role }: Props) {
                 <AlertDialogTrigger asChild>
                   <DropdownMenuItem 
                     onSelect={(e) => e.preventDefault()}
+                    disabled={isProtected}
                     className="flex items-center gap-2 text-red-600 focus:text-red-600"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -168,6 +193,7 @@ export default function RoleRow({ role }: Props) {
               checked={!!role.is_active}
               onCheckedChange={handleToggle}
               className="data-[state=checked]:bg-green-600"
+              disabled={isProtected}
             />
           </div>
         </div>

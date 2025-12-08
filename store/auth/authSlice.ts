@@ -9,7 +9,7 @@ import {
   ActResetPassword
 } from "./thunkActions/ActAuth";
 import { ActFetchProfile, ActUpdateProfile } from "./thunkActions/ActUser";
-
+ 
 interface IUser {
   id?: number;
   name?: string;

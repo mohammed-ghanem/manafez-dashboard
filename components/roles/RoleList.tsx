@@ -5,10 +5,17 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { ActFetchRoles } from "@/store/roles/thunkActions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RoleRow from "./RoleRow";
+import Link from "next/link";
+import LangUseParams from "@/translate/LangUseParams";
 
 export default function RolesPage() {
+  const lang = LangUseParams();
   const dispatch = useAppDispatch();
   const { roles, loading } = useAppSelector((s) => s.roles);
+
+  
+
+
 
   useEffect(() => {
     dispatch(ActFetchRoles());
@@ -19,6 +26,8 @@ export default function RolesPage() {
       <Card className="rounded-2xl shadow">
         <CardHeader>
           <CardTitle className="text-lg font-medium">الأدوار</CardTitle>
+          <Link href={`${lang}/roles/create`} 
+          className="btn w-fit bg-blue-500 hover:bg-blue-600">اضافة دور جديد</Link>
         </CardHeader>
 
         <CardContent>

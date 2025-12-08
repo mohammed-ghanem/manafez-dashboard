@@ -19,4 +19,4 @@ import axios from "axios";
     }
 )
 
-export default fetchCategories
+export default fetchCategories 
