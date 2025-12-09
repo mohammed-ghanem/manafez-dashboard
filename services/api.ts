@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 // src/services/api.ts
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -10,7 +9,7 @@ const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "";
 // main api instance
 const api = axios.create({
   baseURL: `${BASE}/dashboard-api/v1`,
-  withCredentials: true, // you already use Sanctum for CSRF; keep true if backend requires cookies
+  withCredentials: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
   headers: {
@@ -21,7 +20,7 @@ const api = axios.create({
   },
 });
 
-// sanctum instance (unchanged)
+// separate instance for sanctum csrf cookie
 export const sanctumApi = axios.create({
   baseURL: BASE,
   withCredentials: true,
@@ -40,24 +39,30 @@ const getCSRFTokenFromDocument = (): string | null => {
 };
 
 // Single request interceptor: attach token + language + api-key + CSRF for mutating requests
-api.interceptors.request.use((config) => {
-  // attach token from cookie at request time (avoids race)
+api.interceptors.request.use(
+    (config) => {
+     config.headers = config.headers || {};
+
+  // attach token from cookie at request time
   if (typeof window !== "undefined") {
+
     const token = Cookies.get("access_token");
     if (token) {
-      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
     } else {
-      // ensure no leftover header
-      if (config.headers) delete (config.headers as any).Authorization;
+      // ensure no stale header
+        // if ("Authorization" in config.headers) delete (config.headers as any).Authorization;
+        if (config.headers && "Authorization" in config.headers) {
+          delete config.headers.Authorization;
+        }
     }
-
-    // language header
-    const pathname = window.location.pathname || "";
-    const lang = pathname.startsWith("/en") ? "en" : "ar";
-    config.headers = config.headers || {};
-    config.headers["Accept-Language"] = lang;
+    // // language header
+    // const pathname = window.location.pathname || "";
+    // const lang = pathname.startsWith("/en") ? "en" : "ar";
+    // config.headers = config.headers || {};
+    // config.headers["Accept-Language"] = lang;
   }
+
 
   // api-key always
   config.headers = config.headers || {};
@@ -73,7 +78,8 @@ api.interceptors.request.use((config) => {
   return config;
 }, (err) => Promise.reject(err));
 
-// Response interceptor: handle 401 / 419 centrally but do NOT import store here
+// response interceptor: handle CSRF refresh automatically (no redirect/clear here)
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -89,7 +95,7 @@ api.interceptors.response.use(
         }
         return api.request(error.config);
       } catch (e) {
-        // fallthrough to reject
+        console.error("Failed to refresh CSRF token:", e);
       }
     }
 

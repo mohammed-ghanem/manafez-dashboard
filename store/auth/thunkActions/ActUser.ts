@@ -5,13 +5,13 @@ import Cookies from "js-cookie";
 import api from "@/services/api";
 
 // ---------------- FETCH PROFILE ----------------
+
 export const ActFetchProfile = createAsyncThunk(
   "auth/fetchProfile",
   async (_, { rejectWithValue }) => {
     try {
-      // don't pre-check Cookies here — let interceptor attach token
-      const resp = await api.get("/auth/profile");
-      // standardize returned shape
+      // Let the interceptor attach token from cookie at request time
+      const resp = await api.get("/auth/profile", { withCredentials: true });
       const payload = resp.data?.data ?? resp.data;
       return payload;
     } catch (err: any) {
@@ -20,34 +20,6 @@ export const ActFetchProfile = createAsyncThunk(
   }
 );
 
-
-
-
-
-// export const ActFetchProfile = createAsyncThunk(
-//   "auth/fetchProfile", // ✅ Changed from "user/fetchProfile" to "auth/fetchProfile"
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const token = Cookies.get("access_token");
-
-//       if (!token) {
-//         return rejectWithValue("No authentication token found");
-//       }
-
-//       const resp = await api.get("/auth/profile", {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
-
-//       return resp.data?.data || resp.data;
-//     } catch (err: any) {
-//       return rejectWithValue(
-//         err.response?.data?.message || err.message || "Failed to fetch profile"
-//       );
-//     }
-//   }
-// );
 
 // ---------------- UPDATE PROFILE ----------------
 interface UpdateProfilePayload {
