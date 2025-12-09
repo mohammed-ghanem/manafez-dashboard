@@ -19,7 +19,6 @@ const UserDropdown = () => {
   const user = useAppSelector((state) => state.auth.user);
   const lang = LangUseParams();
 
-  console.log(user);
 
   if (!user) {
     return (

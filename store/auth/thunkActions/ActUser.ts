@@ -1,49 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// ActUser.ts
+//ActUser.ts
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import Cookies from "js-cookie";
 import api from "@/services/api";
 
 // ---------------- FETCH PROFILE ----------------
 export const ActFetchProfile = createAsyncThunk(
   "auth/fetchProfile",
-  async (_, { rejectWithValue, getState }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      // Don't manually set headers - the interceptor will handle it
+      // don't pre-check Cookies here — let interceptor attach token
       const resp = await api.get("/auth/profile");
-      
-      return resp.data?.data || resp.data;
+      // standardize returned shape
+      const payload = resp.data?.data ?? resp.data;
+      return payload;
     } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.message || err.message || "Failed to fetch profile"
-      );
-    }
-  }
-);
-
-// ---------------- UPDATE PROFILE ----------------
-interface UpdateProfilePayload {
-  name: string;
-  email: string;
-  mobile?: string;
-}
-
-export const ActUpdateProfile = createAsyncThunk(
-  "auth/updateProfile",
-  async (payload: UpdateProfilePayload, { rejectWithValue }) => {
-    try {
-      // Don't manually set headers - the interceptor will handle it
-      const resp = await api.post("/auth/update-profile", payload);
-      
-      return {
-        message: resp.data?.message || "Profile updated successfully",
-        user: resp.data?.data,
-      };
-    } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.message ||
-        err.message ||
-        "Failed to update profile"
-      );
+      return rejectWithValue(err.response?.data?.message || err.message || "Failed to fetch profile");
     }
   }
 );
@@ -52,13 +24,6 @@ export const ActUpdateProfile = createAsyncThunk(
 
 
 
-
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { createAsyncThunk } from "@reduxjs/toolkit";
-// import Cookies from "js-cookie";
-// import api from "@/services/api";
-
-// // ---------------- FETCH PROFILE ----------------
 // export const ActFetchProfile = createAsyncThunk(
 //   "auth/fetchProfile", // ✅ Changed from "user/fetchProfile" to "auth/fetchProfile"
 //   async (_, { rejectWithValue }) => {
@@ -84,39 +49,39 @@ export const ActUpdateProfile = createAsyncThunk(
 //   }
 // );
 
-// // ---------------- UPDATE PROFILE ----------------
-// interface UpdateProfilePayload {
-//   name: string;
-//   email: string;
-//   mobile?: string;
-// }
+// ---------------- UPDATE PROFILE ----------------
+interface UpdateProfilePayload {
+  name: string;
+  email: string;
+  mobile?: string;
+}
 
-// export const ActUpdateProfile = createAsyncThunk(
-//   "auth/updateProfile", // ✅ Changed from "user/updateProfile" to "auth/updateProfile"
-//   async (payload: UpdateProfilePayload, { rejectWithValue }) => {
-//     try {
-//       const token = Cookies.get("access_token");
+export const ActUpdateProfile = createAsyncThunk(
+  "auth/updateProfile", // ✅ Changed from "user/updateProfile" to "auth/updateProfile"
+  async (payload: UpdateProfilePayload, { rejectWithValue }) => {
+    try {
+      const token = Cookies.get("access_token");
 
-//       if (!token) {
-//         return rejectWithValue("No authentication token found");
-//       }
+      if (!token) {
+        return rejectWithValue("No authentication token found");
+      }
 
-//       const resp = await api.post("/auth/update-profile", payload, {
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       });
+      const resp = await api.post("/auth/update-profile", payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-//       return {
-//         message: resp.data?.message || "Profile updated successfully",
-//         user: resp.data?.data,
-//       };
-//     } catch (err: any) {
-//       return rejectWithValue(
-//         err.response?.data?.message ||
-//         err.message ||
-//         "Failed to update profile"
-//       );
-//     }
-//   }
-// );
+      return {
+        message: resp.data?.message || "Profile updated successfully",
+        user: resp.data?.data,
+      };
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message ||
+        err.message ||
+        "Failed to update profile"
+      );
+    }
+  }
+);

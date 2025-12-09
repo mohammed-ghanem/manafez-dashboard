@@ -18,6 +18,9 @@ function ProfileDetails() {
   const dispatch = useAppDispatch();
   const { user, status, error } = useAppSelector((state) => state.auth);
 
+  console.log(user);
+
+
   useEffect(() => {
     dispatch(ActFetchProfile());
   }, [dispatch]);
@@ -62,7 +65,7 @@ function ProfileDetails() {
     <div className="max-w-md mx-auto p-6" dir="ltr">
       <Card className="shadow-lg border-0">
         <CardHeader className="text-center pb-4">
-          <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center mb-3">
+          <div className="mx-auto w-16 h-16  from-blue-100 to-purple-100 rounded-full flex items-center justify-center mb-3">
             {user.image ? (
               <Image
                 src={user.image}

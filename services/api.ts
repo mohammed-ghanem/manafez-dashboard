@@ -1,28 +1,29 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // src/services/api.ts
 import axios from "axios";
-import Cookies from 'js-cookie';
-import { store } from "../store/store";
+import Cookies from "js-cookie";
 
 const BASE = process.env.NEXT_PUBLIC_BASE_URL;
 const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "";
 
-// Single API instance with the full base URL including the API prefix
+// main api instance
 const api = axios.create({
   baseURL: `${BASE}/dashboard-api/v1`,
-  withCredentials: true,
+  withCredentials: true, // you already use Sanctum for CSRF; keep true if backend requires cookies
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
     "api-key": API_KEY,
-    "Api-Version": "v1", 
+    "Api-Version": "v1",
   },
 });
 
-// Separate instance for Sanctum CSRF calls (needs root base URL)
+// sanctum instance (unchanged)
 export const sanctumApi = axios.create({
-  baseURL: BASE, // Root base URL for sanctum
+  baseURL: BASE,
   withCredentials: true,
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
@@ -32,186 +33,75 @@ export const sanctumApi = axios.create({
   },
 });
 
-// Helper functions
-export const getCSRFToken = (): string | null => {
-  // Guard for server-side rendering
-  if (typeof window === 'undefined') return null;
-  
-  try {
-    const cookieValue = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('XSRF-TOKEN='))
-      ?.split('=')[1];
-
-    return cookieValue ? decodeURIComponent(cookieValue) : null;
-  } catch (error) {
-    console.error("Error getting CSRF token:", error);
-    return null;
-  }
+const getCSRFTokenFromDocument = (): string | null => {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.split("; ").find((row) => row.startsWith("XSRF-TOKEN="));
+  return match ? decodeURIComponent(match.split("=")[1]) : null;
 };
 
-export const refreshCSRFToken = async (): Promise<void> => {
-  try {
-    await sanctumApi.get("/sanctum/csrf-cookie", {
-      withCredentials: true,
-      headers: {
-        'Accept': 'application/json',
-      }
-    });
-
-    const newToken = getCSRFToken();
-    if (!newToken) {
-      throw new Error('CSRF token not set after refresh');
-    }
-  } catch (error) {
-    console.error('Error refreshing CSRF token:', error);
-    throw error;
-  }
-};
-
-// Function to get auth token from cookie (SSR-safe)
-const getAuthToken = (): string | null => {
-  // Guard for server-side rendering
-  if (typeof window === 'undefined') return null;
-  
-  try {
-    // First try to get from Redux store (client-side only)
-    const state = store.getState();
-    if (state.auth.token) {
-      return state.auth.token;
-    }
-    
-    // Fallback to cookie if Redux store doesn't have it yet
-    return Cookies.get("access_token") || null;
-  } catch (error) {
-    console.error("Error getting auth token:", error);
-    return null;
-  }
-};
-
-// Main request interceptor - SSR SAFE
-api.interceptors.request.use(
-  (config) => {
-    // 🔹 SERVER-SIDE: Only set basic headers
-    if (typeof window === "undefined") {
-      config.headers["api-key"] = API_KEY;
-      config.headers["Api-Version"] = "v1";
-      config.headers["Accept-Language"] = "ar"; // Default for server
-      return config;
-    }
-
-    // 🔹 CLIENT-SIDE: Full interceptor logic
-    
-    // 1. Get auth token from cookie/Redux
-    const token = getAuthToken();
-    
-    // 2. Add Authorization header if token exists
+// Single request interceptor: attach token + language + api-key + CSRF for mutating requests
+api.interceptors.request.use((config) => {
+  // attach token from cookie at request time (avoids race)
+  if (typeof window !== "undefined") {
+    const token = Cookies.get("access_token");
     if (token) {
+      config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      // ensure no leftover header
+      if (config.headers) delete (config.headers as any).Authorization;
     }
 
-    // 3. Set Accept-Language dynamically based on route
-    const pathname = window.location.pathname;
-    let lang = "ar"; // default
-    if (pathname.startsWith("/ar")) lang = "ar";
-    else if (pathname.startsWith("/en")) lang = "en";
+    // language header
+    const pathname = window.location.pathname || "";
+    const lang = pathname.startsWith("/en") ? "en" : "ar";
+    config.headers = config.headers || {};
     config.headers["Accept-Language"] = lang;
+  }
 
-    // 4. Add CSRF token for mutating requests (client-only)
-    const isMutating = ['post', 'put', 'patch', 'delete'].includes(
-      config.method?.toLowerCase() || ''
-    );
+  // api-key always
+  config.headers = config.headers || {};
+  if (API_KEY) config.headers["api-key"] = API_KEY;
 
-    if (isMutating) {
-      const csrfToken = getCSRFToken();
-      if (csrfToken) {
-        config.headers['X-XSRF-TOKEN'] = csrfToken;
-      }
-    }
+  // CSRF for mutating methods
+  const method = (config.method || "").toLowerCase();
+  if (["post", "put", "patch", "delete"].includes(method)) {
+    const csrf = getCSRFTokenFromDocument();
+    if (csrf) config.headers["X-XSRF-TOKEN"] = csrf;
+  }
 
-    // 5. Ensure API key is set
-    if (API_KEY) {
-      config.headers['api-key'] = API_KEY;
-    }
+  return config;
+}, (err) => Promise.reject(err));
 
-    // Debug logging (client-only)
-    console.log(`➡️ API Request: ${config.method?.toUpperCase()} ${config.url}`, {
-      language: config.headers["Accept-Language"],
-      hasAuth: !!config.headers.Authorization,
-      hasCSRF: !!config.headers['X-XSRF-TOKEN'],
-      hasAPIKey: !!config.headers['api-key']
-    });
-
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Enhanced response interceptor with auth handling
+// Response interceptor: handle 401 / 419 centrally but do NOT import store here
 api.interceptors.response.use(
-  (response) => {
-    // Client-only logging
-    if (typeof window !== "undefined") {
-      console.log(`✅ API Response Success: ${response.status} ${response.config.url}`);
-    }
-    return response;
-  },
+  (res) => res,
   async (error) => {
-    // Client-only logging
-    if (typeof window !== "undefined") {
-      console.error(`❌ API Response Error: ${error.response?.status} ${error.config?.url}`);
-    }
-
-    // Handle authentication errors
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        console.log('🔐 Authentication failed, clearing credentials...');
-        
-        // Clear cookies and Redux store
-        Cookies.remove("access_token", { path: "/" });
-        Cookies.remove("user", { path: "/" });
-        
-        // Dispatch to Redux store
-        store.dispatch({ type: 'auth/clearAuth' });
-        
-        // Redirect to login
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
-        }
-      }
-    }
-
-    // Handle CSRF token mismatch
-    if (error.response?.status === 419 && typeof window !== "undefined") {
-      console.log('CSRF token mismatch detected, attempting to refresh...');
+    const status = error?.response?.status;
+    // Handle CSRF refresh (status 419)
+    if (status === 419 && !error.config._retry) {
       try {
-        await refreshCSRFToken();
-        const csrfToken = getCSRFToken();
-        if (csrfToken && error.config) {
-          error.config.headers['X-XSRF-TOKEN'] = csrfToken;
-          return api.request(error.config);
+        error.config._retry = true;
+        await sanctumApi.get("/sanctum/csrf-cookie");
+        const csrf = getCSRFTokenFromDocument();
+        if (csrf) {
+          error.config.headers["X-XSRF-TOKEN"] = csrf;
         }
-      } catch (refreshError) {
-        console.error('Failed to refresh CSRF token:', refreshError);
+        return api.request(error.config);
+      } catch (e) {
+        // fallthrough to reject
       }
     }
 
+    // leave 401 handling to callers / global UI (do not redirect here)
     return Promise.reject(error);
   }
 );
 
-// 🚨 REMOVE THIS DUPLICATE INTERCEPTOR - IT'S CAUSING CONFLICTS!
-// api.interceptors.request.use((config) => {
-//   const token = Cookies.get("access_token");
-// 
-//   if (token) config.headers.Authorization = `Bearer ${token}`;
-//   config.headers["api-key"] = process.env.NEXT_PUBLIC_API_KEY;
-//   config.headers["Accept-Language"] = "ar";
-// 
-//   return config;
-// });
-
 export default api;
+
+
+
 
 
 
