@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppSelector } from "@/store/hooks";
-import { ChevronDown, User, Settings, Key, LogOut } from "lucide-react";
+import { ChevronDown, Settings, Key, LogOut } from "lucide-react";
 import Image from "next/image";
 import LogoutButton from "../auth/logout/LogoutButton";
 import Link from "next/link";
@@ -19,13 +19,16 @@ const UserDropdown = () => {
   const user = useAppSelector((state) => state.auth.user);
   const lang = LangUseParams();
 
+  const SkeletonUser = () => (
+  <div className="flex items-center space-x-3">
+    <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse" />
+    <div className="w-20 h-4 bg-gray-200 rounded animate-pulse" />
+  </div>
+);
 
+  // If app is still loading auth and no cookie, show a skeleton
   if (!user) {
-    return (
-      <button className="cursor-pointer">
-        <User className="w-5 h-5" />
-      </button>
-    );
+    return <SkeletonUser />;
   }
 
   return (
