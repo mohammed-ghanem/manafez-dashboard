@@ -13,11 +13,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu"; 
 
 const UserDropdown = () => {
   const user = useAppSelector((state) => state.auth.user);
   const lang = LangUseParams();
+
+  console.log(user);
 
   if (!user) {
     return (
