@@ -7,15 +7,19 @@ import { Button } from "@/components/ui/button";
 import { IAdmin } from "@/types/admins";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+// import TranslateHook from "@/translate/TranslateHook";
+import LangUseParams from "@/translate/LangUseParams";
+import Link from "next/link";
 
 export default function Admins() {
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const lang =  LangUseParams();
 
   // typed selector from your hooks
   const { list, status, error } = useAppSelector((s) => s.admins);
 
-  console.log(list[0]);
+  // console.log(list);
 
   useEffect(() => {
     dispatch(ActFetchAdmins());
@@ -45,7 +49,10 @@ export default function Admins() {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">المسؤولون</h1>
-        <Button onClick={() => router.push("/admins/create")}>إنشاء مسؤول</Button>
+        <Link href={`/${lang}/admins/create`} 
+        className="btn btn-primary cursor-pointer">
+          انشاء مسؤول
+        </Link>
       </div>
 
       {status === "loading" && <div>جاري التحميل...</div>}

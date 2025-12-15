@@ -106,7 +106,7 @@ const Login = () => {
             >
               {translate?.pages.login.forgetPassword || "Forgot password?"}
             </a>
-
+ 
             {/* Submit */}
             <div>
               <button
