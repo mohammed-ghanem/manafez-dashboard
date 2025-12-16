@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { IAdmin } from "@/types/admins";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-// import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
 import Link from "next/link";
 
@@ -19,8 +18,6 @@ export default function Admins() {
   // typed selector from your hooks
   const { list, status, error } = useAppSelector((s) => s.admins);
 
-  // console.log(list);
-
   useEffect(() => {
     dispatch(ActFetchAdmins());
   }, [dispatch]);
@@ -29,7 +26,7 @@ export default function Admins() {
 
   const onEdit = (id: number) => {
     // update route to your edit page
-    router.push(`/admins/edit/${id}`);
+    router.push(`/${lang}/admins/edit/${id}`);
   };
 
   const onDelete = (id: number, name?: string) => {
@@ -104,15 +101,32 @@ export default function Admins() {
                     {Array.isArray(a.roles) ? a.roles.join(", ") : a.roles}
                   </td>
                   <td className="py-2 px-3 align-top flex gap-2">
-                    <Button size="sm" onClick={() => onEdit(a.id)} disabled={isProtected}>
+                  <Button
+                      size="sm"
+                      onClick={() => onEdit(a.id)}
+                      disabled={isProtected || status === "loading"}
+                    >
                       تعديل
                     </Button>
-                    <Button size="sm" variant="secondary" onClick={() => onToggle(a)} disabled={isProtected}>
+
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => onToggle(a)}
+                      disabled={isProtected || status === "loading"}
+                    >
                       {a.is_active ? "تعطيل" : "تفعيل"}
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => onDelete(a.id, a.name)} disabled={isProtected}>
+
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => onDelete(a.id, a.name)}
+                      disabled={isProtected || status === "loading"}
+                    >
                       حذف
                     </Button>
+
                   </td>
                 </tr>
               );
