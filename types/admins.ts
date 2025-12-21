@@ -1,25 +1,16 @@
-export interface IRole {
-  id: number;
-  name: string;
-}
-export interface IAdminRole {
-  id: number;
-  name: string;
-}
+
 
 export interface IAdmin {
   id: number;
   name: string;
-  email?: string;
-  image?: string | null;
-  mobile?: string;
-  // roles?: string | string[];
-  roles: IAdminRole[]; // ✅ FIXED
-
-  roles_ids: IRole[]; // 👈 important
-  is_active?: boolean;
+  email: string;
+  mobile: string;
+  image: string | null;
+  is_active: boolean;
   created_at?: string;
   updated_at?: string;
+  roles?: string;       
+  roles_ids?: number[]; 
 }
 
 

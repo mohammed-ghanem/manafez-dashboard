@@ -5,20 +5,11 @@ import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { ActFetchRoles } from "@/store/roles/thunkActions/ActFetchRoles";
 import { ActCreateAdmin } from "@/store/admins/thunkActions/ActCreateAdmins";
-import "../auth/profile/style.css";
 import { toast } from "sonner";
 
-import {
-  User,
-  Mail,
-  Lock,
-  ShieldCheck,
-  Loader2,
-} from "lucide-react";
-
+import { User, Mail, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import "../auth/profile/style.css";
 
 type FormState = {
   name: string;
@@ -34,10 +25,7 @@ export default function CreateAdmins() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { roles, status: adminStatus  } = useAppSelector(
-    (state) => state.roles
-  );
-
+  const { roles, status } = useAppSelector((state) => state.roles);
 
   const [form, setForm] = useState<FormState>({
     name: "",
@@ -50,26 +38,32 @@ export default function CreateAdmins() {
   });
 
   useEffect(() => {
-    if (adminStatus === "idle") {
+    if (status === "idle") {
       dispatch(ActFetchRoles());
     }
-  }, [dispatch, adminStatus]);
+  }, [dispatch, status]);
+
+  /** ✅ Checkbox handler */
+  const toggleRole = (roleId: number) => {
+    setForm((prev) => ({
+      ...prev,
+      role_id: prev.role_id.includes(roleId)
+        ? prev.role_id.filter((id) => id !== roleId)
+        : [...prev.role_id, roleId],
+    }));
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       await dispatch(ActCreateAdmin(form)).unwrap();
-
       toast.success("Admin created successfully");
       router.push("/admins");
     } catch (err: any) {
-      const message =
-        err?.message ||
-        err?.error ||
-        "Failed to create admin";
-
-      toast.error(message);
+      toast.error(
+        err?.message || err?.error || "Failed to create admin"
+      );
     }
   };
 
@@ -152,26 +146,28 @@ export default function CreateAdmins() {
         />
       </div>
 
-      {/* Role */}
-      <div className="relative">
-        <ShieldCheck className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-        <select
-          className="w-full border pl-9 p-2 rounded"
-          required
-          onChange={(e) =>
-            setForm({
-              ...form,
-              role_id: [Number(e.target.value)],
-            })
-          }
-        >
-          <option value="">Select role</option>
+      {/* ✅ Roles (CHECKBOXES) */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <ShieldCheck className="h-4 w-4 text-gray-400" />
+          Roles
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
           {roles.map((role) => (
-            <option key={role.id} value={role.id}>
-              {role.name}
-            </option>
+            <label
+              key={role.id}
+              className="flex items-center gap-2 border rounded p-2 cursor-pointer"
+            >
+              <input
+                type="checkbox"
+                checked={form.role_id.includes(role.id)}
+                onChange={() => toggleRole(role.id)}
+              />
+              <span>{role.name}</span>
+            </label>
           ))}
-        </select>
+        </div>
       </div>
 
       {/* Active */}
@@ -192,17 +188,17 @@ export default function CreateAdmins() {
       {/* Submit */}
       <button
         type="submit"
-        disabled={adminStatus  === "loading"}
+        disabled={status === "loading"}
         className="w-full bg-black text-white p-2 rounded disabled:opacity-60"
       >
-        {adminStatus  === "loading" ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    "Processing..."
-                  </>
-                ) : (
-                    "Create Admin"
-                )}
+        {status === "loading" ? (
+          <span className="flex items-center justify-center gap-2">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Processing...
+          </span>
+        ) : (
+          "Create Admin"
+        )}
       </button>
     </form>
   );

@@ -14,14 +14,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
+/* ===================== TYPES ===================== */
+
 type EditAdminForm = {
-    name: string;
-    email: string;
-    phone: string;
-    roleIds: number[];
-    isActive: boolean;
-  };
-  
+  name: string;
+  email: string;
+  phone: string;
+  roles_ids: number[]; // MULTI ROLES
+  isActive: boolean;
+};
+
+/* ===================== COMPONENT ===================== */
 
 export default function EditAdmin() {
   const { id } = useParams<{ id: string }>();
@@ -42,50 +45,56 @@ export default function EditAdmin() {
       name: "",
       email: "",
       phone: "",
-      roleIds: [],
+      roles_ids: [],
       isActive: true,
     },
   });
 
-  // Fetch data
+  /* ===================== FETCH DATA ===================== */
+
   useEffect(() => {
     dispatch(ActFetchRoles());
     dispatch(ActFetchAdminById(Number(id)));
   }, [dispatch, id]);
 
-  // Fill form when admin loads
+  /* ===================== FILL FORM ===================== */
+
   useEffect(() => {
     if (!selected) return;
-  
+
     reset({
       name: selected.name,
       email: selected.email,
       phone: selected.mobile,
-      roleIds: selected.roles_ids.map(r => r.id), // 👈 KEY LINE
+      roles_ids: selected.roles_ids, // IMPORTANT
       isActive: selected.is_active,
     });
   }, [selected, reset]);
-  
-  
+
+  /* ===================== SUBMIT ===================== */
 
   const onSubmit = async (data: EditAdminForm) => {
     await dispatch(
-        ActUpdateAdmin({
-          id: Number(id),
-          data: {
-            name: data.name,
-            email: data.email,
-            mobile: data.phone,
-            role_ids: data.roleIds, // ✅ matches API
-            is_active: data.isActive ? 1 : 0,
-          },
-        })
-      ).unwrap();
+      ActUpdateAdmin({
+        id: Number(id),
+        data: {
+          name: data.name,
+          email: data.email,
+          mobile: data.phone,
+          role_id: data.roles_ids, // API expects array
+          is_active: data.isActive ? 1 : 0,
+        },
+      })
+    ).unwrap();
 
     router.push("/admins");
   };
 
-  const selectedRoles = watch("roleIds");
+  /* ===================== WATCH ===================== */
+
+  const selectedRoles = watch("roles_ids");
+
+  /* ===================== UI ===================== */
 
   return (
     <form
@@ -96,38 +105,36 @@ export default function EditAdmin() {
       <Input placeholder="Email" {...register("email", { required: true })} />
       <Input placeholder="Phone" {...register("phone")} />
 
-      {/* Roles */}
+      {/* ===================== ROLES ===================== */}
       <div className="space-y-2">
         <Label>Roles</Label>
-        {roles.map((role) => (
-            <label key={role.id} className="flex items-center gap-2">
-                <input
-                type="checkbox"
-                value={role.id}
-                {...register("roleIds")}
-                checked={watch("roleIds")?.includes(role.id)}
-                onChange={(e) => {
-                    const current = watch("roleIds") || [];
-                    const value = Number(e.target.value);
 
-                    if (e.target.checked) {
-                    setValue("roleIds", [...current, value]);
-                    } else {
-                    setValue(
-                        "roleIds",
-                        current.filter((id) => id !== value)
-                    );
-                    }
-                }}
-            />
-    <span>{role.name}</span>
-  </label>
-))}
+        {roles.map((role) => {
+    const isChecked = selectedRoles?.includes(role.id);
 
-
+    return (
+      <label key={role.id} className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={isChecked}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setValue("roles_ids", [...(selectedRoles ?? []), role.id]);
+            } else {
+              setValue(
+                "roles_ids",
+                (selectedRoles ?? []).filter((id) => id !== role.id)
+              );
+            }
+          }}
+        />
+        <span>{role.name}</span>
+      </label>
+    );
+  })}
       </div>
 
-      {/* Active */}
+      {/* ===================== ACTIVE ===================== */}
       <div className="flex items-center gap-2">
         <Checkbox
           checked={watch("isActive")}

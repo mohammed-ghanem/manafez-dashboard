@@ -2,13 +2,17 @@
 
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActFetchAdmins, ActDeleteAdmin, ActToggleAdminStatus } from "@/store/admins/thunkActions/ActAdmins";
+import { ActFetchAdmins } from "@/store/admins/thunkActions/ActAdmins";
 import { Button } from "@/components/ui/button";
 import { IAdmin } from "@/types/admins";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import LangUseParams from "@/translate/LangUseParams";
 import Link from "next/link";
+import { ActDeleteAdmin } from "@/store/admins/thunkActions/ActDeleteAdmin";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
+import { ActToggleAdminStatus } from "@/store/admins/thunkActions/ActToggleAdminStatus";
 
 export default function Admins() {
   const dispatch = useAppDispatch();
@@ -29,18 +33,33 @@ export default function Admins() {
     router.push(`/${lang}/admins/edit/${id}`);
   };
 
-  const onDelete = (id: number, name?: string) => {
-    const normalized = (name ?? "").trim().toLowerCase();
-    if (protectedNames.includes(normalized)) return;
-    if (!confirm("هل أنت متأكد من حذف المسؤول؟")) return;
-    dispatch(ActDeleteAdmin(id));
+  const handleDelete = async (id: number) => {
+    const confirmDelete = confirm(
+      "Are you sure you want to delete this admin?"
+    );
+  
+    if (!confirmDelete) return;
+  
+    try {
+      await dispatch(ActDeleteAdmin(id)).unwrap();
+      toast.success("Admin deleted successfully");
+    } catch (err: any) {
+      toast.error(err || "Delete failed");
+    }
   };
 
-  const onToggle = (a: IAdmin) => {
-    const normalized = (a.name ?? "").trim().toLowerCase();
-    if (protectedNames.includes(normalized)) return;
-    dispatch(ActToggleAdminStatus({ id: a.id, is_active: !a.is_active }));
+
+  const handleToggleStatus = async (id: number) => {
+    try {
+      await dispatch(ActToggleAdminStatus(id)).unwrap();
+      toast.success("تم تحديث حالة المسؤول");
+    } catch (err: any) {
+      toast.error(err || "فشل تحديث الحالة");
+    }
   };
+  
+
+
 
   return (
     <div className="p-4">
@@ -86,9 +105,6 @@ export default function Admins() {
                   <td className="py-2 px-3 align-top">{idx + 1}</td>
                   <td className="py-2 px-3 align-top flex items-center gap-2">
                     {a.image ? (
-                      // small avatar if available
-                      // adjust image component if you use next/image
-                      // eslint-disable-next-line @next/next/no-img-element
                       <img src={a.image} alt={a.name} className="h-8 w-8 rounded-full object-cover" />
                     ) : null}
                     <span>{a.name}</span>
@@ -96,7 +112,19 @@ export default function Admins() {
                   </td>
                   <td className="py-2 px-3 align-top">{a.email}</td>
                   <td className="py-2 px-3 align-top">{a.mobile}</td>
-                  <td className="py-2 px-3 align-top">{a.is_active ? "مفعل" : "معطل"}</td>
+                  <td className="py-2 px-3 align-top">
+                    {/* {a.is_active ? "مفعل" : "معطل"} */}
+
+                    <button
+                        onClick={() => handleToggleStatus(a.id)}
+                        disabled={isProtected || status === "loading"}
+                        className={`px-3 py-1 rounded text-white text-sm
+                          ${a.is_active ? "bg-green-600" : "bg-gray-500"}
+                          disabled:opacity-50`}
+                      >
+                        {a.is_active ? "مفعل" : "معطل"}
+                      </button>
+                    </td>
                   <td className="py-2 px-3 align-top">
                     {Array.isArray(a.roles) ? a.roles.join(", ") : a.roles}
                   </td>
@@ -109,23 +137,13 @@ export default function Admins() {
                       تعديل
                     </Button>
 
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => onToggle(a)}
-                      disabled={isProtected || status === "loading"}
-                    >
-                      {a.is_active ? "تعطيل" : "تفعيل"}
-                    </Button>
+                    <button
+                        onClick={() => handleDelete(a.id)}
+                        className="text-red-600 hover:text-red-800"
+                      >
+                        <Trash2 size={18} />
+                      </button>
 
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => onDelete(a.id, a.name)}
-                      disabled={isProtected || status === "loading"}
-                    >
-                      حذف
-                    </Button>
 
                   </td>
                 </tr>

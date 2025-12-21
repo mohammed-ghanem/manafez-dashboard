@@ -1,13 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IAdmin } from "@/types/admins";
-import {
-  ActFetchAdmins,
-  ActDeleteAdmin,
-  ActToggleAdminStatus,
-} from "./thunkActions/ActAdmins";
+import {ActFetchAdmins,} from "./thunkActions/ActAdmins";
 import { ActCreateAdmin } from "./thunkActions/ActCreateAdmins";
 import { ActUpdateAdmin } from "./thunkActions/ActUpdateAdmin";
+import { ActDeleteAdmin } from "./thunkActions/ActDeleteAdmin";
 import { ActFetchAdminById } from "./thunkActions/ActFetchAdminById";
+import { ActToggleAdminStatus } from "./thunkActions/ActToggleAdminStatus";
 
 interface AdminsState {
   list: IAdmin[];
@@ -125,193 +123,59 @@ const adminsSlice = createSlice({
       })
 
       /** ================= DELETE ================= */
-      // .addCase(
-      //   ActDeleteAdmin.fulfilled,
-      //   (state, action: PayloadAction<number>) => {
-      //     state.list = state.list.filter((a) => a.id !== action.payload);
-      //   }
-      // )
-      // .addCase(ActDeleteAdmin.rejected, (state, action) => {
-      //   state.error =
-      //     (action.payload as string) ||
-      //     action.error.message ||
-      //     "Failed to delete admin";
-      // })
+      .addCase(
+        ActDeleteAdmin.fulfilled,
+        (state, action: PayloadAction<number>) => {
+          state.list = state.list.filter((a) => a.id !== action.payload);
+        }
+      )
+      .addCase(ActDeleteAdmin.rejected, (state, action) => {
+        state.error =
+          (action.payload as string) ||
+          action.error.message ||
+          "Failed to delete admin";
+      })
 
-      /** ================= TOGGLE ================= */
+
+
+      /** ================= TOGGLE STATUS ================= */
+      .addCase(ActToggleAdminStatus.pending, (state) => {
+        state.status = "loading";
+      })
       .addCase(
         ActToggleAdminStatus.fulfilled,
-        (state, action: PayloadAction<IAdmin>) => {
+        (state, action: PayloadAction<number>) => {
+          state.status = "succeeded";
+
+          // toggle in list
           state.list = state.list.map((a) =>
-            a.id === action.payload.id ? action.payload : a
+            a.id === action.payload
+              ? { ...a, is_active: !a.is_active }
+              : a
           );
 
-          if (state.selected?.id === action.payload.id) {
-            state.selected = action.payload;
+          // toggle selected if open
+          if (state.selected?.id === action.payload) {
+            state.selected.is_active = !state.selected.is_active;
           }
         }
       )
       .addCase(ActToggleAdminStatus.rejected, (state, action) => {
+        state.status = "failed";
         state.error =
           (action.payload as string) ||
           action.error.message ||
-          "Failed to update admin status";
+          "Failed to toggle admin status";
       });
+
+
+
+
+    
+
+      
   },
 });
 
 export const { clearAdminsError, resetAdmins } = adminsSlice.actions;
 export default adminsSlice.reducer;
-
-
-
-
-
-
-
-
-
-
-
-// import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-// import { IAdmin } from "@/types/admins";
-// import { ActFetchAdmins, ActDeleteAdmin, ActToggleAdminStatus } from "./thunkActions/ActAdmins";
-// import { ActCreateAdmin } from "./thunkActions/ActCreateAdmins";
-// import { ActUpdateAdmin } from "./thunkActions/ActUpdateAdmin";
-// import { ActFetchAdminById } from "./thunkActions/ActFetchAdminById";
-
-// interface AdminsState {
-//   list: IAdmin[];
-//   selected: IAdmin | null;   // ✅ REQUIRED
-//   status: "idle" | "loading" | "succeeded" | "failed";
-//   error: string | null;
-
-// }
-
-// const initialState: AdminsState = {
-//   list: [],
-//   selected: null,
-//   status: "idle",
-//   error: null,
-// };
-
-// const adminsSlice = createSlice({
-//   name: "admins",
-//   initialState,
-//   reducers: {
-//     clearAdminsError(state) {
-//       state.error = null;
-//     },
-//     resetAdmins(state) {
-//       state.list = [];
-//       state.status = "idle";
-//       state.error = null;
-//     },
-//   },
-//   extraReducers: (builder) => {
-//     builder
-//       .addCase(ActFetchAdmins.pending, (state) => {
-//         state.status = "loading";
-//         state.error = null;
-//       })
-//       .addCase(ActFetchAdmins.fulfilled, (state, action: PayloadAction<IAdmin[]>) => {
-//         state.status = "succeeded";
-//         state.list = action.payload;
-//       })
-//       .addCase(ActFetchAdmins.rejected, (state, action) => {
-//         state.status = "failed";
-//         state.error = (action.payload as string) || action.error?.message || "Failed to fetch admins";
-//       })
-
-//       .addCase(ActDeleteAdmin.fulfilled, (state, action: PayloadAction<number>) => {
-//         state.list = state.list.filter((a) => a.id !== action.payload);
-//       })
-//       .addCase(ActDeleteAdmin.rejected, (state, action) => {
-//         state.error = (action.payload as string) || action.error?.message || "Failed to delete admin";
-//       })
-
-//       .addCase(ActToggleAdminStatus.fulfilled, (state, action: PayloadAction<IAdmin>) => {
-//         state.list = state.list.map((a) => (a.id === action.payload.id ? action.payload : a));
-//       })
-//       .addCase(ActToggleAdminStatus.rejected, (state, action) => {
-//         state.error = (action.payload as string) || action.error?.message || "Failed to update admin status";
-//       })
-//       //create admins 
-//       .addCase(ActCreateAdmin.pending, (state) => {
-//         state.status = "loading";
-//         state.error = null;
-//       })
-//       .addCase(ActCreateAdmin.fulfilled, (state, action: PayloadAction<IAdmin>) => {
-//         state.status = "succeeded";
-//         state.list.unshift(action.payload); // add new admin to table
-//       })
-//       .addCase(ActCreateAdmin.rejected, (state, action) => {
-//         state.status = "failed";
-//         state.error =
-//           (action.payload as string) ||
-//           action.error?.message ||
-//           "Failed to create admin";
-//       })
-//       // fetch by id
-//       .addCase(ActFetchAdminById.pending, (state) => {
-//         state.status = "loading";
-//       })
-      
-//       .addCase(ActFetchAdminById.fulfilled, (state, action) => {
-//         state.status = "succeeded";
-//         state.selected = action.payload;
-//       })
-      
-//       .addCase(ActFetchAdminById.rejected, (state) => {
-//         state.status = "failed";
-//       })
-      
-
-//         // update admin
-//         .addCase(ActUpdateAdmin.pending, (state) => {
-//           state.status = "loading";
-//         })
-//         .addCase(ActUpdateAdmin.fulfilled, (state, action) => {
-//           state.status = "succeeded";
-//           state.selected = action.payload;
-//         })
-//         .addCase(ActUpdateAdmin.rejected, (state, action) => {
-//           state.status = "failed";
-//           state.error = action.payload as string;
-//         })
-
-//       // //update admin
-//       // .addCase(ActUpdateAdmin.pending, (state) => {
-//       //   state.status = "loading";
-//       // })
-//       // .addCase(ActUpdateAdmin.fulfilled, (state ) => {
-//       //   state.status = "succeeded";
-//       // })
-//       // .addCase(ActUpdateAdmin.rejected, (state) => {
-//       //   state.status = "failed";
-//       // })
-    
-//       //delete admin
-//       // delete admin
-//       // .addCase(ActDeleteAdmin.pending, (state) => {
-//       //   state.status = "loading";
-//       // })
-//       // .addCase(ActDeleteAdmin.fulfilled, (state) => {
-//       //   state.status = "succeeded";
-//       // })
-//       // .addCase(ActDeleteAdmin.rejected, (state) => {
-//       //   state.status = "failed";
-//       // });
-
-//       // // TOGGLE
-//       // .addCase(ActToggleAdminStatus.fulfilled, (state, action) => {
-//       //   state.list = state.list.map(a =>
-//       //   a.id === action.payload.id ? action.payload : a
-//       // );
-//       // })
-      
-//   },
-// });
-
-// export const { clearAdminsError, resetAdmins } = adminsSlice.actions;
-// export default adminsSlice.reducer;

@@ -13,7 +13,7 @@ export const ActUpdateAdmin = createAsyncThunk(
       return res.data;
     } catch (err: any) {
       return rejectWithValue(
-        err.response?.data?.message || "Update failed"
+        err?.response?.data?.message || "Update failed"
       );
     }
   }

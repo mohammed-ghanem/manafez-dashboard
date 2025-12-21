@@ -4,6 +4,7 @@ import api from "@/services/api";
 import { IAdmin } from "@/types/admins";
 
 
+
 function normalizeItem(item: any): IAdmin {
     const user = item?.user ?? item;
     return {
@@ -13,7 +14,6 @@ function normalizeItem(item: any): IAdmin {
       image: user?.image ?? null,
       mobile: user?.mobile ?? "",
       roles: user?.roles ?? user?.type ?? "",
-      // backend returns 1/0 for is_active — convert to boolean
       is_active: Boolean(Number(user?.is_active ?? user?.isActive ?? 0)),
       created_at: user?.created_at ?? user?.createdAt,
       updated_at: user?.updated_at ?? user?.updatedAt,
@@ -44,30 +44,5 @@ export const ActFetchAdmins = createAsyncThunk<IAdmin[]>(
         return rejectWithValue(msg);
       }
      
-  }
-);
-
-export const ActDeleteAdmin = createAsyncThunk<number, number>(
-  "admins/delete",
-  async (id, { rejectWithValue }) => {
-    try {
-      await api.delete(`/admins/${id}`);
-      return id;
-    } catch (err: any) {
-      return rejectWithValue(err?.response?.data?.message ?? err.message);
-    }
-  }
-);
-
-export const ActToggleAdminStatus = createAsyncThunk<IAdmin, { id: number; is_active: boolean }>(
-  "admins/toggle",
-  async ({ id, is_active }, { rejectWithValue }) => {
-    try {
-      // adapt endpoint — could be PATCH /admins/:id or a custom route
-      const res = await api.patch(`/admins/${id}/toggle`, { is_active });
-      return res.data?.data ?? res.data;
-    } catch (err: any) {
-      return rejectWithValue(err?.response?.data?.message ?? err.message);
-    }
   }
 );
