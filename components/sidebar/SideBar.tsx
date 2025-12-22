@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Settings } from "lucide-react";
+import { Home, ShieldCheck , Settings } from "lucide-react";
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 import { useEffect, useState } from "react";
+
 
 const SideBar = () => {
   const lang = LangUseParams();
@@ -45,7 +46,7 @@ const SideBar = () => {
               <li>
                 <Link
                   href={`/${lang}`}
-                  className="flex items-center gap-2 p-2 rounded font-semibold bkMainColor hover-mainColor"
+                  className="flex items-center gap-2 p-2 rounded font-semibold activeLink hover-mainColor"
                 >
                   <Home size={18} />
                   {translate.sidebar.dashboard}
@@ -57,7 +58,7 @@ const SideBar = () => {
                   href={`/${lang}/roles`}
                   className="flex items-center gap-2 p-2 rounded font-semibold scoundColor hover-mainColor"
                 >
-                  <Settings size={18} />
+                  <ShieldCheck size={18}/>
                   {translate.sidebar.roles}
                 </Link>
               </li>

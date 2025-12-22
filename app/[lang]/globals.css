@@ -98,18 +98,20 @@ svg {
 .grdianBK {
   background: radial-gradient(circle, #d5d6ff 20%, #fff 60%);
 }
-.backgroundDarkPurple {
-  background: #5d60efbf;
+.backgroundDark {
+  background: rgb(243 244 246);
+;
 }
 .mainColor {
-  color: #5d60ef;
+  color: #69909d;
 }
 .bkMainColor {
-  background: #5d60ef;
-}
+background: #69909d4f;
+  color: #000; 
+ }
 .hover-mainColor:hover {
-  background: #5d60efbf;
-  color: #fff;
+   background: #f3f4f6;
+    color: #000;
 }
 .scoundColor {
   color: #81878f;
@@ -117,5 +119,7 @@ svg {
 .lightColor {
   color: #9368f33d;
 }
-
-
+.activeLink{
+    background: #f3f4f6;
+    color: #000;
+}
