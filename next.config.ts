@@ -2,9 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: [
-      "backend.wecandevmode.online",
-    ], // add imgur domain here
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "backend.wecandevmode.online",
+      },
+      
+    ],
   },
   eslint: {
     ignoreDuringBuilds: true,
