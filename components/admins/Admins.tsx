@@ -14,8 +14,23 @@ import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { ActToggleAdminStatus } from "@/store/admins/thunkActions/ActToggleAdminStatus";
 
+import { Switch } from "@/components/ui/switch";
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
+
 export default function Admins() {
   const dispatch = useAppDispatch();
+  const [deleteId, setDeleteId] = React.useState<number | null>(null);
   const router = useRouter();
   const lang =  LangUseParams();
 
@@ -33,20 +48,33 @@ export default function Admins() {
     router.push(`/${lang}/admins/edit/${id}`);
   };
 
+  // const handleDelete = async (id: number) => {
+  //   const confirmDelete = confirm(
+  //     "Are you sure you want to delete this admin?"
+  //   );
+  
+  //   if (!confirmDelete) return;
+  
+  //   try {
+  //     await dispatch(ActDeleteAdmin(id)).unwrap();
+  //     toast.success("Admin deleted successfully");
+  //   } catch (err: any) {
+  //     toast.error(err || "Delete failed");
+  //   }
+  // };
+
+
   const handleDelete = async (id: number) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this admin?"
-    );
-  
-    if (!confirmDelete) return;
-  
     try {
       await dispatch(ActDeleteAdmin(id)).unwrap();
-      toast.success("Admin deleted successfully");
+      toast.success("تم حذف المسؤول بنجاح");
     } catch (err: any) {
-      toast.error(err || "Delete failed");
+      toast.error(err || "فشل الحذف");
+    } finally {
+      setDeleteId(null);
     }
   };
+  
 
 
   const handleToggleStatus = async (id: number) => {
@@ -113,17 +141,20 @@ export default function Admins() {
                   <td className="py-2 px-3 align-top">{a.email}</td>
                   <td className="py-2 px-3 align-top">{a.mobile}</td>
                   <td className="py-2 px-3 align-top">
-                    {/* {a.is_active ? "مفعل" : "معطل"} */}
 
-                    <button
-                        onClick={() => handleToggleStatus(a.id)}
-                        disabled={isProtected || status === "loading"}
-                        className={`px-3 py-1 rounded text-white text-sm
-                          ${a.is_active ? "bg-green-600" : "bg-gray-500"}
-                          disabled:opacity-50`}
-                      >
-                        {a.is_active ? "مفعل" : "معطل"}
-                      </button>
+                        {/* {a.is_active ? "مفعل" : "معطل"} */}
+                      <div className="flex items-center gap-2" dir="ltr">
+                        <Switch
+                          checked={a.is_active}
+                          disabled={isProtected || status === "loading"}
+                          onCheckedChange={() => handleToggleStatus(a.id)}
+                        />
+
+                        <span className="text-sm">
+                          {a.is_active ? "مفعل" : "معطل"}
+                        </span>
+                      </div>
+
                     </td>
                   <td className="py-2 px-3 align-top">
                     {Array.isArray(a.roles) ? a.roles.join(", ") : a.roles}
@@ -137,12 +168,49 @@ export default function Admins() {
                       تعديل
                     </Button>
 
-                    <button
+                    {/* delete admin */}
+
+                    {/* <button
                         onClick={() => handleDelete(a.id)}
                         className="text-red-600 hover:text-red-800"
                       >
                         <Trash2 size={18} />
-                      </button>
+                      </button> */}
+
+
+<AlertDialog>
+  <AlertDialogTrigger asChild>
+    <button
+      disabled={isProtected || status === "loading"}
+      onClick={() => setDeleteId(a.id)}
+      className="text-red-600 hover:text-red-800 disabled:opacity-50"
+    >
+      <Trash2 size={18} />
+        </button>
+              </AlertDialogTrigger>
+
+              <AlertDialogContent dir="rtl">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    هل أنت متأكد من حذف هذا المسؤول؟  
+                    لا يمكن التراجع عن هذا الإجراء.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+
+                <AlertDialogFooter>
+                  <AlertDialogCancel>إلغاء</AlertDialogCancel>
+
+                  <AlertDialogAction
+                    className="bg-red-600 hover:bg-red-700"
+                    onClick={() => handleDelete(deleteId!)}
+                  >
+                    حذف
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
 
 
                   </td>
