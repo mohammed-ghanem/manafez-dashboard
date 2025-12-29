@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 /* ===================== TYPES ===================== */
 
@@ -74,19 +75,36 @@ export default function EditAdmin() {
   /* ===================== SUBMIT ===================== */
 
   const onSubmit = async (data: EditAdminForm) => {
-    await dispatch(
-      ActUpdateAdmin({
-        id: Number(id),
-        data: {
-          name: data.name,
-          email: data.email,
-          mobile: data.phone,
-          role_id: data.roles_ids, // API expects array
-          is_active: data.isActive ? 1 : 0,
-        },
-      })
-    ).unwrap();
+    try {
+      const res =  await dispatch(
+        ActUpdateAdmin({
+          id: Number(id),
+          data: {
+            name: data.name,
+            email: data.email,
+            mobile: data.phone,
+            role_id: data.roles_ids, // API expects array
+            is_active: data.isActive ? 1 : 0,
+          },
+        })
+      ).unwrap();
+      // ✅ success message from backend (fallback if missing)
+     toast.success(res?.message || "admin updated successfully");
+    } catch (err: any) {
+      const errors = err?.errors as Record<string, string[] | string> | undefined;
 
+      if (errors) {
+        Object.values(errors).forEach((value) => {
+          if (Array.isArray(value)) {
+            value.forEach((msg) => toast.error(msg));
+          } else {
+            toast.error(value);
+          }
+        });
+        return;
+      }
+
+    }
     router.push("/admins");
   };
 

@@ -14,7 +14,7 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardContent,
+  CardContent, 
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -98,16 +98,19 @@ const CreateRole = () => {
   // Create Role Submit
   const handleCreateRole = async () => {
     try {
-      await dispatch(
+      const res = await dispatch(
         ActCreateRole({
-          name,
           name_en,
           name_ar,
           permissions: selected,
         })
       ).unwrap();
+  
+      // ✅ success message from backend (fallback if missing)
+      toast.success(res?.message || "Role created successfully");
 
-      toast.success("Role created successfully");
+      console.log(res.message)
+
       router.push("/roles");
     } catch (err: any) {
       const errors = err?.errors as Record<string, string[] | string> | undefined;

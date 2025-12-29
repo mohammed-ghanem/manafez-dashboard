@@ -20,16 +20,44 @@ const ChangePassword = () => {
 
   const [form, setForm] = useState({
     old_password: "",
-    password: "",
+    password: "", 
     password_confirmation: "",
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
+  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   if (form.password !== form.password_confirmation) {
+  //     toast.error(
+  //       translate?.pages.changePassword.notMatch ||
+  //         "New password and confirmation do not match"
+  //     );
+  //     return;
+  //   }
+
+  //   const result = await dispatch(ActChangePassword(form));
+
+  //   if (ActChangePassword.fulfilled.match(result)) {
+  //     toast.success(
+  //       result.payload?.message ||
+  //         translate?.pages.changePassword.success ||
+  //         "Password updated successfully"
+  //     );
+  //       setForm({ old_password: "", password: "", password_confirmation: "" });
+  //       setTimeout(() => {
+  //       window.location.href = `/${lang}/`;
+  //     }, 1000);
+  //   } else {
+  //     toast.error(result.payload as string); 
+  //   }
+  // };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+  
     if (form.password !== form.password_confirmation) {
       toast.error(
         translate?.pages.changePassword.notMatch ||
@@ -37,23 +65,37 @@ const ChangePassword = () => {
       );
       return;
     }
-
-    const result = await dispatch(ActChangePassword(form));
-
-    if (ActChangePassword.fulfilled.match(result)) {
+  
+    try {
+      const res = await dispatch(ActChangePassword(form)).unwrap();
+  
+      // ✅ success message from backend
       toast.success(
-        result.payload?.message ||
+        res?.message ||
           translate?.pages.changePassword.success ||
           "Password updated successfully"
       );
-        setForm({ old_password: "", password: "", password_confirmation: "" });
-        setTimeout(() => {
+  
+      setForm({ old_password: "", password: "", password_confirmation: "" });
+  
+      setTimeout(() => {
         window.location.href = `/${lang}/`;
       }, 1000);
-    } else {
-      toast.error(result.payload as string);
+    } catch (err: any) {
+      // ✅ handle validation errors
+      if (err?.errors) {
+        Object.values(err.errors).forEach((value: any) => {
+          if (Array.isArray(value)) {
+            value.forEach((msg) => toast.error(msg));
+          } else {
+            toast.error(value);
+          }
+        });
+        return;
+      }
     }
   };
+  
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>

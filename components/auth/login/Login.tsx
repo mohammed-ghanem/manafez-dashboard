@@ -23,28 +23,77 @@ const Login = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
+  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   const result = await dispatch(ActLogin(form));
+
+  //   if (ActLogin.fulfilled.match(result)) {
+  //     toast.success(
+  //       <span className="font-cairo font-bold">
+  //         {result.payload.message || "Login successful"}
+  //       </span>
+  //     );
+  //     setTimeout(() => {
+  //       window.location.href = `/${lang}/`;
+  //     }, 1000);
+  //   } else {
+  //     toast.error(result.payload as string, {
+  //       description:
+  //         translate?.pages.login.InvalidEmailOrPasswordDescription ||
+  //         "Please check your email and password and try again.",
+  //     });
+  //   }
+  // };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const result = await dispatch(ActLogin(form));
-
-    if (ActLogin.fulfilled.match(result)) {
+  
+    try {
+      const res = await dispatch(ActLogin(form)).unwrap();
+  
+      // ✅ backend success message
       toast.success(
         <span className="font-cairo font-bold">
-          {result.payload.message || "Login successful"}
+          {res?.message ||
+            translate?.pages.login.success ||
+            "Login successful"}
         </span>
       );
+  
       setTimeout(() => {
         window.location.href = `/${lang}/`;
       }, 1000);
-    } else {
-      toast.error(result.payload as string, {
-        description:
-          translate?.pages.login.InvalidEmailOrPasswordDescription ||
-          "Please check your email and password and try again.",
-      });
+    } catch (err: any) {
+      // ✅ validation errors
+      if (err?.errors) {
+        Object.values(err.errors).forEach((value: any) => {
+          if (Array.isArray(value)) {
+            value.forEach((msg) => toast.error(msg));
+          } else {
+            toast.error(value);
+          }
+        });
+        return;
+      }
+  
+      // ✅ single backend message
+      if (err?.message) {
+        toast.error(err.message, {
+          description:
+            translate?.pages.login.InvalidEmailOrPasswordDescription ||
+            "Please check your email and password and try again.",
+        });
+        return;
+      }
+  
+      toast.error(
+        translate?.pages.login.failed ||
+          "Login failed"
+      );
     }
   };
+  
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>

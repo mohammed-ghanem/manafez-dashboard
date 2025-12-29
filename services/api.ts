@@ -43,6 +43,14 @@ api.interceptors.request.use(
     (config) => {
      config.headers = config.headers || {};
 
+     // language (from cookie, fallback ar)
+        const lang =
+        typeof document !== "undefined"
+          ? document.cookie.match(/lang=(ar|en)/)?.[1] ?? "ar"
+          : "ar";
+
+      config.headers["Accept-Language"] = lang;
+
   // attach token from cookie at request time
   if (typeof window !== "undefined") {
 

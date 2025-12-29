@@ -17,7 +17,7 @@ type FormState = {
   mobile: string;
   password: string;
   password_confirmation: string;
-  role_id: number[];
+  role_id: number[]; 
   is_active: boolean;
 };
 
@@ -57,13 +57,34 @@ export default function CreateAdmins() {
     e.preventDefault();
 
     try {
-      await dispatch(ActCreateAdmin(form)).unwrap();
-      toast.success("Admin created successfully");
+      const res = await dispatch(ActCreateAdmin(form)).unwrap();
+
+            // ✅ success message from backend (fallback if missing)
+      toast.success(res?.message || "admin created successfully");
+
+
+
       router.push("/admins");
     } catch (err: any) {
-      toast.error(
-        err?.message || err?.error || "Failed to create admin"
-      );
+      const errors = err?.errors as Record<string, string[] | string> | undefined;
+
+      if (errors) {
+        Object.values(errors).forEach((value) => {
+          if (Array.isArray(value)) {
+            value.forEach((msg) => toast.error(msg));
+          } else {
+            toast.error(value);
+          }
+        });
+        return;
+      }
+
+      if (typeof err?.message === "string") {
+        toast.error(err.message);
+        return;
+      }
+
+      toast.error("Create role failed");
     }
   };
 
@@ -83,7 +104,7 @@ export default function CreateAdmins() {
           onChange={(e) =>
             setForm({ ...form, name: e.target.value })
           }
-          required
+          
         />
       </div>
 
@@ -98,7 +119,7 @@ export default function CreateAdmins() {
           onChange={(e) =>
             setForm({ ...form, email: e.target.value })
           }
-          required
+          
         />
       </div>
 
@@ -124,7 +145,7 @@ export default function CreateAdmins() {
           onChange={(e) =>
             setForm({ ...form, password: e.target.value })
           }
-          required
+          
         />
       </div>
 
@@ -142,7 +163,7 @@ export default function CreateAdmins() {
               password_confirmation: e.target.value,
             })
           }
-          required
+          
         />
       </div>
 

@@ -34,28 +34,27 @@ const VerifyCode = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await dispatch(ActVerifyCode({ email, code })).unwrap();
-      toast.success(translate?.pages.verifyCode?.success || "Code verified");
+      const res = await dispatch(ActVerifyCode({ email, code })).unwrap();
+
+      toast.success(
+        res?.message ||
+          translate?.pages.verifyCode?.success ||
+          "Code verified"
+      );      
       router.push(
       `/${lang}/reset-password?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`
       );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      toast.error(err || "Invalid code");
+      if (err?.errors) {
+        Object.values(err.errors).forEach((v: any) =>
+          Array.isArray(v)
+            ? v.forEach((m) => toast.error(m))
+            : toast.error(v)
+        );
+        return;
+      }
     }
   };
-
-
-  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   const res = await dispatch(ActVerifyCode({ email, code }));
-  //   if (ActVerifyCode.fulfilled.match(res)) {
-  //     toast.success(translate?.pages.verifyCode?.success || "Code verified");
-  //     router.push(`/${lang}/reset-password?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
-  //   } else {
-  //     toast.error((res.payload as string) || "Invalid code");
-  //   }
-  // };
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>

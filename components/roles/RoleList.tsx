@@ -42,7 +42,7 @@ export default function RolesPage() {
           </CardTitle>
 
           <Link
-            href={`${lang}/roles/create`}
+            href={`/${lang}/roles/create`}
             className="inline-flex items-center rounded-md bg-blue-500 px-4 py-2 text-sm text-white hover:bg-blue-600"
           >
             إضافة دور جديد

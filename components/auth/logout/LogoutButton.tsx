@@ -12,15 +12,24 @@ interface LogoutButtonProps {
 const LogoutButton = ({ redirectTo = "/login", children }: LogoutButtonProps) => {
     const dispatch = useAppDispatch();
 
-    const handleLogout = async () => {
-        const res = await dispatch(ActLogout());
+    const handleLogout = async () => { 
+        try {
+            const res = await dispatch(ActLogout()).unwrap();
+            // ✅ backend success message
+            toast.success(res?.message || "Logout successful");
 
-        if (ActLogout.fulfilled.match(res)) {
-            toast.success(res.payload?.message || "Logout successful");
             setTimeout(() => {
                 window.location.replace(redirectTo);
-            }, 1000); // wait 1 seconds so toast appears
+              }, 1000);
+        } catch (err: any) {
+
+            if (err?.message) {
+                toast.error(err.message);
+                return;
+              }
         }
+       
+
     };
 
     return (

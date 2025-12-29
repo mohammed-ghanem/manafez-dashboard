@@ -4,6 +4,7 @@ import authReducer from "./auth/authSlice";
 import rolesReducer from "./roles/rolesSlice";
 import permissionsReducer from "./permissions/permissionsSlice";
 import adminsReducer from "./admins/adminsSlice";
+import { settingsReducer } from "./settingPages";
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     roles: rolesReducer,
     permissions: permissionsReducer,
     admins: adminsReducer,
+    settings: settingsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

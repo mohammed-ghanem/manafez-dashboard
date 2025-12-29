@@ -24,17 +24,50 @@ const ForgetPassword = () => {
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value);
 
+    // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    //     e.preventDefault();
+    //     const res = await dispatch(ActSendResetCode({ email }));
+    //     if (ActSendResetCode.fulfilled.match(res)) {
+    //         toast.success(translate?.pages.forgetPassword?.sent || "Reset code sent");
+    //         // navigate to verify page with email query
+    //         router.push(`/${lang}/verify-code?email=${encodeURIComponent(email)}`);
+    //     } else {
+    //         toast.error((res.payload as string) || "Failed to send reset code");
+    //     }
+    // };
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const res = await dispatch(ActSendResetCode({ email }));
-        if (ActSendResetCode.fulfilled.match(res)) {
-            toast.success(translate?.pages.forgetPassword?.sent || "Reset code sent");
-            // navigate to verify page with email query
-            router.push(`/${lang}/verify-code?email=${encodeURIComponent(email)}`);
-        } else {
-            toast.error((res.payload as string) || "Failed to send reset code");
+      
+        try {
+          const res = await dispatch(
+            ActSendResetCode({ email })
+          ).unwrap();
+      
+          // ✅ success message from backend
+          toast.success(
+            res?.message ||
+              translate?.pages.forgetPassword?.sent ||
+              "Reset code sent"
+          );
+      
+          router.push(
+            `/${lang}/verify-code?email=${encodeURIComponent(email)}`
+          );
+        } catch (err: any) {
+          // ✅ validation / field errors
+          if (err?.errors) {
+            Object.values(err.errors).forEach((value: any) => {
+              if (Array.isArray(value)) {
+                value.forEach((msg) => toast.error(msg));
+              } else {
+                toast.error(value);
+              }
+            });
+            return;
+          }
         }
-    };
+      };
+      
 
     return (
         <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>

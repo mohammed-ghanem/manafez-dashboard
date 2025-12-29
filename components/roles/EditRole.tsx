@@ -98,7 +98,7 @@ const EditRole = () => {
     }
 
     try {
-      await dispatch(
+      const res = await dispatch(
         ActUpdateRole({
           id: roleId,
           body: {
@@ -110,7 +110,7 @@ const EditRole = () => {
         })
       ).unwrap();
 
-      toast.success("Role updated successfully");
+      toast.success(res?.message || "Role updated successfully");
       router.push("/roles");
     } catch (err: any) {
       if (err?.errors) {
