@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -78,13 +79,6 @@ export default function CreateAdmins() {
         });
         return;
       }
-
-      if (typeof err?.message === "string") {
-        toast.error(err.message);
-        return;
-      }
-
-      toast.error("Create role failed");
     }
   };
 

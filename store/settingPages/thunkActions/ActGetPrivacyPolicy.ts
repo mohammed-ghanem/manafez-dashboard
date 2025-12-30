@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/services/api";
 /**
@@ -9,12 +10,12 @@ import api from "@/services/api";
     en?: string;
   }
   
-   interface Setting {
-    id: number;
-    key: string;
-    name: string;
-    value: SettingValue;
-  }
+  //  interface Setting {
+  //   id: number;
+  //   key: string;
+  //   name: string;
+  //   value: SettingValue;
+  // }
   
   export interface SettingsState {
     privacyPolicy: SettingValue | null;
@@ -28,8 +29,7 @@ export const ActGetPrivacyPolicy = createAsyncThunk(
   "settings/getPrivacyPolicy",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.post(
-        "/settings?key=privacy-policy",
+      const res = await api.post("/settings?key=privacy-policy",
         {},
         { params: { key: "privacy-policy" } }
       );
