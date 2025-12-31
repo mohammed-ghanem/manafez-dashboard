@@ -24,6 +24,7 @@ export const ActFetchAdminById = createAsyncThunk<
       image: user.image ?? null,
       is_active: Boolean(Number(user.is_active)),
       roles: user.roles ?? "",
+      message: res.data?.message ?? "",
       roles_ids: user.roles_ids
         ? Object.values(user.roles_ids).map((r: any) => Number(r.id))
         : [], // ✅ ALWAYS number[]
