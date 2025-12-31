@@ -17,6 +17,7 @@ function normalizeItem(item: any): IAdmin {
       is_active: Boolean(Number(user?.is_active ?? user?.isActive ?? 0)),
       created_at: user?.created_at ?? user?.createdAt,
       updated_at: user?.updated_at ?? user?.updatedAt,
+      message: item?.message,
     };
   }
 

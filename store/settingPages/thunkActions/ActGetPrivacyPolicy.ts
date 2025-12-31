@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "@/services/api";
 /**
@@ -10,13 +9,6 @@ import api from "@/services/api";
     en?: string;
   }
   
-  //  interface Setting {
-  //   id: number;
-  //   key: string;
-  //   name: string;
-  //   value: SettingValue;
-  // }
-  
   export interface SettingsState {
     privacyPolicy: SettingValue | null;
     loading: boolean;
@@ -25,21 +17,56 @@ import api from "@/services/api";
   
 
 
-export const ActGetPrivacyPolicy = createAsyncThunk(
+// export const ActGetPrivacyPolicy = createAsyncThunk(
+//   "settings/getPrivacyPolicy",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const res = await api.post("/settings?key=privacy-policy",
+//         {},
+//         { params: { key: "privacy-policy" } }
+//       );
+
+//       return res.data.data.setting.value as SettingValue;
+//     } catch (err: any) {
+//       return rejectWithValue(err.response?.data?.message || "Fetch failed");
+//     }
+//   }
+// );
+
+
+
+export const ActGetPrivacyPolicy = createAsyncThunk<
+  SettingValue,
+  void,
+  { state: { settings: SettingsState } }
+>(
   "settings/getPrivacyPolicy",
-  async (_, { rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const res = await api.post("/settings?key=privacy-policy",
+      const { privacyPolicy } = getState().settings;
+
+      // ✅ already fetched → skip API call
+      if (privacyPolicy) {
+        return privacyPolicy;
+      }
+
+      const res = await api.post(
+        "/settings",
         {},
         { params: { key: "privacy-policy" } }
       );
 
       return res.data.data.setting.value as SettingValue;
     } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || "Fetch failed");
+      return rejectWithValue(
+        err.response?.data?.message || "Fetch failed"
+      );
     }
   }
 );
+
+
+
 
 /**
  * UPDATE privacy policy

@@ -1,7 +1,7 @@
-import api from "./api";
+// import api from "./api";
 
-const permissionService = {
-  getPermissions: () => api.get("/permissions"),
-};
+// const permissionService = {
+//   getPermissions: () => api.get("/permissions"),
+// };
 
-export default permissionService;
+// export default permissionService;

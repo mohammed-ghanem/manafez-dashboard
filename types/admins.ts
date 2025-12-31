@@ -1,6 +1,7 @@
 
 
 export interface IAdmin {
+  message: string;
   id: number;
   name: string;
   email: string;
