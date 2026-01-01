@@ -18,54 +18,21 @@ import api from "@/services/api";
   
 
 
-// export const ActGetPrivacyPolicy = createAsyncThunk(
-//   "settings/getPrivacyPolicy",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const res = await api.post("/settings?key=privacy-policy",
-//         {},
-//         { params: { key: "privacy-policy" } }
-//       );
-
-//       return res.data.data.setting.value as SettingValue;
-//     } catch (err: any) {
-//       return rejectWithValue(err.response?.data?.message || "Fetch failed");
-//     }
-//   }
-// );
-
-
-
-export const ActGetPrivacyPolicy = createAsyncThunk<
-  SettingValue,
-  void,
-  { state: { settings: SettingsState } }
->(
+export const ActGetPrivacyPolicy = createAsyncThunk(
   "settings/getPrivacyPolicy",
-  async (_, { getState, rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const { privacyPolicy } = getState().settings;
-
-      // ✅ already fetched → skip API call
-      if (privacyPolicy) {
-        return privacyPolicy;
-      }
-
-      const res = await api.post(
-        "/settings",
+      const res = await api.post("/settings?key=privacy-policy",
         {},
         { params: { key: "privacy-policy" } }
       );
 
       return res.data.data.setting.value as SettingValue;
     } catch (err: any) {
-      return rejectWithValue(
-        err.response?.data?.message || "Fetch failed"
-      );
+      return rejectWithValue(err.response?.data?.message || "Fetch failed");
     }
   }
 );
-
 
 
 

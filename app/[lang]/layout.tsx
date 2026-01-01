@@ -56,7 +56,7 @@ export default async function RootLayout({
               {/* Header */}
               <Navbar />
               {/* Content */}
-              <main className="flex-1 overflow-y-auto p-4 bg-gray-100">
+              <main className="flex-1 overflow-y-auto p-4 mainBackGroundColor">
                 {children}
               </main>
               {/* Footer */}

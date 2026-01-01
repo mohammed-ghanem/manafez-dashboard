@@ -23,41 +23,16 @@ const Login = () => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   const result = await dispatch(ActLogin(form));
-
-  //   if (ActLogin.fulfilled.match(result)) {
-  //     toast.success(
-  //       <span className="font-cairo font-bold">
-  //         {result.payload.message || "Login successful"}
-  //       </span>
-  //     );
-  //     setTimeout(() => {
-  //       window.location.href = `/${lang}/`;
-  //     }, 1000);
-  //   } else {
-  //     toast.error(result.payload as string, {
-  //       description:
-  //         translate?.pages.login.InvalidEmailOrPasswordDescription ||
-  //         "Please check your email and password and try again.",
-  //     });
-  //   }
-  // };
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   
     try {
       const res = await dispatch(ActLogin(form)).unwrap();
-  
       // ✅ backend success message
       toast.success(
         <span className="font-cairo font-bold">
           {res?.message ||
-            translate?.pages.login.success ||
-            "Login successful"}
+            translate?.pages.login.success || "Login successful"}
         </span>
       );
   
@@ -76,21 +51,6 @@ const Login = () => {
         });
         return;
       }
-  
-      // ✅ single backend message
-      if (err?.message) {
-        toast.error(err.message, {
-          description:
-            translate?.pages.login.InvalidEmailOrPasswordDescription ||
-            "Please check your email and password and try again.",
-        });
-        return;
-      }
-  
-      toast.error(
-        translate?.pages.login.failed ||
-          "Login failed"
-      );
     }
   };
   
@@ -121,7 +81,6 @@ const Login = () => {
                 name="email"
                 value={form.email}
                 onChange={handleChange}
-                required
                 className="mt-1 block w-full p-2 border bg-white
                  border-gray-300 rounded-md shadow-sm outline-none"
               />
@@ -141,7 +100,6 @@ const Login = () => {
                 name="password"
                 value={form.password}
                 onChange={handleChange}
-                required
                 className="mt-1 block w-full p-2 border bg-white
                  border-gray-300 rounded-md shadow-sm outline-none"
               />

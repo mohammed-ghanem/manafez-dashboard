@@ -1,11 +1,5 @@
-import PrivacyPolicy from "@/components/settings/privacy-policy/PrivacyPolicy"
+import PrivacyPolicy from "@/components/settings/privacy-policy/PrivacyPolicy";
 
-const page = () => {
-  return (
-    <div>
-      <PrivacyPolicy />
-    </div>
-  )
+export default function Page() {
+  return <PrivacyPolicy />;
 }
-
-export default page

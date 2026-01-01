@@ -95,12 +95,14 @@ svg {
 }
 
 /* Your custom styles */
+.mainBackGroundColor {
+  background-color: #f9fafb;
+}
 .grdianBK {
-  background: radial-gradient(circle, #d5d6ff 20%, #fff 60%);
+  background: radial-gradient(circle, #f9fafb 20%, #fff 60%);
 }
 .backgroundDark {
   background: rgb(243 244 246);
-;
 }
 .mainColor {
   color: #69909d;
@@ -110,7 +112,7 @@ background: #69909d4f;
   color: #000; 
  }
 .hover-mainColor:hover {
-   background: #f3f4f6;
+   background: #f9fafb;
     color: #000;
 }
 .scoundColor {
@@ -120,6 +122,6 @@ background: #69909d4f;
   color: #9368f33d;
 }
 .activeLink{
-    background: #f3f4f6;
+    background: #f9fafb;
     color: #000;
 }
