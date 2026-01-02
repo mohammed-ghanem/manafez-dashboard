@@ -1,5 +1,5 @@
 /* Font imports */
-@import url('https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
 
 /* Tailwind imports */
 @import "tailwindcss";
@@ -7,7 +7,7 @@
 /* Base styles */
 :root {
   font-family: var(--font-cairo), sans-serif;
-  
+
   /* Light theme variables */
   --background: 0 0% 100%;
   --foreground: 0 0% 3.9%;
@@ -82,7 +82,7 @@
   * {
     border-color: hsl(var(--border));
   }
-  
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -96,7 +96,38 @@ svg {
 
 /* Your custom styles */
 .mainBackGroundColor {
-  background-color: #f9fafb;
+  background-color: #ebf5ff;
+}
+.titleStyle {
+  background: #ebf5ff;
+  width: fit-content;
+  padding: 10px;
+  border-radius: 5px;
+  color: #495b64;
+  font-size: 16px;
+}
+.titleDescription {
+  color: #3f6e9d;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.submitButton {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  margin: auto;
+  margin-top: 24px;
+  display: block;
+  background: #28a745;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+}
+.submitButton:hover {
+  color: #fff;
+  background-color: #218838;
+  border-color: #1e7e34;
 }
 .grdianBK {
   background: radial-gradient(circle, #f9fafb 20%, #fff 60%);
@@ -108,12 +139,12 @@ svg {
   color: #69909d;
 }
 .bkMainColor {
-background: #69909d4f;
-  color: #000; 
- }
+  background: #69909d4f;
+  color: #000;
+}
 .hover-mainColor:hover {
-   background: #f9fafb;
-    color: #000;
+  background: #ebf5ff;
+  color: #000;
 }
 .scoundColor {
   color: #81878f;
@@ -121,7 +152,7 @@ background: #69909d4f;
 .lightColor {
   color: #9368f33d;
 }
-.activeLink{
-    background: #f9fafb;
-    color: #000;
+.activeLink {
+  background: #ebf5ff;
+  color: #000;
 }

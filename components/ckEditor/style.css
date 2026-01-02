@@ -1,9 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Qahiri&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&display=swap');
-
-
+@import url("https://fonts.googleapis.com/css2?family=Qahiri&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Amiri&family=Almarai&family=Aref+Ruqaa&family=El+Messiri&family=Reem+Kufi&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400..700&display=swap");
 
 .ck-content > blockquote,
 .ck-content > dl,
@@ -64,20 +62,17 @@ p {
   /* margin: revert; */
 }
 
-
 .ckeditor-container {
   height: 100%;
   min-height: 300px; /* Minimum height */
   max-height: 500px; /* Maximum height */
   overflow-y: auto; /* Enable vertical scrolling */
   overflow-x: hidden; /* Disable horizontal scrolling */
-  border: 1px solid #ccc; /* Optional: Add a border for better visibility */
+  box-shadow: 1px 1px 1px #ebf5ff;
   border-radius: 4px; /* Optional: Add rounded corners */
   background: #e9f3f8;
   width: 100%;
   margin: auto;
-  
-  
 }
 
 .ck-content {
@@ -86,11 +81,11 @@ p {
   overflow-y: auto !important; /* Enable vertical scrolling */
   overflow-x: hidden !important; /* Disable horizontal scrolling */
 }
-.ck-dropdown__panel-visible{
-  overflow-y: auto!important;
-  height: 100%!important;
-  display: block!important;
-  min-height: 260px!important;
+.ck-dropdown__panel-visible {
+  overflow-y: auto !important;
+  height: 100% !important;
+  display: block !important;
+  min-height: 260px !important;
 }
 /* .ckeditor-container p {
   line-height: 0.7 !important;  

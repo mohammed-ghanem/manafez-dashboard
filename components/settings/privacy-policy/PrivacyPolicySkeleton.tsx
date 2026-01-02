@@ -2,16 +2,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 /* ================= Title ================= */
 export function PrivacyPolicyTitleSkeleton() {
-  return <Skeleton className="h-8 w-64 bg-amber-400" />;
+  return <Skeleton className="h-8 w-64 " />;
 }
 
 /* ================= Editor ================= */
 export function PrivacyPolicyEditorSkeleton() {
   return (
     <div className="space-y-3">
-      <Skeleton className="h-5 w-48 bg-amber-400" />
-      <Skeleton className="h-10 w-full bg-amber-400" />
-      <Skeleton className="h-64 w-full bg-amber-400" />
+      <Skeleton className="h-5 w-48 " />
+      <Skeleton className="h-10 w-full " />
+      <Skeleton className="h-64 w-full " />
     </div>
   );
 }

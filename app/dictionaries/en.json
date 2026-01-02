@@ -87,5 +87,15 @@
         "roles": "Roles & Permissions",
         "admins": "Admins"
         
+    },
+    "settings": {
+    "privacyPolicy": {
+      "title": " Privacy Policy",
+      "arabicContent": " Arabic Content",
+      "englishContent": " English Content",
+      "processing": "Processing Save Changes",
+      "saveBtn": "Save Changes"
     }
+  }
+
 } 
