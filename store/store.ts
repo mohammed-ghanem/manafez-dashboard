@@ -6,6 +6,11 @@ import permissionsReducer from "./permissions/permissionsSlice";
 import adminsReducer from "./admins/adminsSlice";
 import { settingsReducer } from "./settingPages";
 
+
+import { privacyPolicyApi } from "./settings/privacyPolicyApi";
+
+
+
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -13,11 +18,19 @@ export const store = configureStore({
     permissions: permissionsReducer,
     admins: adminsReducer,
     settings: settingsReducer,
+
+    [privacyPolicyApi.reducerPath]: privacyPolicyApi.reducer,
   },
+//   middleware: (getDefaultMiddleware) =>
+
+//     getDefaultMiddleware({
+//       serializableCheck: false,
+//     }),
+
+// });
+
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-    }),
+    getDefaultMiddleware().concat(privacyPolicyApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

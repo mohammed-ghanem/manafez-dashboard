@@ -6,7 +6,7 @@ import api from "@/services/api";
  */
 
  interface SettingValue {
-    ar: string ;
+    ar: string ; 
     en?: string;
   }
   
