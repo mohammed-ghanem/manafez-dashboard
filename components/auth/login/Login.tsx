@@ -49,7 +49,7 @@ const Login = () => {
           } else {
             toast.error(value);
           }
-        });
+        }); 
         return;
       }
     }

@@ -46,4 +46,4 @@ export const ActFetchAdmins = createAsyncThunk<IAdmin[]>(
       }
      
   }
-);
+); 

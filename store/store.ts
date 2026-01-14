@@ -8,6 +8,7 @@ import { settingsReducer } from "./settingPages";
 
 
 import { privacyPolicyApi } from "./settings/privacyPolicyApi";
+import { adminsApi } from "./admins/adminsApi";
 
 
 
@@ -20,6 +21,7 @@ export const store = configureStore({
     settings: settingsReducer,
 
     [privacyPolicyApi.reducerPath]: privacyPolicyApi.reducer,
+    [adminsApi.reducerPath]: adminsApi.reducer,
   },
 //   middleware: (getDefaultMiddleware) =>
 
@@ -30,8 +32,11 @@ export const store = configureStore({
 // });
 
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(privacyPolicyApi.middleware),
+    getDefaultMiddleware().concat(
+      privacyPolicyApi.middleware , 
+      adminsApi.middleware),
+   
 });
 
-export type RootState = ReturnType<typeof store.getState>;
+export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch;
