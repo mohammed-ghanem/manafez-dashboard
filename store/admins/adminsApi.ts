@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "../base/axiosBaseQuery";
 import { IAdmin } from "@/types/admins";
@@ -53,13 +54,57 @@ export const adminsApi = createApi({
     }),
 
     // ✅ TOGGLE STATUS
-    toggleAdminStatus: builder.mutation<void, number>({
-      query: (id) => ({
-        url: `/admins/status/${id}`,
-        method: "post",
-      }),
-      invalidatesTags: ["Admins"],
-    }),
+
+
+
+
+
+    toggleAdminStatus: builder.mutation<{ message: string }, number>({
+  query: (id) => ({
+    url: `/admins/status/${id}`,
+    method: "post",
+  }),
+
+  async onQueryStarted(id, { dispatch, queryFulfilled }) {
+    // تحديث فوري للـ cache
+    const patchResult = dispatch(
+      adminsApi.util.updateQueryData(
+        "getAdmins",
+        undefined,
+        (draft: any[]) => {
+          const admin = draft.find((a) => a.id === id);
+          if (admin) {
+            admin.is_active = !admin.is_active;
+          }
+        }
+      )
+    );
+
+    try {
+      await queryFulfilled;
+    } catch {
+      // في حالة الفشل نرجع للحالة القديمة
+      patchResult.undo();
+    }
+  },
+
+  invalidatesTags: ["Admins"],
+}),
+
+
+
+    // toggleAdminStatus: builder.mutation<{message : string}, number>({
+    //   query: (id) => ({
+    //     url: `/admins/status/${id}`,
+    //     method: "post",
+    //   }),
+    //   invalidatesTags: ["Admins"],
+    // }),
+
+
+
+
+
   }),
 });
 
