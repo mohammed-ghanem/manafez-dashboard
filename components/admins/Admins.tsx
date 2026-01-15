@@ -27,13 +27,19 @@ import {
 
 import Link from "next/link";
 import { useState } from "react";
+import LangUseParams from "@/translate/LangUseParams";
+
+
 
 const Admins = () => {
+  const lang = LangUseParams();
   const { data: admins = [], isLoading } = useGetAdminsQuery();
-  // const [deleteAdmin] = useDeleteAdminMutation();
+  const [deleteAdmin] = useDeleteAdminMutation();
   const [deleteId, setDeleteId] = useState<number | null>(null);
   // const [toggleStatus, { isLoading: isToggling }] = useToggleAdminStatusMutation();
    const [toggleStatus] = useToggleAdminStatusMutation();
+   const [togglingId, setTogglingId] = useState<number | null>(null); // لتتبع تبديل الحالة
+
 
   const isProtectedAdmin = (roles: any) => {
     if (Array.isArray(roles)) {
@@ -51,20 +57,22 @@ const Admins = () => {
     return roles === "admin" || roles === "أدمن" || roles === "ادمن";
   };
   
+  // ✅ دالة الحذف الصحيحة
   const handleDelete = async () => {
     if (!deleteId) return;
   
     try {
-
-      const res = await toggleStatus(deleteId).unwrap();
-      console.log(res)
+      // ✅ استخدام deleteAdmin بدلاً من toggleStatus
+      const res = await deleteAdmin(deleteId).unwrap();
      
       toast.success(
         <span className="font-cairo font-bold">
-          {res?.message || "تم" }
+          {res?.message || "تم حذف المسؤول بنجاح"}
         </span>
       );
     } catch (err: any) {
+      console.error("Delete error:", err);
+      
       if (err?.errors) {
         Object.values(err.errors).forEach((value: any) => {
           if (Array.isArray(value)) {
@@ -73,18 +81,60 @@ const Admins = () => {
             toast.error(value);
           }
         }); 
-        return;
+      } else if (err?.message) {
+        toast.error(err.message);
+      } else {
+        toast.error("حدث خطأ أثناء الحذف");
       }
     } finally {
       setDeleteId(null);
     }
   };
+
+  // ✅ دالة تغيير الحالة
+  const handleToggleStatus = async (id: number) => {
+    setTogglingId(id);
+     await toggleStatus(id).unwrap();
+    setTogglingId(null);
+  };
+
+  // const handleDelete = async () => {
+  //   if (!deleteId) return;
+  
+  //   try {
+
+  //     const res = await toggleStatus(deleteId).unwrap();
+  //     console.log(res)
+     
+  //     toast.success(
+  //       <span className="font-cairo font-bold">
+  //         {res?.message || "تم" }
+  //       </span>
+  //     );
+  //   } catch (err: any) {
+  //     if (err?.errors) {
+  //       Object.values(err.errors).forEach((value: any) => {
+  //         if (Array.isArray(value)) {
+  //           value.forEach((msg) => toast.error(msg));
+  //         } else {
+  //           toast.error(value);
+  //         }
+  //       }); 
+  //       return;
+  //     }
+  //   } finally {
+  //     setDeleteId(null);
+  //   }
+  // };
   
 
   if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="space-y-4" >
+      <div>
+        <Link href={`/${lang}/admins/create`} className="btn btn-primary">create new admin</Link>
+      </div>
       {admins.map((admin) => {
         const protectedAdmin = isProtectedAdmin(admin.roles);
 
@@ -117,7 +167,7 @@ const Admins = () => {
                   <Switch
                     checked={admin.is_active}
                     // disabled={isToggling}
-                    onCheckedChange={() => toggleStatus(admin.id)}
+                    onCheckedChange={() => handleToggleStatus(admin.id)}
                   />
                   <span className="text-sm">
                     {admin.is_active ? "مفعل" : "غير مفعل"}

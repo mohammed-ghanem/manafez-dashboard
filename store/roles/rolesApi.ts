@@ -1,0 +1,152 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { axiosBaseQuery } from "../base/axiosBaseQuery";
+import { Role } from "./types";
+
+export const rolesApi = createApi({
+  reducerPath: "rolesApi",
+  baseQuery: axiosBaseQuery(),
+  tagTypes: ["Roles"],
+  endpoints: (builder) => ({
+
+    /* ===================== GET ALL ROLES ===================== */
+    // getRoles: builder.query<Role[], void>({
+    //   query: () => ({
+    //     url: "/roles",
+    //     method: "get",
+    //   }),
+    //   transformResponse: (res: any) =>
+    //     res?.data?.data?.data ?? [],
+    //   providesTags: ["Roles"],
+    // }),
+
+
+    getRoles: builder.query<Role[], void>({
+        query: () => ({
+          url: "/roles",
+          method: "get",
+        }),
+        transformResponse: (res: any) => {
+          return (
+            res?.data?.data?.roles ??
+            res?.data?.roles ??
+            res?.data?.data ??
+            res?.roles ??
+            []
+          );
+        },
+        providesTags: ["Roles"],
+      }),
+      
+    /* ===================== GET ROLE BY ID ===================== */
+    getRoleById: builder.query<Role, number>({
+      query: (id) => ({
+        url: `/roles/${id}`,
+        method: "get",
+      }),
+      transformResponse: (res: any) =>
+        res?.data?.data?.role,
+    }),
+
+    /* ===================== CREATE ROLE ===================== */
+    createRole: builder.mutation<any, any>({
+      query: (body) => ({
+        url: "/roles",
+        method: "post",
+        data: {
+          name: {
+            ar: body.name_ar,
+            en: body.name_en,
+          },
+          description: "",
+          is_active: true,
+          role_permissions: body.permissions,
+        },
+      }),
+      invalidatesTags: ["Roles"],
+    }),
+
+    /* ===================== UPDATE ROLE ===================== */
+    updateRole: builder.mutation<any, { id: number; body: any }>({
+      query: ({ id, body }) => {
+        const formData = new FormData();
+        formData.append("_method", "put");
+        formData.append("name", body.name);
+        formData.append("name[en]", body.name_en);
+        formData.append("name[ar]", body.name_ar);
+
+        body.permissions.forEach((p: number) =>
+          formData.append("role_permissions[]", String(p))
+        );
+
+        return {
+          url: `/roles/${id}`,
+          method: "post",
+          data: formData,
+        };
+      },
+      invalidatesTags: ["Roles"],
+    }),
+
+    /* ===================== DELETE ROLE ===================== */
+    deleteRole: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/roles/${id}`,
+        method: "delete",
+      }),
+      invalidatesTags: ["Roles"],
+    }),
+
+    /* ===================== TOGGLE STATUS ===================== */
+    toggleRoleStatus: builder.mutation<
+      void,
+      { id: number; is_active: boolean }
+    >({
+      query: ({ id, is_active }) => {
+        const formData = new FormData();
+        formData.append("is_active", is_active ? "1" : "0");
+
+        return {
+          url: `/roles/toggle-role/${id}`,
+          method: "post",
+          data: formData,
+        };
+      },
+
+      async onQueryStarted(
+        { id },
+        { dispatch, queryFulfilled }
+      ) {
+        const patch = dispatch(
+          rolesApi.util.updateQueryData(
+            "getRoles",
+            undefined,
+            (draft: Role[]) => {
+              const role = draft.find((r) => r.id === id);
+              if (role) {
+                role.is_active = role.is_active ? 0 : 1;
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
+
+      invalidatesTags: ["Roles"],
+    }),
+  }),
+});
+
+export const {
+  useGetRolesQuery,
+  useGetRoleByIdQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
+  useToggleRoleStatusMutation,
+} = rolesApi;

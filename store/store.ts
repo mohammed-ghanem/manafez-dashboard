@@ -9,6 +9,7 @@ import { settingsReducer } from "./settingPages";
 
 import { privacyPolicyApi } from "./settings/privacyPolicyApi";
 import { adminsApi } from "./admins/adminsApi";
+import { rolesApi } from "./roles/rolesApi";
 
 
 
@@ -22,19 +23,15 @@ export const store = configureStore({
 
     [privacyPolicyApi.reducerPath]: privacyPolicyApi.reducer,
     [adminsApi.reducerPath]: adminsApi.reducer,
+    [rolesApi.reducerPath]: rolesApi.reducer,
   },
-//   middleware: (getDefaultMiddleware) =>
-
-//     getDefaultMiddleware({
-//       serializableCheck: false,
-//     }),
-
-// });
 
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       privacyPolicyApi.middleware , 
-      adminsApi.middleware),
+      adminsApi.middleware,
+      rolesApi.middleware
+      ),
    
 });
 

@@ -3,38 +3,43 @@
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActFetchAdminById } from "@/store/admins/thunkActions/ActFetchAdminById";
-import { ActUpdateAdmin } from "@/store/admins/thunkActions/ActUpdateAdmin";
-import { ActFetchRoles } from "@/store/roles/thunkActions/ActFetchRoles";
+import {
+  useGetAdminByIdQuery,
+  useUpdateAdminMutation,
+} from "@/store/admins/adminsApi";
+import { useGetRolesQuery } from "@/store/roles/rolesApi";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 
 /* ===================== TYPES ===================== */
-
 type EditAdminForm = {
   name: string;
   email: string;
   phone: string;
-  roles_ids: number[]; // MULTI ROLES
+  roles_ids: number[];
   isActive: boolean;
 };
-
-/* ===================== COMPONENT ===================== */
 
 export default function EditAdmin() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
-  const { selected, status } = useAppSelector((s) => s.admins);
-  const { roles } = useAppSelector((s) => s.roles);
+  /* ===================== QUERIES ===================== */
+  const { data: admin, isLoading } = useGetAdminByIdQuery(Number(id));
+  const { data: rolesResponse, isLoading: rolesLoading } =
+    useGetRolesQuery();
 
+  const roles = rolesResponse ?? [];
+
+  const [updateAdmin, { isLoading: isUpdating }] =
+    useUpdateAdminMutation();
+
+  /* ===================== FORM ===================== */
   const {
     register,
     handleSubmit,
@@ -51,117 +56,109 @@ export default function EditAdmin() {
     },
   });
 
-  /* ===================== FETCH DATA ===================== */
+/* ===================== FILL FORM (CRITICAL FIX) ===================== */
+useEffect(() => {
+  if (!admin) return;
 
-  useEffect(() => {
-    dispatch(ActFetchRoles());
-    dispatch(ActFetchAdminById(Number(id)));
-  }, [dispatch, id]);
+  reset({
+    name: admin.name ?? "",
+    email: admin.email ?? "",
+    phone: admin.mobile ?? "",
+    roles_ids: Array.isArray(admin.roles_ids) 
+      ? admin.roles_ids.map((id) => Number(id))
+      : [],
+    isActive: Boolean(admin.is_active),
+  });
+}, [admin, reset]);
 
-  /* ===================== FILL FORM ===================== */
-
-  useEffect(() => {
-    if (!selected) return;
-
-    reset({
-      name: selected.name,
-      email: selected.email,
-      phone: selected.mobile,
-      roles_ids: selected.roles_ids, // IMPORTANT
-      isActive: selected.is_active,
-    });
-  }, [selected, reset]);
 
   /* ===================== SUBMIT ===================== */
-
   const onSubmit = async (data: EditAdminForm) => {
     try {
-      const res =  await dispatch(
-        ActUpdateAdmin({
-          id: Number(id),
-          data: {
-            name: data.name,
-            email: data.email,
-            mobile: data.phone,
-            role_id: data.roles_ids, // API expects array
-            is_active: data.isActive ? 1 : 0,
-          },
-        })
-      ).unwrap();
-      // ✅ success message from backend (fallback if missing)
-     toast.success(res?.message || "admin updated successfully");
-    } catch (err: any) {
-      const errors = err?.errors as Record<string, string[] | string> | undefined;
+      const res = await updateAdmin({
+        id: Number(id),
+        data: {
+          name: data.name,
+          email: data.email,
+          mobile: data.phone,
+          role_id: data.roles_ids,
+          is_active: data.isActive,
+        },
+      }).unwrap();
 
-      if (errors) {
-        Object.values(errors).forEach((value) => {
+      toast.success(res?.message || "تم التعديل بنجاح");
+      router.push("/admins");
+    } catch (err: any) {
+      if (err?.errors) {
+        Object.values(err.errors).forEach((value: any) => {
           if (Array.isArray(value)) {
             value.forEach((msg) => toast.error(msg));
           } else {
             toast.error(value);
           }
         });
-        return;
+      } else {
+        toast.error("حدث خطأ غير متوقع");
       }
-
     }
-    router.push("/admins");
   };
 
-  /* ===================== WATCH ===================== */
+  const selectedRoles = watch("roles_ids") ?? [];
 
-  const selectedRoles = watch("roles_ids");
-
-  /* ===================== UI ===================== */
+  if (isLoading || rolesLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="max-w-xl space-y-4 p-6"
     >
-      <Input placeholder="Name" {...register("name", { required: true })} />
-      <Input placeholder="Email" {...register("email", { required: true })} />
-      <Input placeholder="Phone" {...register("phone")} />
+      {/* BASIC INFO */}
+      <Input {...register("name")} placeholder="Name" />
+      <Input {...register("email")} placeholder="Email" />
+      <Input {...register("phone")} placeholder="Phone" />
 
-      {/* ===================== ROLES ===================== */}
+      {/* ROLES */}
       <div className="space-y-2">
         <Label>Roles</Label>
 
-        {roles.map((role) => {
-    const isChecked = selectedRoles?.includes(role.id);
-
-    return (
-      <label key={role.id} className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={isChecked}
-          onChange={(e) => {
-            if (e.target.checked) {
-              setValue("roles_ids", [...(selectedRoles ?? []), role.id]);
-            } else {
-              setValue(
-                "roles_ids",
-                (selectedRoles ?? []).filter((id) => id !== role.id)
-              );
-            }
-          }}
-        />
-        <span>{role.name}</span>
-      </label>
-    );
-  })}
+        {roles.length === 0 && (
+          <p className="text-sm text-gray-500">No roles found</p>
+        )}
+            {roles.map((role: any) => (
+              <div key={role.id} className="flex items-center gap-2">
+                <Checkbox
+                  id={`role-${role.id}`}
+                  checked={selectedRoles.includes(role.id)}
+                  onCheckedChange={(checked) => {
+                    const newRoles = checked
+                      ? [...selectedRoles, role.id]
+                      : selectedRoles.filter((rid) => rid !== role.id);
+                    
+                    setValue("roles_ids", newRoles, {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                />
+                <Label htmlFor={`role-${role.id}`}>{role.name}</Label>
+              </div>
+            ))}
       </div>
 
-      {/* ===================== ACTIVE ===================== */}
+      {/* ACTIVE */}
       <div className="flex items-center gap-2">
         <Checkbox
           checked={watch("isActive")}
-          onCheckedChange={(v) => setValue("isActive", Boolean(v))}
+          onCheckedChange={(v) =>
+            setValue("isActive", Boolean(v))
+          }
         />
         <span>Active</span>
       </div>
 
-      <Button disabled={status === "loading"} className="w-full">
+      <Button disabled={isUpdating} className="w-full">
         Update Admin
       </Button>
     </form>
