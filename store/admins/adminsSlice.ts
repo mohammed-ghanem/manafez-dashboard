@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IAdmin } from "@/types/admins";
-import {ActFetchAdmins,} from "./thunkActions/ActAdmins";
+// import {ActFetchAdmins,} from "./thunkActions/ActAdmins";
 import { ActCreateAdmin } from "./thunkActions/ActCreateAdmins";
 import { ActUpdateAdmin } from "./thunkActions/ActUpdateAdmin";
 import { ActDeleteAdmin } from "./thunkActions/ActDeleteAdmin";
@@ -38,24 +38,24 @@ const adminsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       /** ================= FETCH LIST ================= */
-      .addCase(ActFetchAdmins.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(
-        ActFetchAdmins.fulfilled,
-        (state, action: PayloadAction<IAdmin[]>) => {
-          state.status = "succeeded";
-          state.list = action.payload;
-        }
-      )
-      .addCase(ActFetchAdmins.rejected, (state, action) => {
-        state.status = "failed";
-        state.error =
-          (action.payload as string) ||
-          action.error.message ||
-          "Failed to fetch admins";
-      })
+      // .addCase(ActFetchAdmins.pending, (state) => {
+      //   state.status = "loading";
+      //   state.error = null;
+      // })
+      // .addCase(
+      //   ActFetchAdmins.fulfilled,
+      //   (state, action: PayloadAction<IAdmin[]>) => {
+      //     state.status = "succeeded";
+      //     state.list = action.payload;
+      //   }
+      // )
+      // .addCase(ActFetchAdmins.rejected, (state, action) => {
+      //   state.status = "failed";
+      //   state.error =
+      //     (action.payload as string) ||
+      //     action.error.message ||
+      //     "Failed to fetch admins";
+      // })
 
       /** ================= FETCH BY ID ================= */
       .addCase(ActFetchAdminById.pending, (state) => {
