@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActFetchPermissions } from "@/store/permissions/thunkActions";
-import { ActFetchRoleById } from "@/store/roles/thunkActions/ActFetchRoleById";
-import { ActUpdateRole } from "@/store/roles/thunkActions/ActUpdateRole";
+import { useGetPermissionsQuery } from "@/store/permissions/permissionsApi";
+import {
+  useGetRoleByIdQuery,
+  useUpdateRoleMutation,
+} from "@/store/roles/rolesApi";
+
 
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,48 +22,51 @@ import { Shield, CheckSquare } from "lucide-react";
 import { toast } from "sonner";
 
 const EditRole = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const params = useParams();
-  const roleId = Number(params.id);
 
-  const { record: permissionsRecord, loading: permLoading } = useAppSelector(
-    (state) => state.permissions
-  );
-  const { selectedRole: roleData, loading: roleLoading } = useAppSelector(
-    (state) => state.roles
-  );
+const roleId =
+  typeof params.id === "string" ? Number(params.id) : undefined;
+
+  const { data: permissions, isLoading: permLoading } = useGetPermissionsQuery();
+const {
+  data: roleData,
+  isLoading: roleLoading,
+} = useGetRoleByIdQuery(roleId!, {
+  skip: !roleId,
+});
+
+console.log("ROLE DATA =>", roleData);
+
+  const [updateRole] = useUpdateRoleMutation();
+
 
   // Form state
-  const [name, setName] = useState("");
   const [name_en, setNameEn] = useState("");
   const [name_ar, setNameAr] = useState("");
 
   // Permission IDs
   const [selected, setSelected] = useState<number[]>([]);
 
-  // Fetch role + permissions
-  useEffect(() => {
-    dispatch(ActFetchPermissions());
-    dispatch(ActFetchRoleById(roleId));
-  }, [dispatch, roleId]);
+    console.log("ROLE DATA =>", roleData);
 
   // Fill form after loading
   useEffect(() => {
-    if (!roleData) return;
+if (!roleData || roleLoading) return;
 
-    setName(roleData.name || "");
+
+
     setNameEn(roleData.name_en || "");
     setNameAr(roleData.name_ar || "");
 
     if (roleData.permissions) {
-      const ids = roleData.permissions.flatMap((group: any) =>
-        group.controls.map((c: any) => c.id)
+      const ids = roleData.permissions.flatMap((g: any) =>
+        g.controls.map((c: any) => c.id)
       );
-
       setSelected(ids);
     }
-  }, [roleData]);
+  }, [roleData , roleLoading]);
+
 
   // Toggle single control
   const toggleControl = (id: number) => {
@@ -73,53 +79,66 @@ const EditRole = () => {
 
   // Select all permissions
   const selectAllPermissions = () => {
-    const all = permissionsRecord.flatMap((group: any) =>
-      group.controls.map((c: any) => c.id)
+    if (!permissions) return;
+
+    const allIds = permissions.flatMap((g) =>
+      g.controls.map((c: any) => c.id)
     );
-    setSelected(all);
+    setSelected(allIds);
   };
 
   // Select whole group
-  const selectGroup = (controls: any[]) => {
-    const ids = controls.map((c) => c.id);
-    setSelected((prev) => [...new Set([...prev, ...ids])]);
-  };
+const selectGroup = (controls: any[]) => {
+  const ids = controls.map((c) => c.id);
+
+  setSelected((prev) => {
+    const isGroupSelected = ids.every((id) => prev.includes(id));
+
+    if (isGroupSelected) {
+      // remove group permissions
+      return prev.filter((id) => !ids.includes(id));
+    }
+
+    // add missing permissions only
+    return [...prev, ...ids.filter((id) => !prev.includes(id))];
+  });
+};
+
 
   // Update role
-  const handleUpdate = async () => {
-    if (!name || !name_en || !name_ar) {
-      toast.error("All name fields are required");
-      return;
-    }
+const handleUpdate = async () => {
+  if ( !name_en || !name_ar) { 
+    toast.error("All name fields are required");
+    return;
+  }
 
-    if (selected.length === 0) {
-      toast.error("Select at least one permission");
-      return;
-    }
+  if (selected.length === 0) {
+    toast.error("Select at least one permission");
+    return;
+  }
 
-    try {
-      const res = await dispatch(
-        ActUpdateRole({
-          id: roleId,
-          body: {
-            name,
-            name_en,
-            name_ar,
-            permissions: selected,
-          },
-        })
-      ).unwrap();
+  if (!roleId) {
+    toast.error("Role ID is missing");
+    return;
+  }
 
-      toast.success(res?.message || "Role updated successfully");
-      router.push("/roles");
-    } catch (err: any) {
-      if (err?.errors) {
-        Object.values(err.errors).forEach((e: any) => toast.error(String(e)));
-      } else {
-        toast.error(err?.message || "Update failed");
-      }
-    }
-  };
+  try {
+    const res = await updateRole({
+      id: roleId,
+      body: {
+        name_en,
+        name_ar,
+        permissions: selected,
+      },
+    }).unwrap();
+
+    toast.success(res?.message || "Role updated successfully");
+    router.push("/roles");
+  } catch (err: any) {
+    toast.error(err?.message || "Update failed");
+  }
+};
+
 
   if (roleLoading || permLoading) {
     return <div className="p-6">Loading...</div>;
@@ -134,14 +153,6 @@ const EditRole = () => {
 
       {/* Form */}
       <Card className="p-4 space-y-4">
-        <div>
-          <Label>Role Name</Label>
-          <Input
-            className="mt-1"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
 
         <div>
           <Label>Role Name (English)</Label>
@@ -174,7 +185,7 @@ const EditRole = () => {
 
       <ScrollArea className="h-[60vh] pr-3">
         <div className="grid grid-cols-3 gap-6">
-          {permissionsRecord.map((group: any) => (
+          {permissions?.map((group: any) => (
             <Card key={group.name} className="border rounded-xl shadow-sm">
               <CardHeader className="flex justify-between items-center">
                 <CardTitle className="capitalize">{group.name}</CardTitle>

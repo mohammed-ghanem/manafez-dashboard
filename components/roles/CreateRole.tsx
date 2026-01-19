@@ -1,20 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Redux
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActFetchPermissions } from "@/store/permissions/thunkActions";
-import { ActCreateRole } from "@/store/roles/thunkActions";
+import { useGetPermissionsQuery } from "@/store/permissions/permissionsApi";
+import { useCreateRoleMutation } from "@/store/roles/rolesApi";
+ 
 
 // UI
 import {
   Card,
   CardHeader,
   CardTitle,
-  CardContent, 
+  CardContent,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,12 +35,12 @@ import {
 import { toast } from "sonner";
 
 const CreateRole = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const { loading, record, error } = useAppSelector(
-    (state) => state.permissions
-  );
+  const { data: permissions, isLoading, error }
+    = useGetPermissionsQuery() as { data: any[] | undefined; isLoading: boolean; error: any };
+  const [createRole] = useCreateRoleMutation();
+
 
   // Form fields
   const [name_en, setNameEn] = useState("");
@@ -50,9 +49,6 @@ const CreateRole = () => {
   // Permissions selection
   const [selected, setSelected] = useState<number[]>([]);
 
-  useEffect(() => {
-    dispatch(ActFetchPermissions());
-  }, [dispatch]);
 
   // Toggle single control
   const toggleControl = (id: number) => {
@@ -63,16 +59,15 @@ const CreateRole = () => {
 
   // Select all permissions
   const selectAllPermissions = () => {
-    const allIds = record.flatMap((g: any) =>
+    if (!permissions) return;
+
+    const allIds = permissions.flatMap((g) =>
       g.controls.map((c: any) => c.id)
     );
 
-    setSelected((prev) => {
-      const isAllSelected = allIds.every((id) => prev.includes(id));
-      return isAllSelected ? [] : allIds;
-    });
-
-    toast.success("Permissions toggled");
+    setSelected((prev) =>
+      allIds.every((id) => prev.includes(id)) ? [] : allIds
+    );
   };
 
   // Select all inside a group
@@ -98,44 +93,27 @@ const CreateRole = () => {
   // Create Role Submit
   const handleCreateRole = async () => {
     try {
-      const res = await dispatch(
-        ActCreateRole({
-          name_en,
-          name_ar,
-          permissions: selected,
-        })
-      ).unwrap();
-  
-      // ✅ success message from backend (fallback if missing)
+      const res = await createRole({
+        name_en,
+        name_ar,
+        permissions: selected,
+      }).unwrap();
+
       toast.success(res?.message || "Role created successfully");
-
-      console.log(res.message)
-
       router.push("/roles");
     } catch (err: any) {
-      const errors = err?.errors as Record<string, string[] | string> | undefined;
-
-      if (errors) {
-        Object.values(errors).forEach((value) => {
-          if (Array.isArray(value)) {
-            value.forEach((msg) => toast.error(msg));
-          } else {
-            toast.error(value);
-          }
+      if (err?.errors) {
+        Object.values(err.errors).forEach((e: any) => {
+          if (Array.isArray(e)) e.forEach((m) => toast.error(m));
+          else toast.error(e);
         });
         return;
       }
 
-      if (typeof err?.message === "string") {
-        toast.error(err.message);
-        return;
-      }
-
-      toast.error("Create role failed");
+      toast.error(err?.message || "Create role failed");
     }
-
-
   };
+
 
   return (
     <div className="p-6 space-y-6">
@@ -179,7 +157,8 @@ const CreateRole = () => {
         </CardContent>
       </Card>
 
-      {/* Permissions Header */}
+
+      {/* Permissions */}
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Permissions</h2>
@@ -198,14 +177,13 @@ const CreateRole = () => {
         </Button>
       </div>
 
-      {loading && <p>Loading permissions...</p>}
-      {error && <p className="text-red-600">{error}</p>}
-
+      {isLoading && <p>Loading permissions...</p>}
+      {error && <p className="text-destructive">Error loading permissions.</p>}
       {/* Permissions */}
-      {record && record.length > 0 && (
+      {permissions && (
         <ScrollArea className="h-[65vh] pr-4">
           <div className="grid grid-cols-3 gap-5">
-            {record.map((group: any, idx: number) => (
+            {permissions.map((group: any, idx: number) => (
               <Card
                 key={idx}
                 className="border shadow-sm hover:shadow-md transition-all"

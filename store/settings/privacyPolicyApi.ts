@@ -21,6 +21,7 @@ export const privacyPolicyApi = createApi({
       transformResponse: (response: any) =>
         response.data.setting.value,
       providesTags: ["PrivacyPolicy"],
+      keepUnusedDataFor: 300, // 5 دقائق
     }),
 
     updatePrivacyPolicy: builder.mutation<

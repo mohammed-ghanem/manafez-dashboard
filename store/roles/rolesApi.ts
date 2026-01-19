@@ -10,16 +10,6 @@ export const rolesApi = createApi({
   endpoints: (builder) => ({
 
     /* ===================== GET ALL ROLES ===================== */
-    // getRoles: builder.query<Role[], void>({
-    //   query: () => ({
-    //     url: "/roles",
-    //     method: "get",
-    //   }),
-    //   transformResponse: (res: any) =>
-    //     res?.data?.data?.data ?? [],
-    //   providesTags: ["Roles"],
-    // }),
-
 
     getRoles: builder.query<Role[], void>({
         query: () => ({
@@ -36,17 +26,29 @@ export const rolesApi = createApi({
           );
         },
         providesTags: ["Roles"],
+        
+        keepUnusedDataFor: 300, // 5 دقائق
+
       }),
       
     /* ===================== GET ROLE BY ID ===================== */
-    getRoleById: builder.query<Role, number>({
+    getRoleById: builder.query<Role | null, number>({
       query: (id) => ({
         url: `/roles/${id}`,
         method: "get",
       }),
-      transformResponse: (res: any) =>
-        res?.data?.data?.role,
+      transformResponse: (res: any) => {
+        return (
+          res?.data?.data?.role ??
+          res?.data?.role ??
+          res?.data?.data ??
+          res?.role ??
+          null
+        );
+      },
+      keepUnusedDataFor: 300,
     }),
+
 
     /* ===================== CREATE ROLE ===================== */
     createRole: builder.mutation<any, any>({
@@ -71,9 +73,9 @@ export const rolesApi = createApi({
       query: ({ id, body }) => {
         const formData = new FormData();
         formData.append("_method", "put");
-        formData.append("name", body.name);
         formData.append("name[en]", body.name_en);
         formData.append("name[ar]", body.name_ar);
+
 
         body.permissions.forEach((p: number) =>
           formData.append("role_permissions[]", String(p))

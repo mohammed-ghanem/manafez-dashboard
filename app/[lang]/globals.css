@@ -129,6 +129,14 @@ svg {
   background-color: #218838;
   border-color: #1e7e34;
 }
+.createBtn{
+  background: #007bff;
+  color: #fff;
+  padding: 4px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
 .grdianBK {
   background: radial-gradient(circle, #f9fafb 20%, #fff 60%);
 }

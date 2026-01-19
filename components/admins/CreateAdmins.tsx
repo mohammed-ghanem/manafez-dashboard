@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 import { User, Mail, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
+import "react-phone-input-2/lib/style.css"; 
 
 type FormState = {
   name: string;
@@ -28,10 +28,9 @@ export default function CreateAdmin() {
   const router = useRouter();
 
   /* ===================== RTK QUERIES ===================== */
-  // جلب قائمة الأدمن (للتأكد من invalidateTags)
+  
   const { refetch } = useGetAdminsQuery();
   
-  // جلب الأدوار باستخدام RTK Query
   const { 
     data: rolesResponse, 
     isLoading: rolesLoading, 
@@ -40,7 +39,6 @@ export default function CreateAdmin() {
   
   const roles = rolesResponse || [];
 
-  // دالة إنشاء الأدمن باستخدام RTK Query
   const [createAdmin, { isLoading: isCreating }] = useCreateAdminMutation();
 
   /* ===================== FORM STATE ===================== */
@@ -65,7 +63,7 @@ export default function CreateAdmin() {
         : [...prev.role_id, roleId],
     }));
     
-    // مسح أخطاء roles عند التعديل
+    
     if (errors.role_id) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -78,7 +76,7 @@ export default function CreateAdmin() {
   const handleInputChange = (field: keyof FormState, value: string | boolean) => {
     setForm(prev => ({ ...prev, [field]: value }));
     
-    // مسح أخطاء الحقل عند التعديل
+    
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -93,20 +91,20 @@ export default function CreateAdmin() {
     e.preventDefault();
     setErrors({});
 
-    // تحقق من كلمة المرور
+   
     if (form.password !== form.password_confirmation) {
       toast.error("كلمة المرور وتأكيدها غير متطابقين");
       return;
     }
 
-    // تحقق من اختيار دور واحد على الأقل
+    
     if (form.role_id.length === 0) {
       toast.error("يجب اختيار دور واحد على الأقل");
       return;
     }
 
     try {
-      // إرسال البيانات باستخدام RTK Query
+      
       const res = await createAdmin({
         name: form.name,
         email: form.email,
@@ -119,19 +117,19 @@ export default function CreateAdmin() {
 
       toast.success(res.message || "✅ تم إنشاء المسؤول بنجاح");
 
-      // إعادة تحميل قائمة الأدمن (سيتم تلقائياً بسبب invalidateTags)
+      
       await refetch();
 
-      // التوجيه إلى صفحة الأدمن
+     
       router.push("/admins");
     } catch (err: any) {
       console.error("Create admin error:", err);
       
       if (err?.status === 422 && err?.errors) {
-        // حفظ الأخطاء للعرض في الحقول
+       
         setErrors(err.errors);
         
-        // عرض الأخطاء في Toast
+      
         Object.values(err.errors).forEach((value: any) => {
           if (Array.isArray(value)) {
             value.forEach((msg) => toast.error(msg));
@@ -204,7 +202,7 @@ export default function CreateAdmin() {
       </div>
 
       {/* Phone */}
-      <div className="relative">
+      <div className="relative" >
         <PhoneInput
           country={"eg"}
           value={form.mobile}

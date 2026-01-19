@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import {
@@ -28,6 +27,7 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import LangUseParams from "@/translate/LangUseParams";
+import { Edit3, Trash2 } from "lucide-react";
 
 
 
@@ -36,9 +36,9 @@ const Admins = () => {
   const { data: admins = [], isLoading } = useGetAdminsQuery();
   const [deleteAdmin] = useDeleteAdminMutation();
   const [deleteId, setDeleteId] = useState<number | null>(null);
-  // const [toggleStatus, { isLoading: isToggling }] = useToggleAdminStatusMutation();
+ 
    const [toggleStatus] = useToggleAdminStatusMutation();
-   const [togglingId, setTogglingId] = useState<number | null>(null); // لتتبع تبديل الحالة
+   const [togglingId, setTogglingId] = useState<number | null>(null);
 
 
   const isProtectedAdmin = (roles: any) => {
@@ -57,12 +57,12 @@ const Admins = () => {
     return roles === "admin" || roles === "أدمن" || roles === "ادمن";
   };
   
-  // ✅ دالة الحذف الصحيحة
+ 
   const handleDelete = async () => {
     if (!deleteId) return;
   
     try {
-      // ✅ استخدام deleteAdmin بدلاً من toggleStatus
+     
       const res = await deleteAdmin(deleteId).unwrap();
      
       toast.success(
@@ -91,134 +91,159 @@ const Admins = () => {
     }
   };
 
-  // ✅ دالة تغيير الحالة
+ 
   const handleToggleStatus = async (id: number) => {
     setTogglingId(id);
      await toggleStatus(id).unwrap();
     setTogglingId(null);
   };
 
-  // const handleDelete = async () => {
-  //   if (!deleteId) return;
-  
-  //   try {
-
-  //     const res = await toggleStatus(deleteId).unwrap();
-  //     console.log(res)
-     
-  //     toast.success(
-  //       <span className="font-cairo font-bold">
-  //         {res?.message || "تم" }
-  //       </span>
-  //     );
-  //   } catch (err: any) {
-  //     if (err?.errors) {
-  //       Object.values(err.errors).forEach((value: any) => {
-  //         if (Array.isArray(value)) {
-  //           value.forEach((msg) => toast.error(msg));
-  //         } else {
-  //           toast.error(value);
-  //         }
-  //       }); 
-  //       return;
-  //     }
-  //   } finally {
-  //     setDeleteId(null);
-  //   }
-  // };
   
 
   if (isLoading) return <div>Loading...</div>;
 
   return (
-    <div className="space-y-4" >
-      <div>
-        <Link href={`/${lang}/admins/create`} className="btn btn-primary">create new admin</Link>
-      </div>
-      {admins.map((admin) => {
-        const protectedAdmin = isProtectedAdmin(admin.roles);
+ 
 
-        return (
-          <div
-            key={admin.id}
-            className="flex items-center justify-between border p-3 rounded"
-          >
-            {/* INFO */}
-            <div>
-              <p className="font-medium flex items-center gap-2">
-                {admin.name}
-                {protectedAdmin && (
-                  <Badge variant="secondary">محمي</Badge>
-                )}
-              </p>
-              <p className="text-sm text-gray-500">{admin.email}</p>
-              <p className="text-xs text-blue-600">
+    <div className="p-6 mx-4 my-10 bg-white rounded-2xl border border-[#ddd] space-y-6">
+  <div>
+    <Link
+      href={`/${lang}/admins/create`}
+      className="createBtn"
+    >
+      انشاء مسؤول جديد
+    </Link>
+  </div>
+
+  <div className="overflow-x-auto">
+    <table className="w-full border-collapse">
+      {/* ===== TABLE HEADER ===== */}
+      <thead>
+        <tr className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
+          <th className="p-3 border">Name</th>
+          <th className="p-3 border">Email</th>
+          <th className="p-3 border">Roles</th>
+          <th className="p-3 border">Status</th>
+          <th className="p-3 border text-center">Actions</th>
+        </tr>
+      </thead>
+
+      {/* ===== TABLE BODY ===== */}
+      <tbody>
+        {admins.map((admin) => {
+          const protectedAdmin = isProtectedAdmin(admin.roles);
+
+          return (
+            <tr
+              key={admin.id}
+              className="hover:bg-gray-50 transition"
+            >
+              {/* NAME */}
+              <td className="p-3 border">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{admin.name}</span>
+                  {protectedAdmin && (
+                    <Badge variant="secondary">محمي</Badge>
+                  )}
+                </div>
+              </td>
+
+              {/* EMAIL */}
+              <td className="p-3 border text-sm text-gray-600">
+                {admin.email}
+              </td>
+
+              {/* ROLES */}
+              <td className="p-3 border text-sm text-blue-600">
                 {Array.isArray(admin.roles)
                   ? admin.roles.map((r) => r.name ?? r).join(", ")
                   : admin.roles}
-              </p>
-            </div>
+              </td>
 
-            {/* ACTIONS */}
-            {!protectedAdmin && (
-              <div className="flex items-center gap-4" >
-                {/* STATUS */}
-                <div className="flex items-center gap-2" dir="ltr">
-                  <Switch
-                    checked={admin.is_active}
-                    // disabled={isToggling}
-                    onCheckedChange={() => handleToggleStatus(admin.id)}
-                  />
-                  <span className="text-sm">
-                    {admin.is_active ? "مفعل" : "غير مفعل"}
-                  </span>
-                </div>
+              {/* STATUS */}
+              <td className="p-3 border ">
+                {!protectedAdmin ? (
+                  <div className="flex items-center gap-2 justify-center" dir="ltr">
+                    <Switch
+                      className="data-[state=checked]:bg-green-600"
+                      checked={admin.is_active}
+                      disabled={togglingId === admin.id}
+                      onCheckedChange={() =>
+                        handleToggleStatus(admin.id)
+                      }
+                    />
+                    <span className="text-sm">
+                      {admin.is_active ? "مفعل" : "غير مفعل"}
+                    </span>
+                  </div>
+                ) : (
+                 ""
+                )}
+              </td>
 
-                {/* EDIT */}
-                <Link href={`/admins/edit/${admin.id}`}>
-                  <Button size="sm">تعديل</Button>
-                </Link>
-
-                {/* DELETE */}
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => setDeleteId(admin.id)}
-                    >
-                      حذف
-                    </Button>
-                  </AlertDialogTrigger>
-
-                  <AlertDialogContent dir="rtl">
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>تأكيد الحذف</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        هل أنت متأكد من حذف هذا المسؤول؟
-                        <br />
-                        لا يمكن التراجع عن هذا الإجراء.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                      <AlertDialogAction
-                        className="bg-red-600 hover:bg-red-700"
-                        onClick={handleDelete}
+              {/* ACTIONS */}
+              <td className="p-3 border">
+                {!protectedAdmin && (
+                  <div className="flex items-center justify-center gap-3">
+                    {/* EDIT */}
+                    <Link href={`/admins/edit/${admin.id}`}>
+                      <Button
+                        size="sm"
+                        className="bg-blue-500 hover:bg-blue-600 cursor-pointer"
                       >
-                        حذف
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                        <Edit3 className="h-5 w-5" />
+                      </Button>
+                    </Link>
 
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
+                    {/* DELETE */}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="cursor-pointer"
+                          onClick={() => setDeleteId(admin.id)}
+                        >
+                          <Trash2 className="h-5 w-5" />
+                        </Button>
+                      </AlertDialogTrigger>
+
+                      <AlertDialogContent dir="rtl">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            تأكيد الحذف
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            هل أنت متأكد من حذف هذا المسؤول؟
+                            <br />
+                            لا يمكن التراجع عن هذا الإجراء.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            إلغاء
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-600 hover:bg-red-700"
+                            onClick={handleDelete}
+                          >
+                            حذف
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                )}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</div>
+
   );
 };
 

@@ -1,10 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActFetchRoles } from "@/store/roles/thunkActions";
 
 import {
   Card,
@@ -24,14 +20,17 @@ import {
 import RoleRow from "./RoleRow";
 import LangUseParams from "@/translate/LangUseParams";
 
+import { useGetRolesQuery } from "@/store/roles/rolesApi";
+
 export default function RolesPage() {
   const lang = LangUseParams();
-  const dispatch = useAppDispatch();
-  const { roles, loading } = useAppSelector((s) => s.roles);
 
-  useEffect(() => {
-    dispatch(ActFetchRoles());
-  }, [dispatch]);
+  const {
+    data: roles = [],
+    isLoading,
+    isFetching,
+    isError,
+  } = useGetRolesQuery();
 
   return (
     <div className="p-6">
@@ -50,19 +49,25 @@ export default function RolesPage() {
         </CardHeader>
 
         <CardContent className="p-0">
-          {loading && (
+          {(isLoading || isFetching) && (
             <p className="p-6 text-center text-muted-foreground">
               تحميل...
             </p>
           )}
 
-          {!loading && roles.length === 0 && (
+          {isError && (
+            <p className="p-6 text-center text-destructive">
+              حدث خطأ أثناء تحميل الأدوار
+            </p>
+          )}
+
+          {!isLoading && roles.length === 0 && (
             <p className="p-6 text-center text-muted-foreground">
               لا توجد بيانات.
             </p>
           )}
 
-          {!loading && roles.length > 0 && (
+          {!isLoading && roles.length > 0 && (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -77,7 +82,7 @@ export default function RolesPage() {
 
               <TableBody>
                 {roles.map((role) => (
-                  <RoleRow key={role.id} role={role } />
+                  <RoleRow key={role.id} role={role} />
                 ))}
               </TableBody>
             </Table>
@@ -87,61 +92,3 @@ export default function RolesPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-// "use client";
-
-// import { useEffect } from "react";
-// import { useAppDispatch, useAppSelector } from "@/store/hooks";
-// import { ActFetchRoles } from "@/store/roles/thunkActions";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import RoleRow from "./RoleRow";
-// import Link from "next/link";
-// import LangUseParams from "@/translate/LangUseParams";
-
-// export default function RolesPage() {
-//   const lang = LangUseParams();
-//   const dispatch = useAppDispatch();
-//   const { roles, loading } = useAppSelector((s) => s.roles);
-
-  
-
-
-
-//   useEffect(() => {
-//     dispatch(ActFetchRoles());
-//   }, [dispatch]);
-
-//   return (
-//     <div className="p-6">
-//       <Card className="rounded-2xl shadow">
-//         <CardHeader>
-//           <CardTitle className="text-lg font-medium">الأدوار</CardTitle>
-//           <Link href={`${lang}/roles/create`} 
-//           className="btn w-fit bg-blue-500 hover:bg-blue-600">اضافة دور جديد</Link>
-//         </CardHeader>
-
-//         <CardContent>
-//           {loading && <p>تحميل...</p>}
-
-//           {!loading && roles.length === 0 && (
-//             <p className="text-center text-gray-500">لا توجد بيانات.</p>
-//           )}
-
-//           <div className="space-y-4">
-//             {roles.map((role: any) => (
-//               <RoleRow key={role.id} role={role} />
-//             ))}
-//           </div>
-//         </CardContent>
-//       </Card>
-//     </div>
-//   );
-// }

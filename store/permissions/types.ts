@@ -9,3 +9,9 @@ export interface PermissionState {
   loading: boolean;
   error: string | null;
 }
+
+
+export interface PermissionGroup {
+  name: string;
+  controls: Permission[];
+}
