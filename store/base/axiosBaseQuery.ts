@@ -5,30 +5,47 @@ import Cookies from "js-cookie";
 import api, { sanctumApi } from "@/services/api";
 
 // دالة للحصول على CSRF token
-const ensureCSRFToken = async (): Promise<string | null> => {
-  try {
-    // تحقق إذا كان CSRF token موجوداً
-    const csrfToken = Cookies.get("XSRF-TOKEN");
-    if (csrfToken) {
-      return csrfToken;
-    }
 
-    // إذا لم يكن موجوداً، احصل عليه
-    console.log("🔄 Fetching CSRF token from Sanctum...");
-    await sanctumApi.get("/sanctum/csrf-cookie");
-    
-    // انتظر قليلاً لضمان حفظ cookie
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // احصل على token الجديد
-    const newCsrfToken = Cookies.get("XSRF-TOKEN");
-    console.log("✅ CSRF token retrieved:", newCsrfToken);
-    return newCsrfToken || null;
-  } catch (error) {
-    console.error("❌ Failed to get CSRF token:", error);
-    return null;
+let csrfPromise: Promise<string | null> | null = null;
+
+const ensureCSRFToken = async () => {
+  if (Cookies.get("XSRF-TOKEN")) {
+    return Cookies.get("XSRF-TOKEN")!;
   }
+
+  if (!csrfPromise) {
+    csrfPromise = sanctumApi.get("/sanctum/csrf-cookie").then(() => {
+      return Cookies.get("XSRF-TOKEN") || null;
+    });
+  }
+
+  return csrfPromise;
 };
+
+// const ensureCSRFToken = async (): Promise<string | null> => {
+//   try {
+//     // تحقق إذا كان CSRF token موجوداً
+//     const csrfToken = Cookies.get("XSRF-TOKEN");
+//     if (csrfToken) {
+//       return csrfToken;
+//     }
+ 
+//     // إذا لم يكن موجوداً، احصل عليه
+//     console.log("🔄 Fetching CSRF token from Sanctum...");
+//     await sanctumApi.get("/sanctum/csrf-cookie");
+    
+//     // انتظر قليلاً لضمان حفظ cookie
+//    // await new Promise(resolve => setTimeout(resolve, 100));
+    
+//     // احصل على token الجديد
+//     const newCsrfToken = Cookies.get("XSRF-TOKEN");
+//     console.log("✅ CSRF token retrieved:", newCsrfToken);
+//     return newCsrfToken || null;
+//   } catch (error) {
+//     console.error("❌ Failed to get CSRF token:", error);
+//     return null;
+//   }
+// };
 
 export const axiosBaseQuery =
   (): BaseQueryFn<
