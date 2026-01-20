@@ -61,6 +61,18 @@ export function middleware(request: NextRequest) {
   ====================== */
   const locale = localeInPath;
 
+    // set lang cookie
+  const setLangCookie = (res: NextResponse, lang: string) => {
+    res.cookies.set("lang", lang, { path: "/" });
+    return res;
+  };
+
+    if (localeInPath === defaultLocale) {
+    const dest = pathname.replace(`/${defaultLocale}`, "") || "/";
+    const res = NextResponse.redirect(new URL(`${dest}${search}`, request.url));
+    return setLangCookie(res, defaultLocale);
+  }
+
   const publicRoutes = [
     `/${locale}/login`,
     `/${locale}/forget-password`,
