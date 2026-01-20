@@ -1,21 +1,20 @@
 // store/store.ts
 import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./auth/authSlice";
 import { privacyPolicyApi } from "./settings/privacyPolicyApi";
 import { adminsApi } from "./admins/adminsApi";
 import { rolesApi } from "./roles/rolesApi";
 import { permissionsApi } from "./permissions/permissionsApi";
+import { authApi } from "./auth/authApi";
 
 
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
-
     [privacyPolicyApi.reducerPath]: privacyPolicyApi.reducer,
     [adminsApi.reducerPath]: adminsApi.reducer,
     [permissionsApi.reducerPath]: permissionsApi.reducer,
     [rolesApi.reducerPath]: rolesApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
 
   middleware: (getDefaultMiddleware) =>
@@ -23,7 +22,8 @@ export const store = configureStore({
       privacyPolicyApi.middleware , 
       adminsApi.middleware,
       rolesApi.middleware,
-      permissionsApi.middleware
+      permissionsApi.middleware,
+      authApi.middleware
       ),
    
 });

@@ -1,9 +1,9 @@
 /* app/[lang]/reset-password/page.tsx */
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { ActResetPassword } from "@/store/auth/thunkActions/ActAuth";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, FormEvent, useEffect } from "react";
+import { useResetPasswordMutation } from "@/store/auth/authApi";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import LangUseParams from "@/translate/LangUseParams";
@@ -14,28 +14,32 @@ import whiteAuthBk from "@/public/assets/images/Vector.svg";
 import restpass from "@/public/assets/images/restpass.svg";
 
 const ResetPassword = () => {
-  const dispatch = useAppDispatch();
-  const { status } = useAppSelector((state) => state.auth);
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+
   const lang = LangUseParams();
   const translate = TranslateHook();
   const router = useRouter();
   const search = useSearchParams();
 
-  const [form, setForm] = useState({
-    email: search.get("email") ?? "",
-    code: search.get("code") ?? "",
-    password: "",
-    confirm: "",
-  });
+  const email = search.get("email") ?? "";
+  const code = search.get("code") ?? "";
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
-  };
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+
+  /**
+   * 🔴 Protect direct access
+   */
+  useEffect(() => {
+    if (!email || !code) {
+      router.replace(`/${lang}/forget-password`);
+    }
+  }, [email, code, lang, router]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (form.password !== form.confirm) {
+    if (password !== confirm) {
       toast.error(
         translate?.pages.resetPassword?.passwordMismatch ||
           "Passwords do not match"
@@ -44,14 +48,12 @@ const ResetPassword = () => {
     }
 
     try {
-      const res = await dispatch(
-        ActResetPassword({
-          email: form.email,
-          code: form.code,
-          password: form.password,
-          password_confirmation: form.confirm,
-        })
-      ).unwrap();
+      const res = await resetPassword({
+        email,
+        code,
+        password,
+        password_confirmation: confirm,
+      }).unwrap();
 
       toast.success(
         res?.message ||
@@ -61,23 +63,27 @@ const ResetPassword = () => {
 
       router.replace(`/${lang}/login`);
     } catch (err: any) {
-      if (err?.errors) {
-        Object.values(err.errors).forEach((v: any) =>
-          Array.isArray(v)
-            ? v.forEach((m) => toast.error(m))
-            : toast.error(v)
+      const errorData = err?.data ?? err;
+
+      if (errorData?.errors) {
+        Object.values(errorData.errors).forEach((msgs: any) =>
+          Array.isArray(msgs) && msgs.forEach((m) => toast.error(m))
         );
         return;
       }
 
-      toast.error(err?.message || "Reset failed");
+      if (errorData?.message) {
+        toast.error(errorData.message);
+        return;
+      }
+
+      toast.error("Reset failed");
     }
   };
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>
       <div className="grid lg:grid-cols-2 gap-4 items-center">
-        {/* Form */}
         <div className="my-10" style={{ direction: "ltr" }}>
           <h1 className="text-center font-bold text-2xl md:text-4xl mainColor">
             {translate?.pages.resetPassword?.title || "Reset Password"}
@@ -88,41 +94,29 @@ const ResetPassword = () => {
             className="p-4 w-[95%] md:w-[80%] mx-auto"
           >
             {[
-              { name: "email", type: "email", label: "email" },
-              { name: "code", type: "text", label: "code" },
-              { name: "password", type: "password", label: "password" },
-              {
-                name: "confirm",
-                type: "password",
-                label: "confirmPassword",
-              },
-            ].map((f) => (
-              <div key={f.name} className="mb-4">
-                <label
-                  className={`block text-sm font-bold mainColor ${
-                    lang === "en" ? "text-start" : "text-end"
-                  }`}
-                >
-                  {translate?.pages.resetPassword?.[f.label] ||
-                    f.label.replace(/([A-Z])/g, " $1")}
+              { label: "password", value: password, set: setPassword },
+              { label: "confirmPassword", value: confirm, set: setConfirm },
+            ].map((f, i) => (
+              <div key={i} className="mb-4">
+                <label className="block text-sm font-bold mainColor">
+                  {translate?.pages.resetPassword?.[f.label] || f.label}
                 </label>
                 <input
-                  name={f.name}
-                  type={f.type}
+                  type="password"
                   required
-                  value={(form as any)[f.name]}
-                  onChange={handleChange}
-                  className="mt-1 block w-full p-2 border bg-white rounded-md outline-none"
+                  value={f.value}
+                  onChange={(e) => f.set(e.target.value)}
+                  className="mt-1 block w-full p-2 border bg-white rounded-md"
                 />
               </div>
             ))}
 
             <button
               type="submit"
-              disabled={status === "loading"}
-              className="w-full bkMainColor text-white font-bold py-3 mt-5 rounded-lg flex justify-center items-center"
+              disabled={isLoading}
+              className="w-full bkMainColor text-white font-bold py-3 mt-5 rounded-lg flex justify-center"
             >
-              {status === "loading" ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   {translate?.pages.resetPassword?.processing || "Processing"}
@@ -135,9 +129,8 @@ const ResetPassword = () => {
           </form>
         </div>
 
-        {/* Image */}
         <div className="relative lg:block">
-          <Image src={whiteAuthBk} className="w-full" alt="authsvg" />
+          <Image src={whiteAuthBk} className="w-full" alt="auth" />
           <Image
             src={restpass}
             fill
@@ -151,127 +144,3 @@ const ResetPassword = () => {
 };
 
 export default ResetPassword;
-
-
-
-
-
-
-
-
-
-
-
-// /* app/[lang]/reset-password/page.tsx */
-// "use client";
-
-// import { useState, FormEvent, useEffect } from "react";
-// import { useAppDispatch, useAppSelector } from "@/store/hooks";
-// import { ActResetPassword } from "@/store/auth/thunkActions/ActAuth";
-// import { Loader2 } from "lucide-react";
-// import { toast } from "sonner";
-// import LangUseParams from "@/translate/LangUseParams";
-// import TranslateHook from "@/translate/TranslateHook";
-// import { useRouter, useSearchParams } from "next/navigation";
-// import Image from "next/image";
-// import whiteAuthBk from "@/public/assets/images/Vector.svg";
-// import restpass from "@/public/assets/images/restpass.svg";
-
-// const ResetPassword = () => {
-//     const dispatch = useAppDispatch();
-//     const { status } = useAppSelector(state => state.auth);
-//     const lang = LangUseParams();
-//     const translate = TranslateHook();
-//     const router = useRouter();
-//     const search = useSearchParams();
-
-//     const [email, setEmail] = useState(search?.get("email") ?? "");
-//     const [code, setCode] = useState(search?.get("code") ?? "");
-//     const [password, setPassword] = useState("");
-//     const [confirm, setConfirm] = useState("");
-
-//     useEffect(() => {
-//         const qEmail = search?.get("email");
-//         const qCode = search?.get("code");
-//         if (qEmail) setEmail(qEmail);
-//         if (qCode) setCode(qCode);
-//     }, [search]);
-
-//     const handleSubmit = async (e: FormEvent) => {
-//         e.preventDefault();
-//         if (password !== confirm) {
-//             toast.error(translate?.pages.resetPassword?.passwordMismatch || "Passwords do not match");
-//             return;
-//         }
-
-//         const res = await dispatch(ActResetPassword({ email, code, password, password_confirmation: confirm }));
-//         if (ActResetPassword.fulfilled.match(res)) {
-//             toast.success(translate?.pages.resetPassword?.success || "Password reset successful");
-//             router.push(`/${lang}/login`);
-            
-//         } else {
-//             toast.error((res.payload as string) || "Reset failed");
-//         }
-//     };
-
-//     return (
-//         <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>
-//             <div className="grid lg:grid-cols-2 gap-4 items-center">
-//                 <div className="my-10" style={{ direction: "ltr" }}>
-//                     <h1 className="text-center font-bold text-2xl md:text-4xl mainColor">
-//                         {translate?.pages.resetPassword?.title || "Reset Password"}
-//                     </h1>
-
-//                     <form onSubmit={handleSubmit} className="p-4 w-[95%] md:w-[80%] mx-auto z-30 relative">
-//                         <div className="mb-4">
-//                             <label className={`block text-sm font-bold leading-6 mainColor ${lang === "en" ? "text-start" : "text-end"}`}>{translate?.pages.resetPassword?.email || "Email"}</label>
-//                             <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 block w-full p-2 border bg-white border-gray-300 rounded-md shadow-sm outline-none" />
-//                         </div>
-
-//                         <div className="mb-4">
-//                             <label className={`block text-sm font-bold leading-6 mainColor ${lang === "en" ? "text-start" : "text-end"}`}>{translate?.pages.resetPassword?.code || "Code"}</label>
-//                             <input type="text" required value={code} onChange={(e) => setCode(e.target.value)} className="mt-1 block w-full p-2 border bg-white border-gray-300 rounded-md shadow-sm outline-none" />
-//                         </div>
-
-//                         <div className="mb-4">
-//                             <label className={`block text-sm font-bold leading-6 mainColor ${lang === "en" ? "text-start" : "text-end"}`}>{translate?.pages.resetPassword?.password || "New Password"}</label>
-//                             <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 block w-full p-2 border bg-white border-gray-300 rounded-md shadow-sm outline-none" />
-//                         </div>
-
-//                         <div className="mb-4">
-//                             <label className={`block text-sm font-bold leading-6 mainColor ${lang === "en" ? "text-start" : "text-end"}`}>{translate?.pages.resetPassword?.confirmPassword || "Confirm Password"}</label>
-//                             <input type="password" required value={confirm} onChange={(e) => setConfirm(e.target.value)} className="mt-1 block w-full p-2 border bg-white border-gray-300 rounded-md shadow-sm outline-none" />
-//                         </div>
-
-//                         <div>
-//                             <button type="submit" disabled={status === "loading"} className="w-full bkMainColor text-white font-bold py-3 px-4 mt-5 rounded-lg flex justify-center items-center">
-//                                 {status === "loading"
-//                                     ?
-//                                     <>
-//                                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-//                                         {translate?.pages.resetPassword?.processing || "Processing..."}
-//                                     </>
-//                                     :
-//                                     (translate?.pages.resetPassword?.confirmBtn || "Reset Password")}
-//                             </button>
-//                         </div>
-//                     </form>
-//                 </div>
-//                 {/* Right-side image */}
-//                 <div className="relative lg:block">
-//                     <div>
-//                         <Image src={whiteAuthBk} className="w-full" height={100} alt="authsvg" />
-//                     </div>
-//                     <Image
-//                         src={restpass}
-//                         fill
-//                         className="max-w-[70%] max-h-[50%] m-auto"
-//                         alt="loginauth"
-//                     />
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// }
-
-// export default ResetPassword

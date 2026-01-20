@@ -14,22 +14,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const localeInPath = i18n.locales.find((l) =>
-    pathname.startsWith(`/${l}`)
-  );
+  const localeInPath = i18n.locales.find((l) => pathname.startsWith(`/${l}`));
 
   // set lang cookie
   const setLangCookie = (res: NextResponse, lang: string) => {
     res.cookies.set("lang", lang, { path: "/" });
     return res;
   };
-  
 
   const accessToken = request.cookies.get("access_token")?.value;
   const resetToken = request.cookies.get("reset_token")?.value;
 
   // If URL explicitly contains the default locale (/ar/...) redirect to the clean path (/...)
-  
+
   // if (localeInPath === defaultLocale) {
   //   const dest = pathname.replace(`/${defaultLocale}`, "") || "/";
   //   return NextResponse.redirect(new URL(`${dest}${search}`, request.url));
@@ -40,35 +37,60 @@ export function middleware(request: NextRequest) {
     const res = NextResponse.redirect(new URL(`${dest}${search}`, request.url));
     return setLangCookie(res, defaultLocale);
   }
-  
-
 
   // No locale in URL (root or non-localized routes). Treat as defaultLocale but keep URL clean.
   if (!localeInPath) {
     const publicDefault = [
       "/login",
       "/forget-password",
-      
-      
+      "/verify-code",
+      "/reset-password",
     ];
     const isPublicDefault = publicDefault.some(
-      (p) => pathname === p || pathname.startsWith(p + "/")
+      (p) => pathname === p || pathname.startsWith(p + "/"),
     );
 
     // If user is in reset flow (has reset_token) allow only reset-related public pages.
+
+    // if (resetToken) {
+    //   const allowed = publicDefault.some(
+    //     (p) => pathname === p || pathname.startsWith(p + "/"),
+    //   );
+    //   if (!allowed) {
+    //     // force them to the reset-password page while in reset flow
+    //     return NextResponse.redirect(
+    //       new URL(`/reset-password${search}`, request.url),
+    //     );
+    //   }
+    //   // serve the default-locale page
+    //   return NextResponse.rewrite(
+    //     new URL(`/${defaultLocale}${pathname}${search}`, request.url),
+    //   );
+    // }
+
+
     if (resetToken) {
-      const allowed = publicDefault.some(
+      const allowedResetRoutes = [
+        "/forget-password",
+        "/verify-code",
+        "/reset-password",
+      ];
+
+      const allowed = allowedResetRoutes.some(
         (p) => pathname === p || pathname.startsWith(p + "/")
       );
+
       if (!allowed) {
-        // force them to the reset-password page while in reset flow
-        return NextResponse.redirect(new URL(`/reset-password${search}`, request.url));
+        return NextResponse.redirect(
+          new URL(`/verify-code${search}`, request.url)
+        );
       }
-      // serve the default-locale page
+
       return NextResponse.rewrite(
         new URL(`/${defaultLocale}${pathname}${search}`, request.url)
       );
     }
+
 
     // Not authenticated and not on a public default route -> redirect to login
     if (!accessToken && !isPublicDefault) {
@@ -82,7 +104,7 @@ export function middleware(request: NextRequest) {
 
     // Otherwise serve the default-locale pages internally while keeping URL clean
     return NextResponse.rewrite(
-      new URL(`/${defaultLocale}${pathname}${search}`, request.url)
+      new URL(`/${defaultLocale}${pathname}${search}`, request.url),
     );
   }
 
@@ -100,7 +122,9 @@ export function middleware(request: NextRequest) {
   if (resetToken) {
     const allowed = publicRoutes.some((r) => pathname.startsWith(r));
     if (!allowed) {
-      return NextResponse.redirect(new URL(`/${locale}/reset-password${search}`, request.url));
+      return NextResponse.redirect(
+        new URL(`/${locale}/reset-password${search}`, request.url),
+      );
     }
     return setLangCookie(NextResponse.next(), locale);
   }
@@ -121,13 +145,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
-
-
-
-
-
-
-
 
 
 
@@ -179,8 +196,7 @@ export const config = {
 //     const publicDefault = [
 //       "/login",
 //       "/forget-password",
-      
-      
+
 //     ];
 //     const isPublicDefault = publicDefault.some(
 //       (p) => pathname === p || pathname.startsWith(p + "/")
@@ -252,7 +268,3 @@ export const config = {
 // export const config = {
 //   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 // };
-
-
-
-

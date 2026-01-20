@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // app/providers.tsx
 "use client";
 
@@ -7,8 +8,7 @@ import { Toaster } from "sonner";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import api from "@/services/api";
-import { setAuthFromClient } from "@/store/auth/authSlice";
-import { ActFetchProfile } from "@/store/auth/thunkActions/ActUser";
+
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -29,19 +29,20 @@ export function Providers({ children }: { children: React.ReactNode }) {
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
     }
 
-    // hydrate redux so selectors reading state.auth.user get the cookie snapshot
-    store.dispatch(setAuthFromClient({ user, token }));
-
-    // fetch fresh profile once (interceptor will attach token)
-    if (token) {
-      store.dispatch(ActFetchProfile());
-    }
   }, []);
 
   return (
     <Provider store={store}>
       {children}
-      <Toaster richColors position="top-right" />
+      <Toaster
+        position="top-right"
+        expand={true}
+        closeButton
+        toastOptions={{
+          duration: 4000,
+          className: "fontCairo",
+        }}
+      />
     </Provider>
   );
 }

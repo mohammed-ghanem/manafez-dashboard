@@ -1,11 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  ActFetchProfile,
-  ActUpdateProfile,
-} from "@/store/auth/thunkActions/ActUser";
+import { useGetProfileQuery, useUpdateProfileMutation } from "@/store/auth/authApi";
 import PhoneInput from "react-phone-input-2";
 import { toast } from "sonner";
 import {
@@ -23,12 +20,26 @@ import "react-phone-input-2/lib/style.css";
 import "./style.css";
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
+import { useRouter } from "next/navigation";
 
 function UpdateProfile() {
   const lang = LangUseParams();
   const translate = TranslateHook();
-  const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const router = useRouter();
+
+  // استخدام RTK Query hooks
+  const {
+    data: profileData,
+    isLoading: isLoadingProfile,
+    refetch
+  } = useGetProfileQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
+
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  // استخراج بيانات المستخدم
+  const user = profileData?.data || profileData?.user || profileData;
 
   const [form, setForm] = useState({
     name: "",
@@ -37,18 +48,8 @@ function UpdateProfile() {
   });
 
   const [initialLoading, setInitialLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  /* fetch profile */
-  useEffect(() => {
-    dispatch(ActFetchProfile())
-      .unwrap()
-      .catch((err: any) =>
-        toast.error(err?.message || "Failed to load profile")
-      );
-  }, [dispatch]);
-
-  /* hydrate form */
+  /* hydrate form عند تحميل بيانات المستخدم */
   useEffect(() => {
     if (user) {
       setForm({
@@ -70,38 +71,71 @@ function UpdateProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting) return;
 
-    setIsSubmitting(true);
+    if (isUpdating) return;
+
+    // التحقق من صحة البيانات
+    if (!form.name.trim()) {
+      toast.error(translate?.pages.updateProfile.nameRequired || "الاسم مطلوب");
+      return;
+    }
 
     try {
-      const res = await dispatch(ActUpdateProfile(form)).unwrap();
+      // إرسال طلب التحديث
+      const res = await updateProfile({
+        name: form.name,
+        email: form.email,
+        mobile: form.mobile,
+      }).unwrap();
 
+      // عرض رسالة النجاح
       toast.success(
         res?.message ||
-          translate?.pages.updateProfile.success ||
-          "Profile updated successfully"
+        translate?.pages.updateProfile.success ||
+        "تم تحديث البروفايل بنجاح"
       );
+
+      // إعادة تحميل بيانات البروفايل
+      await refetch();
+
+      // الانتقال إلى صفحة البروفايل بعد 1.5 ثانية
+      setTimeout(() => {
+        router.push(`/${lang}/profile`);
+      }, 1500);
+
     } catch (err: any) {
-      if (err?.errors) {
-        Object.values(err.errors).forEach((v: any) =>
+      console.error("Update profile error:", err);
+
+      // التعامل مع الأخطاء المختلفة
+      if (err?.data?.errors) {
+        // أخطاء التحقق من الصحة
+        Object.values(err.data.errors).forEach((v: any) =>
           Array.isArray(v)
             ? v.forEach((m) => toast.error(m))
             : toast.error(v)
         );
-        return;
+      } else if (err?.data?.message) {
+        // رسالة خطأ من الخادم
+        toast.error(err.data.message);
+      } else if (err?.error) {
+        // خطأ من RTK Query
+        toast.error(err.error);
+      } else {
+        // خطأ عام
+        toast.error(
+          translate?.pages.updateProfile.error || "فشل في تحديث البروفايل"
+        );
       }
-
-      toast.error(err?.message || "Failed to update profile");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  if (initialLoading) {
+  if (initialLoading || isLoadingProfile) {
     return (
-      <div className="flex justify-center items-center min-h-64">
+      <div className="flex flex-col justify-center items-center min-h-64 gap-4">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p className="text-gray-500">
+          {translate?.pages.updateProfile.loading || "جاري تحميل البيانات..."}
+        </p>
       </div>
     );
   }
@@ -114,10 +148,10 @@ function UpdateProfile() {
             <User className="w-6 h-6 text-blue-600" />
           </div>
           <CardTitle className="text-xl font-bold">
-            {translate?.pages.updateProfile.title || "Update Profile"}
+            {translate?.pages.updateProfile.title || "تحديث البروفايل"}
           </CardTitle>
           <CardDescription>
-            {translate?.pages.updateProfile.titleUpdate || ""}
+            {translate?.pages.updateProfile.titleUpdate || "قم بتحديث معلوماتك الشخصية"}
           </CardDescription>
         </CardHeader>
 
@@ -125,58 +159,81 @@ function UpdateProfile() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name */}
             <div className="space-y-2">
-              <Label>{translate?.pages.updateProfile.name || "Name"}</Label>
+              <Label htmlFor="name">
+                {translate?.pages.updateProfile.name || "الاسم"} *
+              </Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
+                  id="name"
                   name="name"
                   value={form.name}
                   onChange={handleChange}
                   className="pl-10"
                   required
+                  placeholder={translate?.pages.updateProfile.namePlaceholder || "أدخل اسمك"}
                 />
               </div>
             </div>
 
-            {/* Email */}
+            {/* Email (مقروء فقط) */}
             <div className="space-y-2">
-              <Label>{translate?.pages.updateProfile.email || "Email"}</Label>
+              <Label htmlFor="email">
+                {translate?.pages.updateProfile.email || "البريد الإلكتروني"}
+              </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                 <Input
+                  id="email"
                   name="email"
                   value={form.email}
                   disabled
-                  className="pl-10"
+                  className="pl-10 bg-gray-50"
+                  readOnly
                 />
               </div>
+              <p className="text-xs text-gray-500">
+                {translate?.pages.updateProfile.emailNote || "لا يمكن تغيير البريد الإلكتروني"}
+              </p>
             </div>
 
             {/* Phone */}
             <div className="space-y-2">
-              <Label>{translate?.pages.updateProfile.phone || "Phone"}</Label>
+              <Label htmlFor="phone">
+                {translate?.pages.updateProfile.phone || "رقم الهاتف"}
+              </Label>
               <PhoneInput
                 country="eg"
                 value={form.mobile.replace("+", "")}
                 onChange={handlePhoneChange}
                 inputClass="!w-full !h-10 !pl-12"
+                containerClass="!w-full"
+                inputProps={{
+                  id: "phone",
+                  name: "mobile",
+                }}
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full text-white bkMainColor"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  {translate?.pages.updateProfile.processing || "Processing"}
-                </>
-              ) : (
-                translate?.pages.updateProfile.confirmBtn || "Confirm"
-              )}
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <Button
+                type="submit"
+                disabled={isUpdating}
+                className="flex-1 text-white bkMainColor hover:bkMainColor/90"
+              >
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    {translate?.pages.updateProfile.processing || "جاري المعالجة..."}
+                  </>
+                ) : (
+                  translate?.pages.updateProfile.confirmBtn || "تأكيد التحديث"
+                )}
+              </Button>
+
+
+            </div>
           </form>
         </CardContent>
       </Card>
@@ -185,205 +242,3 @@ function UpdateProfile() {
 }
 
 export default UpdateProfile;
-
-
-
-
-
-
-
-
-
-
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import { useAppDispatch, useAppSelector } from "@/store/hooks";
-// import { ActFetchProfile, ActUpdateProfile } from "@/store/auth/thunkActions/ActUser";
-// import PhoneInput from "react-phone-input-2";
-// import { toast } from "sonner";
-// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// import { Loader2, User, Mail } from "lucide-react";
-// import { Label } from "@/components/ui/label";
-// import "react-phone-input-2/lib/style.css";
-// import "./style.css";
-// import TranslateHook from "@/translate/TranslateHook";
-// import LangUseParams from "@/translate/LangUseParams";
-
-// function UpdateProfile() {
-//     const lang = LangUseParams();
-//     const translate = TranslateHook();
-//     const dispatch = useAppDispatch();
-//     const { user, error } = useAppSelector((state) => state.auth);
-
-//     const [form, setForm] = useState({
-//         name: "",
-//         email: "",
-//         mobile: "",
-//     });
-//     const [isSubmitting, setIsSubmitting] = useState(false);
-//     const [initialLoading, setInitialLoading] = useState(true);
-
-//     useEffect(() => {
-//         dispatch(ActFetchProfile());
-//     }, [dispatch]);
-
-//     useEffect(() => {
-//         if (user) {
-//             setForm({
-//                 name: user.name || "",
-//                 email: user.email || "",
-//                 mobile: user.mobile || "",
-//             });
-//             setInitialLoading(false);
-//         }
-//     }, [user]);
-
-//     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//         setForm({ ...form, [e.target.name]: e.target.value });
-//     };
-
-//     const handlePhoneChange = (value: string) => {
-//         setForm({ ...form, mobile: "+" + value });
-//     };
-
-//     const handleSubmit = async (e: React.FormEvent) => {
-//         e.preventDefault();
-//         if (isSubmitting) return;
-//         setIsSubmitting(true);
-
-//         try {
-//             const result = await dispatch(ActUpdateProfile(form)).unwrap();
-//             toast.success(result.message || "Profile updated successfully");
-//             window.location.reload();
-//         } catch (err: unknown) {
-//             toast.error((err as Error).message || "Failed to update profile");
-//         } finally {
-//             setIsSubmitting(false);
-//         }
-//     };
-
-//     // Show loading only for initial data fetch, not for form submission
-//     if (initialLoading) {
-//         return (
-//             <div className="flex justify-center items-center min-h-64">
-//                 <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-//             </div>
-//         );
-//     }
-
-//     if (error) {
-//         toast.error(error);
-//     }
-
-//     return (
-//         <div className="max-w-md mx-auto p-6" dir="ltr">
-//             <Card className="shadow-lg border-0">
-//                 <CardHeader className="text-center pb-4">
-//                     <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
-//                         <User className="w-6 h-6 text-blue-600" />
-//                     </div>
-//                     <CardTitle className="text-xl font-bold">
-//                         {translate?.pages.updateProfile.title || "Update Profile"}
-//                     </CardTitle>
-//                     <CardDescription className="text-gray-500">
-//                         {translate?.pages.updateProfile.titleUpdate || "Update Profile"}
-//                     </CardDescription>
-//                 </CardHeader>
-
-//                 <CardContent>
-//                     <form onSubmit={handleSubmit} className="space-y-6">
-//                         {/* Name Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="name"
-//                                 className={`text-sm font-medium
-//                                 ${lang === "ar" || lang === "" ? 'justify-end' : 'justify-start'}
-//                                 `}>
-//                                 {translate?.pages.updateProfile.name || "Update Profile"}
-//                             </Label>
-//                             <div className="relative">
-//                                 <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-//                                 <Input
-//                                     id="name"
-//                                     name="name"
-//                                     type="text"
-//                                     placeholder="Enter your full name"
-//                                     value={form.name}
-//                                     onChange={handleChange}
-//                                     className="pl-10 focus-visible:ring-0 focus-visible:ring-transparent focus-visible:border-gray-300"
-//                                     required
-//                                 />
-//                             </div>
-//                         </div>
-
-//                         {/* Email Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="email"
-//                                 className={`text-sm font-medium
-//                                 ${lang === "ar" || lang === "" ? 'justify-end' : 'justify-start'}
-//                                 `}
-//                             >
-//                                 {translate?.pages.updateProfile.email || "Email Address"}
-//                             </Label>
-//                             <div className="relative">
-//                                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-//                                 <Input
-//                                     id="email"
-//                                     name="email"
-//                                     type="email"
-//                                     placeholder="Enter your email"
-//                                     value={form.email}
-//                                     onChange={handleChange}
-//                                     className="pl-10"
-//                                     required
-//                                     disabled
-//                                 />
-//                             </div>
-//                         </div>
-
-//                         {/* Phone Field */}
-//                         <div className="space-y-2">
-//                             <Label htmlFor="mobile"
-//                                 className={`text-sm font-medium
-//                                 ${lang === "ar" || lang === "" ? 'justify-end' : 'justify-start'}
-//                                 `}
-//                             >
-//                                 {translate?.pages.updateProfile.phone || "Phone Number"}
-//                             </Label>
-//                             <div className="relative">
-//                                 <PhoneInput
-//                                     country="eg"
-//                                     value={form.mobile.replace("+", "")}
-//                                     onChange={handlePhoneChange}
-//                                     inputClass="!w-full !h-10 !pl-12 !rounded-md !border !border-input !bg-background"
-//                                     containerClass="w-full"
-//                                     buttonClass="!bg-background !border-r !border-input"
-//                                 />
-//                             </div>
-//                         </div>
-
-//                         {/* Submit Button */}
-//                         <Button
-//                             type="submit"
-//                             disabled={isSubmitting}
-//                             className="w-full text-white bkMainColor cursor-pointer"
-//                         >
-//                             {isSubmitting ? (
-//                                 <>
-//                                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
-//                                     {translate?.pages.updateProfile.processing || "Processing..."}
-//                                 </>
-//                             ) : (
-//                                 translate?.pages.updateProfile.confirmBtn || "Confirm"
-//                             )}
-//                         </Button>
-//                     </form>
-//                 </CardContent>
-//             </Card>
-//         </div>
-//     );
-// }
-
-// export default UpdateProfile;

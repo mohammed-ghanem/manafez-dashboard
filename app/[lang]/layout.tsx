@@ -12,7 +12,7 @@ const cairo = Cairo({
     subsets: ["latin"],
     weight: ["400", "500", "600", "700"], // choose what you need
     variable: "--font-cairo",
-});
+}); 
 
 
 
