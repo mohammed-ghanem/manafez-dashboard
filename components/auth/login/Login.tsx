@@ -112,7 +112,7 @@ const Login = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  {translate?.pages.login.processing  || <Skeleton className="h-5 w-24" />}
+                  {translate?.pages.login.processing  }
                 </>
               ) : (
                 translate?.pages.login.loginButton 
