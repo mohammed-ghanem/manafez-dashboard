@@ -71,8 +71,8 @@ export const axiosBaseQuery =
     auth = false 
   }) => {
     try {
-      console.log(`📡 Starting request: ${method?.toUpperCase()} ${url}`);
-      console.log("📦 Request data:", data);
+      // console.log(`📡 Starting request: ${method?.toUpperCase()} ${url}`);
+      // console.log("📦 Request data:", data);
 
       // إذا كانت العملية تحتاج CSRF token
       if (withCsrf && ["post", "put", "patch", "delete"].includes((method || "get").toLowerCase())) {
@@ -110,11 +110,13 @@ export const axiosBaseQuery =
       return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
-      console.error("❌ Request failed:");
-      console.error("   Status:", err.response?.status);
-      console.error("   Status Text:", err.response?.statusText);
-      console.error("   Data:", err.response?.data);
-      console.error("   Headers:", err.response?.headers);
+
+      
+      // console.error("❌ Request failed:");
+      // console.error("   Status:", err.response?.status);
+      // console.error("   Status Text:", err.response?.statusText);
+      // console.error("   Data:", err.response?.data);
+      // console.error("   Headers:", err.response?.headers);
       
       // إذا كان الخطأ 419 (CSRF token mismatch)، حاول مرة أخرى
       if (err.response?.status === 419) {

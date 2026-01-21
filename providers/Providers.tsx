@@ -36,6 +36,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       {children}
       <Toaster
         position="top-right"
+        richColors
         expand={true}
         closeButton
         toastOptions={{
