@@ -44,7 +44,7 @@ type Admin = {
 export default function Admins() {
   const sessionReady = useSessionReady();
   const lang = LangUseParams() as "ar" | "en";
-  const headers = TABLE_HEADERS[lang].admins;
+  const headers = TABLE_HEADERS[lang].admins; 
 
   const { data: admins = [], isLoading , isError } = useGetAdminsQuery( undefined, {
     skip: !sessionReady,

@@ -12,25 +12,25 @@ export const rolesApi = createApi({
     /* ===================== GET ALL ROLES ===================== */
 
     getRoles: builder.query<Role[], void>({
-        query: () => ({
-          url: "/roles",
-          method: "get",
-        }),
-        transformResponse: (res: any) => {
-          return (
-            res?.data?.data?.roles ??
-            res?.data?.roles ??
-            res?.data?.data ??
-            res?.roles ??
-            []
-          );
-        },
-        providesTags: ["Roles"],
-        
-        keepUnusedDataFor: 300, // 5 دقائق
-
+      query: () => ({
+        url: "/roles",
+        method: "get",
       }),
-      
+      transformResponse: (res: any) => {
+        return (
+          res?.data?.data?.roles ??
+          res?.data?.roles ??
+          res?.data?.data ??
+          res?.roles ??
+          []
+        );
+      },
+      providesTags: ["Roles"],
+
+      keepUnusedDataFor: 300, // 5 دقائق
+
+    }),
+
     /* ===================== GET ROLE BY ID ===================== */
     getRoleById: builder.query<Role | null, number>({
       query: (id) => ({
@@ -91,13 +91,43 @@ export const rolesApi = createApi({
     }),
 
     /* ===================== DELETE ROLE ===================== */
+    // deleteRole: builder.mutation<void, number>({
+    //   query: (id) => ({
+    //     url: `/roles/${id}`,
+    //     method: "delete",
+    //   }),
+    //   // invalidatesTags: ["Roles"],
+    // }),
     deleteRole: builder.mutation<void, number>({
       query: (id) => ({
         url: `/roles/${id}`,
         method: "delete",
       }),
-      invalidatesTags: ["Roles"],
+
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patch = dispatch(
+          rolesApi.util.updateQueryData(
+            "getRoles",
+            undefined,
+            (draft: Role[]) => {
+              const index = draft.findIndex(
+                (role) => role.id === id
+              );
+              if (index !== -1) {
+                draft.splice(index, 1);
+              }
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch {
+          patch.undo();
+        }
+      },
     }),
+
 
     /* ===================== TOGGLE STATUS ===================== */
     toggleRoleStatus: builder.mutation<
@@ -139,7 +169,7 @@ export const rolesApi = createApi({
         }
       },
 
-      invalidatesTags: ["Roles"],
+      // invalidatesTags: ["Roles"],
     }),
   }),
 });

@@ -3,16 +3,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  useCreateAdminMutation,
-  useGetAdminsQuery 
-} from "@/store/admins/adminsApi";
+import { useCreateAdminMutation } from "@/store/admins/adminsApi";
 import { useGetRolesQuery } from "@/store/roles/rolesApi";
 import { toast } from "sonner";
-
 import { User, Mail, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css"; 
+import { useSessionReady } from "@/hooks/useSessionReady";
+
 
 type FormState = {
   name: string;
@@ -25,17 +23,19 @@ type FormState = {
 };
 
 export default function CreateAdmin() {
+  const sessionReady = useSessionReady();
+
   const router = useRouter();
 
   /* ===================== RTK QUERIES ===================== */
   
-  const { refetch } = useGetAdminsQuery();
+  // const { refetch } = useGetAdminsQuery();
   
   const { 
     data: rolesResponse, 
     isLoading: rolesLoading, 
     isError: rolesError 
-  } = useGetRolesQuery();
+  } = useGetRolesQuery( undefined, { skip: !sessionReady, refetchOnMountOrArgChange: false, } );
   
   const roles = rolesResponse || [];
 
@@ -118,7 +118,7 @@ export default function CreateAdmin() {
       toast.success(res.message || "✅ تم إنشاء المسؤول بنجاح");
 
       
-      await refetch();
+      
 
      
       router.push("/admins");
@@ -146,7 +146,7 @@ export default function CreateAdmin() {
   };
 
   /* ===================== LOADING STATES ===================== */
-  if (rolesLoading) {
+  if ( !sessionReady || rolesLoading) {
     return (
       <div className="flex justify-center items-center min-h-64">
         <Loader2 className="h-8 w-8 animate-spin text-gray-400" />

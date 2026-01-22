@@ -24,7 +24,7 @@ export type Column<T> = {
   key: keyof T;
   header: React.ReactNode | (() => React.ReactNode);
   align?: "left" | "center" | "right";
-  render?: (value: T[keyof T], row: T) => React.ReactNode;
+  render?: (value: any, row: T) => React.ReactNode;
 };
 
 interface DataTableProps<T> {
@@ -119,7 +119,7 @@ export function DataTable<T extends Record<string, any>>({
                 >
                   {typeof col.header === "function"
                     ? col.header()
-                    : col.header}
+                    : col.header} 
                 </TableHead>
               ))}
             </TableRow>
@@ -157,9 +157,9 @@ export function DataTable<T extends Record<string, any>>({
                           </span>
                         </div>
                       ) : col.render ? (
-                        col.render(row[col.key], row)
+                        col.render(row[col.key], row as any)
                       ) : (
-                        String(row[col.key])
+                        String(row[col.key] )
                       )}
                     </TableCell>
                   ))}

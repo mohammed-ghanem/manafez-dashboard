@@ -7,29 +7,26 @@ export const TABLE_HEADERS = {
       status: "الحالة",
       actions: "الإجراءات",
     },
-    users: {
-      name: "اسم المستخدم",
-      email: "البريد الإلكتروني",
-      phone: "رقم الهاتف",
+    roles: {
+      name: " الدور",
       status: "الحالة",
       actions: "الإجراءات",
     },
   },
 
   en: {
-    admins: {
+    admins: { 
       name: "Name",
       email: "Email",
       roles: "Roles",
       status: "Status",
       actions: "Actions",
     },
-    users: {
-      name: "User Name",
-      email: "Email",
-      phone: "Phone",
-      status: "Status",
+    roles: {
+      name: "Role",
+      status: "Description",
       actions: "Actions",
     },
+
   },
 };

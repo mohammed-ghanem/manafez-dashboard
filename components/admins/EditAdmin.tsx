@@ -11,6 +11,8 @@ import {
   useUpdateAdminMutation,
 } from "@/store/admins/adminsApi";
 import { useGetRolesQuery } from "@/store/roles/rolesApi";
+import { useSessionReady } from "@/hooks/useSessionReady";
+
 
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -30,13 +32,16 @@ type EditAdminForm = {
 };
 
 export default function EditAdmin() {
+  const sessionReady = useSessionReady();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   /* ===================== QUERIES ===================== */
-  const { data: admin, isLoading } = useGetAdminByIdQuery(Number(id));
+  const { data: admin, isLoading } = useGetAdminByIdQuery(Number(id), {
+    skip: !sessionReady,
+  });
   const { data: rolesResponse, isLoading: rolesLoading } =
-    useGetRolesQuery();
+    useGetRolesQuery( undefined, { skip: !sessionReady , refetchOnMountOrArgChange: false, } );
 
   const roles = rolesResponse ?? [];
 
@@ -109,9 +114,10 @@ export default function EditAdmin() {
 
   const selectedRoles = watch("roles_ids") ?? [];
 
-  if (isLoading || rolesLoading) {
-    return <div>Loading...</div>;
-  }
+ if (!sessionReady || isLoading || rolesLoading) {
+  return <div>Loading...</div>;
+}
+
 
   return (
     <form
