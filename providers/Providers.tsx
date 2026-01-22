@@ -8,6 +8,7 @@ import { Toaster } from "sonner";
 import { useEffect } from "react";
 import Cookies from "js-cookie";
 import api from "@/services/api";
+import { setSessionReady } from "@/store/app/appSlice";
 
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -28,6 +29,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       api.defaults.headers.common = api.defaults.headers.common || {};
       api.defaults.headers.common.Authorization = `Bearer ${token}`;
     }
+    store.dispatch(setSessionReady());
 
   }, []);
 

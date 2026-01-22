@@ -6,13 +6,15 @@ import {
   useUpdatePrivacyPolicyMutation,
 } from "@/store/settings/privacyPolicyApi";
 import { toast } from "sonner";
-// import PrivacyPolicySkeleton from "./PrivacyPolicySkeleton";
-// import CkEditor from "@/components/ckEditor/CKEditor";
+
 
 import dynamic from "next/dynamic";
 import PrivacyPolicySkeleton, {
   PrivacyPolicyEditorSkeleton,
 } from "./PrivacyPolicySkeleton";
+
+import { useSessionReady } from "@/hooks/useSessionReady";
+
 
 const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
   ssr: false,
@@ -20,7 +22,11 @@ const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
 });
 
 export default function PrivacyPolicy() {
-  const { data, isLoading } = useGetPrivacyPolicyQuery();
+    const sessionReady = useSessionReady();
+
+  const { data, isLoading , isError } = useGetPrivacyPolicyQuery( undefined, {
+    skip: !sessionReady,
+  });
   const [updatePolicy, { isLoading: isSaving }] =
     useUpdatePrivacyPolicyMutation();
 
@@ -32,12 +38,20 @@ export default function PrivacyPolicy() {
       ar: data.ar ?? "",
       en: data.en ?? "",
     });
-  }, [data?.ar, data?.en]);
+  }, [data]);
 
-  const isPageLoading = isLoading || !data;
+  // const isPageLoading = isLoading || !data;
 
-  if (isPageLoading) {
+   if (!sessionReady) {
     return <PrivacyPolicySkeleton />;
+  }
+
+  if (isLoading) {
+    return <PrivacyPolicySkeleton />;
+  }
+
+   if (isError) {
+    return <div>حدث خطأ أثناء تحميل البيانات</div>;
   }
 
   const submit = async () => {
