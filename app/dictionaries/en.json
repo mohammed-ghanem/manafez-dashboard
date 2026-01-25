@@ -1,94 +1,112 @@
-
-
 {
-    "home":{
-        "title":"Home"
+  "home": {
+    "title": "Home"
+  },
+  "loading": {
+    "title": "Loading"
+  },
+  "pages": {
+    "login": {
+      "loginTitle": "Log In",
+      "email": "Email Address",
+      "passwordName": "Password",
+      "forgetPassword": "Forget Password ?",
+      "loginButton": "Log In",
+      "dontHaveUser": "Dont Have Account ?",
+      "createAccount": "create account",
+      "LoginSuccessful": "Login Successful!",
+      "redirectHome": "You will be redirected to the home page !",
+      "ok": "OK",
+      "NotVerified": "Account Not Verified !",
+      "newVerifyCode": " Please verify your account.",
+      "Error": "Error",
+      "failedResendCode": "Failed to resend verification code. Please try again later.",
+      "verifyBeforeLogin": "Please verify your account before logging in.",
+      "InvalidEmailOrPassword": "Invalid email or password",
+      "InvalidEmailOrPasswordSwal": "'Login Failed', 'Invalid email or password. Please try again.', 'error'",
+      "NetworkError": "Network Error', 'Please check your network connection and try again.', 'error'",
+      "SomethingWentWrong": "'Error', 'Something went wrong. Please try again later.', 'error'"
     },
-     "loading":{
-        "title":"Loading"
+    "forgetPassword": {
+      "title": "Forget Password",
+      "email": "Email Address",
+      "sending": "Sending Verification Code",
+      "send": "send verification code",
+      "forgetPasswordButton": "Password recovery"
     },
-    "pages":{
-        "login": {
-            "loginTitle": "Log In",
-            "email": "Email Address",
-            "passwordName": "Password",
-            "forgetPassword": "Forget Password ?",
-            "loginButton": "Log In",
-            "dontHaveUser": "Dont Have Account ?",
-            "createAccount": "create account",
-            "LoginSuccessful": "Login Successful!",
-            "redirectHome": "You will be redirected to the home page !",
-            "ok": "OK",
-            "NotVerified": "Account Not Verified !",
-            "newVerifyCode": " Please verify your account.",
-            "Error": "Error",
-            "failedResendCode": "Failed to resend verification code. Please try again later.",
-            "verifyBeforeLogin": "Please verify your account before logging in.",
-            "InvalidEmailOrPassword": "Invalid email or password",
-            "InvalidEmailOrPasswordSwal": "'Login Failed', 'Invalid email or password. Please try again.', 'error'",
-            "NetworkError": "Network Error', 'Please check your network connection and try again.', 'error'",
-            "SomethingWentWrong": "'Error', 'Something went wrong. Please try again later.', 'error'"
-        },
-        "forgetPassword": {
-            "title": "Forget Password",
-            "email": "Email Address",
-            "sending" : "Sending Verification Code",
-            "send": "send verification code",
-            "forgetPasswordButton": "Password recovery"
-        },
-        "verifyCode" : {
-            "title": "Verification Code",
-            "email": "Email Address",
-            "code": "Verification Code",
-            "verify": " verify"
-        },
-        "resetPassword" : {
-            "title": "Password Recovery",
-            "email": "Email Address",
-            "code": " Verification Code",
-            "password": " new password",
-            "confirmPassword": "confirm password",
-            "processing" : "Processing Password Recovery",
-            "confirmBtn": "confirm"
-        },
-        "changePassword" : {
-            "title": "Change Password",
-            "oldPassword": " old password",
-            "password": " new password",
-            "confirmPassword": "confirm new password",
-            "processing" : "Processing Change Password",
-            "confirmBtn": "confirm"
-        },
-        "updateProfile" : {
-            "title": "Update Profile",
-            "titleUpdate" : "Update your personal information",
-            "name": "Full name",
-            "email": "Email",
-            "processing" : "Processing Update Profile",
-            "confirmBtn": "Confirm"
-        },
-        "profile" : {
-            "title": " Profile",
-            "titleUpdate": "Update your personal information",
-            "name": " Full name",
-            "email": " Email Address",
-            "phone": " Phone Number",
-            "processing" : " Processing Update Profile",
-            "confirmBtn": " Confirm",
-            "noData": " No data available",
-            "memberSince": " Member Since",
-            "personalDetails": " Profile Details",
-            "editProfile": " Edit Profile"
-         
-        }
+    "verifyCode": {
+      "title": "Verification Code",
+      "email": "Email Address",
+      "code": "Verification Code",
+      "verify": " verify"
     },
-    "sidebar" : {
-        "dashboard": "Dashboard",
-        "roles": "Roles & Permissions",
-        "admins": "Admins"
-        
+    "resetPassword": {
+      "title": "Password Recovery",
+      "email": "Email Address",
+      "code": " Verification Code",
+      "password": " new password",
+      "confirmPassword": "confirm password",
+      "processing": "Processing Password Recovery",
+      "confirmBtn": "confirm"
     },
-    "settings": {
+    "changePassword": {
+      "title": "Change Password",
+      "oldPassword": " old password",
+      "password": " new password",
+      "confirmPassword": "confirm new password",
+      "processing": "Processing Change Password",
+      "confirmBtn": "confirm"
+    },
+    "updateProfile": {
+      "title": "Update Profile",
+      "titleUpdate": "Update your personal information",
+      "name": "Full name",
+      "email": "Email",
+      "processing": "Processing Update Profile",
+      "confirmBtn": "Confirm"
+    },
+    "profile": {
+      "title": " Profile",
+      "titleUpdate": "Update your personal information",
+      "name": " Full name",
+      "email": " Email Address",
+      "phone": " Phone Number",
+      "processing": " Processing Update Profile",
+      "confirmBtn": " Confirm",
+      "noData": " No data available",
+      "memberSince": " Member Since",
+      "personalDetails": " Profile Details",
+      "editProfile": " Edit Profile"
+    },
+    "admins": {
+      "searchPlaceholder": "Search admins...",
+      "createAdmin": {
+        "title": "Create New Admin",
+        "name": "Full Name",
+        "email": "Email Address",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "role": "Select Role",
+        "processing": "Processing Create Admin",
+        "createBtn": "Create Admin"
+      },
+      "editAdmin": {
+        "title": "Edit Admin",
+        "name": "Full Name",
+        "email": "Email Address",
+        "phone": "Phone Number",
+        "role": "Select Role",
+        "processing": "Processing Edit Admin",
+        "saveBtn": "Save Changes"
+      }
+    }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "roles": "Roles & Permissions",
+    "admins": "Admins"
+  },
+  "settings": {
     "privacyPolicy": {
       "title": " Privacy Policy",
       "arabicContent": " Arabic Content",
@@ -97,5 +115,4 @@
       "saveBtn": "Save Changes"
     }
   }
-
-} 
+}

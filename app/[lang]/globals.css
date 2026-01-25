@@ -167,3 +167,6 @@ svg {
 .fontCairo {
   font-family: 'Cairo', sans-serif;
 }
+.fontBold {
+  font-weight: bold;
+}

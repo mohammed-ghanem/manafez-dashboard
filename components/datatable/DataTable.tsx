@@ -2,23 +2,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
@@ -42,7 +30,7 @@ interface DataTableProps<T> {
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
-  pageSizeOptions = [10 ,25, 50, 100],
+  pageSizeOptions = [10, 25, 50, 100],
   defaultPageSize = 10,
   searchPlaceholder = "Search...",
   onToggleStatus,
@@ -61,7 +49,7 @@ export function DataTable<T extends Record<string, any>>({
         String(value).toLowerCase().includes(search.toLowerCase())
       )
     );
-  }, [data, search , isSkeleton]);
+  }, [data, search, isSkeleton]);
 
   /* 📄 Pagination */
   const totalPages = Math.max(1, Math.ceil(filteredData.length / pageSize));
@@ -83,7 +71,7 @@ export function DataTable<T extends Record<string, any>>({
             setSearch(e.target.value);
             setPage(1);
           }}
-          className="max-w-sm"
+          className="max-w-sm focus-visible:ring-0 focus-visible:border-gray-300 border-gray-300 py-5 px-2.5"
         />
 
         {/* Page Size */}
@@ -109,103 +97,106 @@ export function DataTable<T extends Record<string, any>>({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border bg-white shadow-sm">
+      <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
               {columns.map((col) => (
                 <TableHead
+                  style={{ borderRight: "1px solid #e5e7eb", textAlign: "start" }}
                   key={String(col.key)}
-                  className={`font-semibold ${
-                    col.align === "center"
-                      ? "text-center"
-                      : col.align === "right"
+                  className={`fontBold ${col.align === "center"
+                    ? "text-right"
+                    : col.align === "right"
                       ? "text-right"
                       : ""
-                  }`}
+                    }`}
                 >
                   {typeof col.header === "function"
                     ? col.header()
-                    : col.header} 
+                    : col.header}
                 </TableHead>
               ))}
             </TableRow>
           </TableHeader>
 
           <TableBody>
-              {isSkeleton ? (
-                Array.from({ length: pageSize }).map((_, rowIndex) => (
-                  <TableRow key={rowIndex}>
-                    {columns.map((col, colIndex) => (
-                      <TableCell key={colIndex} className="py-4">
-                        <Skeleton className="h-4 w-full rounded" />
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : paginatedData.length ? (
-                paginatedData.map((row, index) => (
-                  <TableRow
-                    key={index}
-                    className={`
+            {isSkeleton ? (
+              Array.from({ length: pageSize }).map((_, rowIndex) => (
+                <TableRow
+                  key={rowIndex}>
+                  {columns.map((col, colIndex) => (
+                    <TableCell key={colIndex}
+                      style={{ borderRight: "1px solid #e5e7eb" }}
+                      className="py-4">
+                      <Skeleton className="h-4 w-full rounded" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : paginatedData.length ? (
+              paginatedData.map((row, index) => (
+                <TableRow
+                  key={index}
+                  className={`
                       ${index % 2 === 0 ? "bg-background" : "bg-muted/30"}
                       hover:bg-muted/50 transition-colors
                     `}
-                  >
-                    {columns.map((col) => (
-                      <TableCell
-                        key={String(col.key)}
-                        className={`py-4 ${
-                          col.align === "center"
-                            ? "text-center"
-                            : col.align === "right"
-                            ? "text-right"
-                            : ""
+                >
+                  {columns.map((col) => (
+                    <TableCell
+                      style={{ borderRight: "1px solid #e5e7eb" }}
+                      key={String(col.key)}
+                      className={`py-4 ${col.align === "center"
+                        ? "text-center"
+                        : col.align === "right"
+                          ? "text-right"
+                          : ""
                         }`}
-                      >
-                        {col.key === "status" && onToggleStatus ? (
-                          <div className="flex justify-center items-center gap-2">
-                            <Switch
-                              checked={row[col.key]}
-                              onCheckedChange={() => onToggleStatus(row)}
-                            />
-                            <span className="text-sm">
-                              {row[col.key] ? "مفعل" : "غير مفعل"}
-                            </span>
-                          </div>
-                        ) : col.render ? (
-                          col.render(row[col.key], row)
-                        ) : (
-                          // String(row[col.key])
-                          row[col.key] == null ? "-" : String(row[col.key])
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center text-muted-foreground"
-                  >
-                    No data available
-                  </TableCell>
+                    >
+                      {col.key === "status" && onToggleStatus ? (
+                        <div className="flex justify-center items-center gap-2">
+                          <Switch
+                            checked={row[col.key]}
+                            onCheckedChange={() => onToggleStatus(row)}
+                          />
+                          <span className="text-sm">
+                            {row[col.key] ? "مفعل" : "غير مفعل"}
+                          </span>
+                        </div>
+                      ) : col.render ? (
+                        col.render(row[col.key], row)
+                      ) : (
+                        // String(row[col.key])
+                        row[col.key] == null ? "-" : String(row[col.key])
+                      )}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              )}
-            </TableBody>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
         </Table>
       </div>
 
       {/* Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4" dir="ltr">
         <span className="text-sm text-muted-foreground">
           {isSkeleton
             ? "Loading..."
             : `Showing ${(page - 1) * pageSize + 1}–${Math.min(
-                page * pageSize,
-                filteredData.length
-              )} of ${filteredData.length}`}
+              page * pageSize,
+              filteredData.length
+            )} of ${filteredData.length}`}
         </span>
 
 

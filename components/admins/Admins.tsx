@@ -32,6 +32,7 @@ import { useSessionReady } from "@/hooks/useSessionReady";
 import { Edit3, Trash2 } from "lucide-react";
 import { Column, DataTable } from "../datatable/DataTable";
 import { TABLE_HEADERS } from "@/constants/tableHeaders";
+import TranslateHook from "@/translate/TranslateHook";
 
 type Admin = {
   id: number;
@@ -44,9 +45,15 @@ type Admin = {
 export default function Admins() {
   const sessionReady = useSessionReady();
   const lang = LangUseParams() as "ar" | "en";
-  const headers = TABLE_HEADERS[lang].admins; 
+  const translate = TranslateHook();
 
-  const { data: admins = [], isLoading , isError } = useGetAdminsQuery( undefined, {
+  const headers = TABLE_HEADERS[lang].admins;
+
+  const {
+    data: admins = [],
+    isLoading,
+    isError,
+  } = useGetAdminsQuery(undefined, {
     skip: !sessionReady,
   });
   const [deleteAdmin] = useDeleteAdminMutation();
@@ -66,7 +73,7 @@ export default function Admins() {
           r === "ادمن" ||
           r?.name === "admin" ||
           r?.name === "أدمن" ||
-          r?.name === "ادمن"
+          r?.name === "ادمن",
       );
     }
     return roles === "admin" || roles === "أدمن" || roles === "ادمن";
@@ -75,20 +82,20 @@ export default function Admins() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await deleteAdmin(deleteId).unwrap();
-      toast.success(
-        lang === "ar"
-          ? "تم حذف المسؤول بنجاح"
-          : "Admin deleted successfully"
-      );
-    } catch {
-      toast.error(
-        lang === "ar"
-          ? "حدث خطأ أثناء الحذف"
-          : "Delete failed"
-      );
-    } finally {
-      setDeleteId(null);
+      const res = await deleteAdmin(deleteId).unwrap();
+      toast.success(res?.message);
+    } catch (err: any) {
+      const errorData = err?.data ?? err;
+      if (errorData?.errors) {
+        Object.values(errorData.errors).forEach((messages: any) =>
+          messages.forEach((msg: string) => toast.error(msg)),
+        );
+        return;
+      }
+      if (errorData?.message) {
+        toast.error(errorData.message);
+        return;
+      }
     }
   };
 
@@ -123,9 +130,7 @@ export default function Admins() {
       key: "roles",
       header: headers.roles,
       render: (roles) =>
-        Array.isArray(roles)
-          ? roles.map((r) => r.name ?? r).join(", ")
-          : roles,
+        Array.isArray(roles) ? roles.map((r) => r.name ?? r).join(", ") : roles,
     },
     {
       key: "is_active",
@@ -145,8 +150,8 @@ export default function Admins() {
                   ? "مفعل"
                   : "Active"
                 : lang === "ar"
-                ? "غير مفعل"
-                : "Inactive"}
+                  ? "غير مفعل"
+                  : "Inactive"}
             </span>
           </div>
         ) : null,
@@ -180,9 +185,7 @@ export default function Admins() {
               <AlertDialogContent dir={lang === "ar" ? "rtl" : "ltr"}>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    {lang === "ar"
-                      ? "تأكيد الحذف"
-                      : "Confirm Delete"}
+                    {lang === "ar" ? "تأكيد الحذف" : "Confirm Delete"}
                   </AlertDialogTitle>
                   <AlertDialogDescription>
                     {lang === "ar"
@@ -207,42 +210,32 @@ export default function Admins() {
         ),
     },
   ];
-  
-  const showSkeleton = !sessionReady || isLoading ;
 
+  const showSkeleton = !sessionReady || isLoading;
 
   if (isError) return <div>Error</div>;
 
   return (
     <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
-      <Link href={`/${lang}/admins/create`} className="createBtn">
-        {lang === "ar" ? "إنشاء مسؤول جديد" : "Create New Admin"}
-      </Link>
+      <div>
+        <Link
+          href={`/${lang}/admins/create`}
+          className={`createBtn mb-4 ${showSkeleton ? "block w-40 h-9 py-2.5 opacity-50" : ""}`}
+        >
+          {!showSkeleton &&
+            `${translate?.pages.admins.createAdmin.title || ""}`}
+        </Link>
+      </div>
 
       <DataTable
         data={admins}
         columns={columns}
         isSkeleton={showSkeleton}
-        searchPlaceholder={
-          lang === "ar"
-            ? "بحث عن مسؤول..."
-            : "Search admins..."
-        }
+        searchPlaceholder={`${translate?.pages.admins.searchPlaceholder || ""}`}
       />
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
 
 // /* eslint-disable @typescript-eslint/no-explicit-any */
 // "use client";
@@ -275,23 +268,20 @@ export default function Admins() {
 // import LangUseParams from "@/translate/LangUseParams";
 // import { Edit3, Trash2 } from "lucide-react";
 
-
-
 // const Admins = () => {
 //   const lang = LangUseParams();
 //   const { data: admins = [], isLoading } = useGetAdminsQuery();
 //   const [deleteAdmin] = useDeleteAdminMutation();
 //   const [deleteId, setDeleteId] = useState<number | null>(null);
- 
+
 //    const [toggleStatus] = useToggleAdminStatusMutation();
 //    const [togglingId, setTogglingId] = useState<number | null>(null);
-
 
 //   const isProtectedAdmin = (roles: any) => {
 //     if (Array.isArray(roles)) {
 //       return roles.some(
 //         (r) =>
-//           r === "admin" || 
+//           r === "admin" ||
 //           r === "أدمن" ||
 //           r === "ادمن" ||
 //           r?.name === "admin" ||
@@ -299,18 +289,17 @@ export default function Admins() {
 //           r?.name === "ادمن"
 //       );
 //     }
-  
+
 //     return roles === "admin" || roles === "أدمن" || roles === "ادمن";
 //   };
-  
- 
+
 //   const handleDelete = async () => {
 //     if (!deleteId) return;
-  
+
 //     try {
-     
+
 //       const res = await deleteAdmin(deleteId).unwrap();
-     
+
 //       toast.success(
 //         <span className="font-cairo font-bold">
 //           {res?.message || "تم حذف المسؤول بنجاح"}
@@ -318,7 +307,7 @@ export default function Admins() {
 //       );
 //     } catch (err: any) {
 //       console.error("Delete error:", err);
-      
+
 //       if (err?.errors) {
 //         Object.values(err.errors).forEach((value: any) => {
 //           if (Array.isArray(value)) {
@@ -326,7 +315,7 @@ export default function Admins() {
 //           } else {
 //             toast.error(value);
 //           }
-//         }); 
+//         });
 //       } else if (err?.message) {
 //         toast.error(err.message);
 //       } else {
@@ -337,19 +326,15 @@ export default function Admins() {
 //     }
 //   };
 
- 
 //   const handleToggleStatus = async (id: number) => {
 //     setTogglingId(id);
 //      await toggleStatus(id).unwrap();
 //     setTogglingId(null);
 //   };
 
-  
-
 //   if (isLoading) return <div>Loading...</div>;
 
 //   return (
- 
 
 //     <div className="p-6 mx-4 my-10 bg-white rounded-2xl border border-[#ddd] space-y-6">
 //   <div>

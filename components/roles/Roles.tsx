@@ -98,7 +98,7 @@ export default function RolesPage() {
           <button
             onClick={async () => {
               
-              const deletedRole = role;
+              // const deletedRole = role;
               try {
                 await deleteRole(role.id).unwrap();
                 toast.success(
