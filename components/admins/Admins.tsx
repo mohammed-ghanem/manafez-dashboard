@@ -208,8 +208,9 @@ export default function Admins() {
     },
   ];
   
-  if (!sessionReady) return <div>Loading...</div>;
-  if (isLoading) return <div>Loading...</div>;
+  const showSkeleton = !sessionReady || isLoading ;
+
+
   if (isError) return <div>Error</div>;
 
   return (
@@ -221,6 +222,7 @@ export default function Admins() {
       <DataTable
         data={admins}
         columns={columns}
+        isSkeleton={showSkeleton}
         searchPlaceholder={
           lang === "ar"
             ? "بحث عن مسؤول..."

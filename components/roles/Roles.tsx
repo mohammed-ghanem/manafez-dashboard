@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardHeader,
-  CardTitle,
+  CardTitle, 
   CardContent,
 } from "@/components/ui/card";
 
@@ -97,6 +97,8 @@ export default function RolesPage() {
 
           <button
             onClick={async () => {
+              
+              const deletedRole = role;
               try {
                 await deleteRole(role.id).unwrap();
                 toast.success(
@@ -122,13 +124,9 @@ export default function RolesPage() {
   ];
 
   /* ===================== STATES ===================== */
-  if (!sessionReady || isLoading || isFetching) {
-    return (
-      <p className="p-6 text-center text-muted-foreground">
-        تحميل...
-      </p>
-    );
-  }
+
+  const showSkeleton = !sessionReady || isLoading || isFetching;
+
 
   if (isError) {
     return (
@@ -157,6 +155,7 @@ export default function RolesPage() {
           <DataTable
             data={roles}
             columns={columns}
+            isSkeleton={showSkeleton}
             searchPlaceholder={
               lang === "ar"
                 ? "بحث عن دور..."
