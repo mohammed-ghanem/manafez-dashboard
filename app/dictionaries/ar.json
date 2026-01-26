@@ -82,6 +82,13 @@
     },
     "admins": {
       "searchPlaceholder": "ابحث عن مسؤول...",
+      "protect": "محمى",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "deleteTitle": "تأكيد حذف المسؤول",
+      "deleteMessage": "هل أنت متأكد أنك تريد حذف هذا المسؤول؟ لا يمكن التراجع هذا الإجراء.",
+      "cancelBtn": "إلغاء",
+      "deleteBtn": "حذف",
       "createAdmin": {
         "title": "انشاء مسؤول جديد",
         "name": "الاسم بالكامل",

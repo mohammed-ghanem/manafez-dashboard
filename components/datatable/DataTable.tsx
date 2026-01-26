@@ -200,8 +200,9 @@ export function DataTable<T extends Record<string, any>>({
         </span>
 
 
-        <div className="flex gap-1">
+        <div className="flex gap-1 ">
           <Button
+            className="cursor-pointer"
             size="icon"
             variant="outline"
             onClick={() => setPage(1)}
@@ -210,6 +211,7 @@ export function DataTable<T extends Record<string, any>>({
             <ChevronsLeft className="h-4 w-4" />
           </Button>
           <Button
+            className="cursor-pointer"
             size="icon"
             variant="outline"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -218,22 +220,24 @@ export function DataTable<T extends Record<string, any>>({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
+            className="cursor-pointer"
             size="icon"
             variant="outline"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             // disabled={page === totalPages}
             disabled={isSkeleton || page === totalPages}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4 cursor-pointer" />
           </Button>
           <Button
+            className="cursor-pointer"
             size="icon"
             variant="outline"
             onClick={() => setPage(totalPages)}
             // disabled={page === totalPages}
             disabled={isSkeleton || page === totalPages}
           >
-            <ChevronsRight className="h-4 w-4" />
+            <ChevronsRight className="h-4 w-4 cursor-pointer" />
           </Button>
         </div>
       </div>

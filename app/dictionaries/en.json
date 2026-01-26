@@ -80,6 +80,13 @@
     },
     "admins": {
       "searchPlaceholder": "Search admins...",
+      "protect": "Protected",
+      "active": "Active",
+      "inactive": "Inactive",
+      "deleteTitle": "Confirm Delete Admin",
+      "deleteMessage": "Are you sure you want to delete this admin? This action cannot be undone.",
+      "cancelBtn": "Cancel",
+      "deleteBtn": "Delete",
       "createAdmin": {
         "title": "Create New Admin",
         "name": "Full Name",
