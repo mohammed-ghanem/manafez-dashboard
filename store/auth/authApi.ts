@@ -182,8 +182,7 @@ export const authApi = createApi({
                         });
                         console.log("✅ Access token updated after password change");
                     }
-
-                    // 2. إعادة جلب بيانات المستخدم لتحديث cache
+                    // get data for user for update cache
                     dispatch(authApi.util.invalidateTags(['Profile']));
 
                 } catch (error) {
@@ -197,18 +196,16 @@ export const authApi = createApi({
             query: () => ({
                 url: "/auth/profile",
                 method: "GET",
-                auth: true, // سيضيف Authorization header تلقائياً
+                auth: true, // add Authorization header automatically
             }),
             transformResponse: (response: any) => {
-                console.log("Profile API response:", response); // للتصحيح
 
-                // تأكد من هيكل البيانات
                 if (response?.data) {
                     return response.data;
                 }
                 return response;
             },
-            providesTags: ["Profile"], // لتحسين caching وتحديث البيانات
+            providesTags: ["Profile"], // update caching for this query
 
         }),
 

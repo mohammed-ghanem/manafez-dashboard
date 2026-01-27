@@ -2,16 +2,34 @@
 "use client";
 
 import { useState } from "react";
+import "./style.css" 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { User, Mail, Lock, ShieldCheck } from "lucide-react";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+
 import { useCreateAdminMutation } from "@/store/admins/adminsApi";
 import { useGetRolesQuery } from "@/store/roles/rolesApi";
-import { toast } from "sonner";
-import { User, Mail, Lock, ShieldCheck, Loader2 } from "lucide-react";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css"; 
 import { useSessionReady } from "@/hooks/useSessionReady";
 
+import AdminFormSkeleton from "./AdminFormSkeleton";
 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import TranslateHook from "@/translate/TranslateHook";
+
+/* ===================== TYPES ===================== */
 type FormState = {
   name: string;
   email: string;
@@ -24,22 +42,19 @@ type FormState = {
 
 export default function CreateAdmin() {
   const sessionReady = useSessionReady();
-
   const router = useRouter();
 
-  /* ===================== RTK QUERIES ===================== */
-  
-  // const { refetch } = useGetAdminsQuery();
-  
-  const { 
-    data: rolesResponse, 
-    isLoading: rolesLoading, 
-    isError: rolesError 
-  } = useGetRolesQuery( undefined, { skip: !sessionReady, refetchOnMountOrArgChange: false, } );
-  
-  const roles = rolesResponse || [];
+  /* ===================== DATA ===================== */
+  const { data: rolesResponse, isLoading: rolesLoading } =
+    useGetRolesQuery(undefined, { skip: !sessionReady });
 
-  const [createAdmin, { isLoading: isCreating }] = useCreateAdminMutation();
+  const roles = rolesResponse ?? [];
+
+  const [createAdmin, { isLoading: isCreating }] =
+    useCreateAdminMutation();
+
+  const translate = TranslateHook();
+
 
   /* ===================== FORM STATE ===================== */
   const [form, setForm] = useState<FormState>({
@@ -52,9 +67,7 @@ export default function CreateAdmin() {
     is_active: true,
   });
 
-  const [errors, setErrors] = useState<Record<string, string[]>>({});
-
-  /* ===================== HANDLERS ===================== */
+  /* ===================== HELPERS ===================== */
   const toggleRole = (roleId: number) => {
     setForm((prev) => ({
       ...prev,
@@ -62,49 +75,12 @@ export default function CreateAdmin() {
         ? prev.role_id.filter((id) => id !== roleId)
         : [...prev.role_id, roleId],
     }));
-    
-    
-    if (errors.role_id) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors.role_id;
-        return newErrors;
-      });
-    }
   };
 
-  const handleInputChange = (field: keyof FormState, value: string | boolean) => {
-    setForm(prev => ({ ...prev, [field]: value }));
-    
-    
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  };
-
-  /* ===================== SUBMIT ===================== */
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErrors({});
-
-   
-    if (form.password !== form.password_confirmation) {
-      toast.error("كلمة المرور وتأكيدها غير متطابقين");
-      return;
-    }
-
-    
-    if (form.role_id.length === 0) {
-      toast.error("يجب اختيار دور واحد على الأقل");
-      return;
-    }
 
     try {
-      
       const res = await createAdmin({
         name: form.name,
         email: form.email,
@@ -115,203 +91,195 @@ export default function CreateAdmin() {
         is_active: form.is_active,
       }).unwrap();
 
-      toast.success(res.message || "✅ تم إنشاء المسؤول بنجاح");
-
-      
-      
-
-     
+      toast.success(res?.message );
       router.push("/admins");
     } catch (err: any) {
-      console.error("Create admin error:", err);
-      
-      if (err?.status === 422 && err?.errors) {
-       
-        setErrors(err.errors);
-        
-      
-        Object.values(err.errors).forEach((value: any) => {
-          if (Array.isArray(value)) {
-            value.forEach((msg) => toast.error(msg));
-          } else {
-            toast.error(value);
-          }
-        });
-      } else if (err?.message) {
-        toast.error(err.message);
-      } else {
-        toast.error("حدث خطأ غير متوقع أثناء إنشاء المسؤول");
+      const errorData = err?.data ?? err;
+      if (errorData?.errors) {
+        Object.values(errorData.errors).forEach((messages: any) =>
+          messages.forEach((msg: string) => toast.error(msg)),
+        );
+        return;
+      }
+      if (errorData?.message) {
+        toast.error(errorData.message);
+        return; 
       }
     }
   };
 
-  /* ===================== LOADING STATES ===================== */
-  if ( !sessionReady || rolesLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-      </div>
-    );
+  /* ===================== LOADING ===================== */
+  if (!sessionReady || rolesLoading) {
+    return <AdminFormSkeleton />;
   }
 
-  if (rolesError) {
-    return (
-      <div className="bg-red-50 text-red-600 p-4 rounded">
-        ❌ فشل في تحميل الأدوار. يرجى المحاولة مرة أخرى.
-      </div>
-    );
-  }
+
 
   return (
-    <form
-      onSubmit={submit}
-      className="max-w-md space-y-4 bg-white p-6 rounded-xl shadow mx-auto"
-      dir="ltr"
-    >
-      {/* Name */}
-      <div className="relative">
-        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-        <input
-          className={`w-full border pl-9 p-2 rounded ${
-            errors.name ? "border-red-500" : ""
-          }`}
-          placeholder="Name"
-          value={form.name}
-          onChange={(e) => handleInputChange("name", e.target.value)}
-        />
-        {errors.name && (
-          <p className="text-red-500 text-sm mt-1">{errors.name[0]}</p>
-        )}
-      </div>
+    <div className="max-w-3xl mx-auto py-10 px-4">
+      <Card className="rounded-2xl shadow-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-bold">
+            <User className="w-5 h-5" />
+            {translate?.pages.admins.createAdmin.title || ""}
+          </CardTitle>
+          <CardDescription>
+            {translate?.pages.admins.createAdmin.description || ""}
+          </CardDescription>
+        </CardHeader>
 
-      {/* Email */}
-      <div className="relative">
-        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-        <input
-          className={`w-full border pl-9 p-2 rounded ${
-            errors.email ? "border-red-500" : ""
-          }`}
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={(e) => handleInputChange("email", e.target.value)}
-        />
-        {errors.email && (
-          <p className="text-red-500 text-sm mt-1">{errors.email[0]}</p>
-        )}
-      </div>
+        <CardContent>
+          <form onSubmit={submit} className="space-y-6">
+            {/* BASIC INFO */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label className="font-semibold">
+                  {translate?.pages.admins.createAdmin.name || ""}
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    value={form.name}
+                    onChange={(e) =>
+                      setForm({ ...form, name: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
 
-      {/* Phone */}
-      <div className="relative" >
-        <PhoneInput
-          country={"eg"}
-          value={form.mobile}
-          onChange={(phone) => handleInputChange("mobile", phone)}
-          inputClass={`!w-full !pl-12 !py-2 !border !rounded ${
-            errors.mobile ? "!border-red-500" : ""
-          }`}
-          containerClass="!w-full"
-        />
-        {errors.mobile && (
-          <p className="text-red-500 text-sm mt-1">{errors.mobile[0]}</p>
-        )}
-      </div>
+              <div className="space-y-1">
+                <Label className="font-semibold">
+                  {translate?.pages.admins.createAdmin.email || ""}
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
 
-      {/* Password */}
-      <div className="relative">
-        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-        <input
-          className={`w-full border pl-9 p-2 rounded ${
-            errors.password ? "border-red-500" : ""
-          }`}
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) => handleInputChange("password", e.target.value)}
-        />
-        {errors.password && (
-          <p className="text-red-500 text-sm mt-1">{errors.password[0]}</p>
-        )}
-      </div>
-
-      {/* Confirm Password */}
-      <div className="relative">
-        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-        <input
-          className={`w-full border pl-9 p-2 rounded ${
-            errors.password_confirmation ? "border-red-500" : ""
-          }`}
-          type="password"
-          placeholder="Confirm Password"
-          value={form.password_confirmation}
-          onChange={(e) => handleInputChange("password_confirmation", e.target.value)}
-        />
-        {errors.password_confirmation && (
-          <p className="text-red-500 text-sm mt-1">{errors.password_confirmation[0]}</p>
-        )}
-      </div>
-
-      {/* Roles */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <ShieldCheck className="h-4 w-4 text-gray-400" />
-          Roles
-        </div>
-
-        {errors.role_id && (
-          <p className="text-red-500 text-sm">{errors.role_id[0]}</p>
-        )}
-
-        <div className="grid grid-cols-2 gap-2">
-          {roles.length === 0 ? (
-            <p className="text-gray-500 text-sm">لا توجد أدوار متاحة</p>
-          ) : (
-            roles.map((role) => (
-              <label
-                key={role.id}
-                className={`flex items-center gap-2 border rounded p-2 cursor-pointer ${
-                  form.role_id.includes(role.id) ? "bg-blue-50 border-blue-300" : ""
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={form.role_id.includes(role.id)}
-                  onChange={() => toggleRole(role.id)}
-                  className="accent-blue-600"
+            {/* PHONE */}
+            <div className="space-y-1">
+              <Label className="font-semibold">
+                {translate?.pages.admins.createAdmin.phone || ""}
+              </Label>
+              <div dir="ltr">
+                <PhoneInput
+                  country="eg"
+                  value={form.mobile}
+                  onChange={(v) =>
+                    setForm({ ...form, mobile: v })
+                  }
+                  containerClass="!w-full"
+                  inputClass="!w-full !h-10 !pl-12 !text-sm rounded-md"
                 />
-                <span className="text-sm">{role.name}</span>
-              </label>
-            ))
-          )}
-        </div>
-      </div>
+              </div>
+            </div>
 
-      {/* Active */}
-      <label className="flex items-center gap-2 p-2 border rounded">
-        <input
-          type="checkbox"
-          checked={form.is_active}
-          onChange={(e) => handleInputChange("is_active", e.target.checked)}
-          className="accent-blue-600"
-        />
-        <span>Active</span>
-      </label>
+            {/* PASSWORD */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label className="font-semibold">
+                  {translate?.pages.admins.createAdmin.password || ""}
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    type="password"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
 
-      {/* Submit */}
-      <button
-        type="submit"
-        disabled={isCreating}
-        className="w-full bg-black text-white p-2 rounded hover:bg-gray-800 transition disabled:opacity-60 disabled:cursor-not-allowed"
-      >
-        {isCreating ? (
-          <span className="flex items-center justify-center gap-2">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            جاري الإنشاء...
-          </span>
-        ) : (
-          "Create Admin"
-        )}
-      </button>
-    </form>
+              <div className="space-y-1">
+                <Label className="font-semibold">
+                  {translate?.pages.admins.createAdmin.confirmPassword || ""}
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    type="password"
+                    value={form.password_confirmation}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        password_confirmation: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* ROLES */}
+            <div className="space-y-3">
+              <Label className="flex items-center gap-2 font-semibold">
+                <ShieldCheck className="w-4 h-4" />
+                {translate?.pages.admins.createAdmin.roles || ""}
+              </Label>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border rounded-lg p-4">
+                {roles.map((role: any) => (
+                  <div
+                    key={role.id}
+                    className="flex items-center gap-2 rounded-md hover:bg-muted px-2 py-1"
+                  >
+                    <Checkbox
+                      checked={form.role_id.includes(role.id)}
+                      onCheckedChange={() =>
+                        toggleRole(role.id)
+                      }
+                    />
+                    <span className="text-sm">{role.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* STATUS */}
+            <div className="flex items-center gap-3">
+              <Checkbox
+                checked={form.is_active}
+                onCheckedChange={(v) =>
+                  setForm({ ...form, is_active: Boolean(v) })
+                }
+              />
+              <span className="text-sm">
+                {translate?.pages.admins.createAdmin.isActive || ""}
+              </span>
+            </div>
+
+            {/* ACTION */}
+            <Button
+              type="submit"
+              disabled={isCreating}
+              className="mx-auto block bg-green-700 hover:bg-green-600 font-semibold"
+            >
+               {isCreating
+              ?
+              `${translate?.pages.admins.createAdmin.processing}...`
+              :
+              `${translate?.pages.admins.createAdmin.createBtn}`
+                }
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

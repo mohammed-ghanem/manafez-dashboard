@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect } from "react";
+import "./style.css";
 import { useParams, useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { toast } from "sonner";
@@ -29,6 +30,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import TranslateHook from "@/translate/TranslateHook";
+import AdminFormSkeleton from "./AdminFormSkeleton";
+
 
 /* ===================== TYPES ===================== */
 type EditAdminForm = {
@@ -43,6 +47,7 @@ export default function EditAdmin() {
   const sessionReady = useSessionReady();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
+  const translate = TranslateHook();
 
   const { data: admin, isLoading } = useGetAdminByIdQuery(Number(id), {
     skip: !sessionReady,
@@ -100,7 +105,7 @@ export default function EditAdmin() {
         },
       }).unwrap();
 
-      toast.success(res?.message || "تم التعديل بنجاح");
+      toast.success(res?.message);
       router.push("/admins");
     } catch (err: any) {
       const errorData = err?.data ?? err;
@@ -112,7 +117,7 @@ export default function EditAdmin() {
       }
       if (errorData?.message) {
         toast.error(errorData.message);
-        return;
+        return; 
       }
     }
   };
@@ -120,23 +125,19 @@ export default function EditAdmin() {
   const selectedRoles = watch("roles_ids") ?? [];
 
   if (!sessionReady || isLoading || rolesLoading) {
-    return (
-      <div className="flex justify-center py-20 text-muted-foreground">
-        Loading admin data...
-      </div>
-    );
+    return  <AdminFormSkeleton />
   }
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4">
       <Card className="rounded-2xl shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 font-bold">
             <User className="w-5 h-5" />
-            Edit Admin
+            {translate?.pages.admins.editAdmin.title || ""}
           </CardTitle>
-          <CardDescription>
-            Update admin information and permissions
+          <CardDescription className="mr-1">
+            {translate?.pages.admins.editAdmin.titleUpdate || ""}
           </CardDescription>
         </CardHeader>
 
@@ -145,11 +146,13 @@ export default function EditAdmin() {
             {/* BASIC INFO */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label>Name</Label>
+                <Label className="font-semibold">
+                  {translate?.pages.admins.editAdmin.name || ""}
+                </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9"
+                    className="pl-9 focus-visible:border-[#999] border-[#999]"
                     {...register("name", { required: true })}
                     placeholder="Admin name"
                   />
@@ -157,11 +160,13 @@ export default function EditAdmin() {
               </div>
 
               <div className="space-y-1">
-                <Label>Email</Label>
+                <Label className="font-semibold">
+                  {translate?.pages.admins.editAdmin.email || ""}
+                </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9"
+                    className="pl-9 focus-visible:border-[#999] border-[#999]"
                     {...register("email", { required: true })}
                     placeholder="Email address"
                   />
@@ -171,8 +176,10 @@ export default function EditAdmin() {
 
             {/* PHONE */}
             <div className="space-y-1">
-              <Label>Phone</Label>
-              <div dir="ltr">
+                <Label className="font-semibold">
+                {translate?.pages.admins.editAdmin.phone || "" }
+                </Label>
+              <div dir="ltr" className="focus-visible:border-[#999] border-[#999]">
                 <Controller
                   name="phone"
                   control={control}
@@ -183,7 +190,7 @@ export default function EditAdmin() {
                       value={field.value}
                       onChange={field.onChange}
                       containerClass="!w-full"
-                      inputClass="!w-full !h-10 !pl-12 !text-sm rounded-md border"
+                      inputClass="!w-full !h-10 !pl-12 !text-sm rounded-md "
                     />
                   )}
                 />
@@ -194,9 +201,9 @@ export default function EditAdmin() {
 
             {/* ROLES */}
             <div className="space-y-3">
-              <Label className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 font-semibold">
                 <ShieldCheck className="w-4 h-4" />
-                Roles & Permissions
+                {translate?.pages.admins.editAdmin.role || ""}
               </Label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border rounded-lg p-4">
@@ -206,6 +213,7 @@ export default function EditAdmin() {
                     className="flex items-center gap-2 rounded-md hover:bg-muted px-2 py-1"
                   >
                     <Checkbox
+                      className=" border-stone-400!"
                       checked={selectedRoles.includes(role.id)}
                       onCheckedChange={(checked) => {
                         const newRoles = checked
@@ -226,21 +234,29 @@ export default function EditAdmin() {
             {/* STATUS */}
             <div className="flex items-center gap-3">
               <Checkbox
+                className=" border-stone-400!"
                 checked={watch("isActive")}
                 onCheckedChange={(v) =>
                   setValue("isActive", Boolean(v))
                 }
               />
-              <span className="text-sm">Active account</span>
+              <span className="text-sm">
+                {translate?.pages.admins.editAdmin.isActive || ""}
+              </span>
             </div>
 
             {/* ACTION */}
             <Button
               type="submit"
               disabled={isUpdating}
-              className="w-content block mx-auto gap-2"
+              className="w-content block mx-auto gap-2 bg-green-700 hover:bg-green-600 font-semibold cursor-pointer"
             >
-              Update Admin
+              {isUpdating 
+              ?
+              `${translate?.pages.admins.editAdmin.processing}...`
+              :
+              `${translate?.pages.admins.editAdmin.editBtn}`
+                }
             </Button>
           </form>
         </CardContent>

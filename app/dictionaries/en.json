@@ -5,7 +5,7 @@
   "loading": {
     "title": "Loading"
   },
-  "pages": {
+  "pages": { 
     "login": {
       "loginTitle": "Log In",
       "email": "Email Address",
@@ -89,22 +89,26 @@
       "deleteBtn": "Delete",
       "createAdmin": {
         "title": "Create New Admin",
+        "titleDescription": "Create admin information and permissions",
         "name": "Full Name",
         "email": "Email Address",
         "password": "Password",
         "confirmPassword": "Confirm Password",
-        "role": "Select Role",
+        "roles": "Select Role",
+        "isActive": "Active",
         "processing": "Processing Create Admin",
         "createBtn": "Create Admin"
       },
       "editAdmin": {
         "title": "Edit Admin",
+        "titleUpdate": "Update admin information and permissions",
         "name": "Full Name",
         "email": "Email Address",
         "phone": "Phone Number",
         "role": "Select Role",
-        "processing": "Processing Edit Admin",
-        "saveBtn": "Save Changes"
+        "isActive": "Active",
+        "processing": "Processing Save Changes",
+        "editBtn": "Save Changes"
       }
     }
   },

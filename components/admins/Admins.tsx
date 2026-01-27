@@ -27,6 +27,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
+import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 import { useSessionReady } from "@/hooks/useSessionReady";
 
 import { Edit3, ShieldX, Trash2 } from "lucide-react";
@@ -49,9 +50,26 @@ export default function Admins() {
 
   const headers = TABLE_HEADERS[lang as "ar" | "en"].admins;
 
-  const { data: admins = [], isLoading, isError, } = useGetAdminsQuery(undefined, { skip: !sessionReady, });
+  const {
+    data: admins = [],
+    isLoading,
+    isError,
+  } = useGetAdminsQuery(undefined, { skip: !sessionReady });
   const [deleteAdmin] = useDeleteAdminMutation();
   const [toggleStatus] = useToggleAdminStatusMutation();
+
+  // Optimistic Toggle 
+  const { getOptimisticStatus, toggle, isPending } = useOptimisticToggle<Admin>(
+    {
+      getId: (admin) => admin.id,
+      getStatus: (admin) => admin.is_active,
+     
+      onToggle: async (admin) => {
+        await toggleStatus(admin.id);
+        return;
+      },
+    }
+  );
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -67,7 +85,7 @@ export default function Admins() {
           r === "ادمن" ||
           r?.name === "admin" ||
           r?.name === "أدمن" ||
-          r?.name === "ادمن",
+          r?.name === "ادمن"
       );
     }
     return roles === "admin" || roles === "أدمن" || roles === "ادمن";
@@ -82,7 +100,7 @@ export default function Admins() {
       const errorData = err?.data ?? err;
       if (errorData?.errors) {
         Object.values(errorData.errors).forEach((messages: any) =>
-          messages.forEach((msg: string) => toast.error(msg)),
+          messages.forEach((msg: string) => toast.error(msg))
         );
         return;
       }
@@ -91,11 +109,6 @@ export default function Admins() {
         return;
       }
     }
-  };
-
-  const handleToggleStatus = async (admin: Admin) => {
-    if (isProtectedAdmin(admin.roles)) return;
-    await toggleStatus(admin.id).unwrap();
   };
 
   /* ========================
@@ -129,22 +142,28 @@ export default function Admins() {
         !isProtectedAdmin(admin.roles) ? (
           <div className="flex items-center justify-center gap-2" dir="ltr">
             <Switch
-              checked={admin.is_active}
-              className="data-[state=checked]:bg-green-600"
-              onCheckedChange={() => handleToggleStatus(admin)}
-            />
+                className="data-[state=checked]:bg-green-600"
+                checked={getOptimisticStatus(admin)}
+                disabled={isPending(admin)}
+                onCheckedChange={(checked) => {
+                  toggle(admin, checked).catch(() => {
+                    toast.error("فشل تغيير الحالة");
+                  });
+                }}
+              />
+
             <span className="text-sm">
-              {admin.is_active
+              {getOptimisticStatus(admin)
                 ? translate?.pages.admins.active || ""
                 : translate?.pages.admins.inactive || ""}
             </span>
-
           </div>
         ) : (
           <Badge variant="destructive">
             {translate?.pages.admins.protect || ""}
             <ShieldX />
-          </Badge>),
+          </Badge>
+        ),
     },
     {
       key: "id",
@@ -155,9 +174,10 @@ export default function Admins() {
           <div className="flex justify-center gap-2">
             {/* EDIT */}
             <Link href={`/${lang}/admins/edit/${admin.id}`}>
-              <Button 
-              className="bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 cursor-pointer"
-              size="sm">
+              <Button
+                className="bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 cursor-pointer"
+                size="sm"
+              >
                 <Edit3 className="h-4 w-4" />
               </Button>
             </Link>
@@ -175,7 +195,7 @@ export default function Admins() {
                 </Button>
               </AlertDialogTrigger>
 
-              <AlertDialogContent >
+              <AlertDialogContent>
                 <AlertDialogHeader className="text-start!">
                   <AlertDialogTitle>
                     {translate?.pages.admins.deleteTitle || ""}
@@ -203,20 +223,19 @@ export default function Admins() {
             {translate?.pages.admins.protect || ""}
             <ShieldX />
           </Badge>
-        )
+        ),
     },
   ];
 
   const showSkeleton = !sessionReady || isLoading;
-
-  if (isError) return <div>Error</div>;
-
   return (
     <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
       <div>
         <Link
           href={`/${lang}/admins/create`}
-          className={`createBtn mb-4 ${showSkeleton ? "block w-40 h-9 py-2.5 opacity-50" : ""}`}
+          className={`createBtn mb-4 ${
+            showSkeleton ? "block w-40 h-9 py-2.5 opacity-50" : ""
+          }`}
         >
           {!showSkeleton &&
             `${translate?.pages.admins.createAdmin.title || ""}`}
