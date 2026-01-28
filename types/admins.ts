@@ -14,6 +14,17 @@ export interface IAdmin {
   message?: string;
 }
 
+export interface IPaginatedAdmins {
+  data: IAdmin[];
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+
 
 export interface ICreateAdminPayload {
   name: string;
