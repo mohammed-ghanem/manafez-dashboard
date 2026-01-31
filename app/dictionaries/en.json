@@ -79,6 +79,7 @@
       "editProfile": " Edit Profile"
     },
     "admins": {
+      "adminsTitle": "Admins",
       "searchPlaceholder": "Search admins...",
       "protect": "Protected",
       "active": "Active",
@@ -106,6 +107,37 @@
         "email": "Email Address",
         "phone": "Phone Number",
         "role": "Select Role",
+        "isActive": "Active",
+        "processing": "Processing Save Changes",
+        "editBtn": "Save Changes"
+      }
+    },
+    "roles": {
+      "rolesTitle": "Roles & Permissions",
+      "searchPlaceholder": "Search roles...",
+      "protect": "Protected",
+      "active": "Active",
+      "inactive": "Inactive",
+      "deleteTitle": "Confirm Delete Role",
+      "deleteMessage": "Are you sure you want to delete this role? This action cannot be undone.",
+      "cancelBtn": "Cancel",
+      "deleteBtn": "Delete",
+      "createRole": {
+        "title": "Create New Role",
+        "titleDescription": "Create role information and permissions",
+        "name": "Role Name",
+        "description": "Role Description",
+        "permissions": "Select Permissions",
+        "isActive": "Active",
+        "processing": "Processing Create Role",
+        "createBtn": "Create Role"
+      },
+      "editRole": {
+        "title": "Edit Role",
+        "titleUpdate": "Update role information and permissions",
+        "name": "Role Name",
+        "description": "Role Description",
+        "permissions": "Select Permissions",
         "isActive": "Active",
         "processing": "Processing Save Changes",
         "editBtn": "Save Changes"

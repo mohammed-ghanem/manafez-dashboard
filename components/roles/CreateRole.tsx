@@ -12,12 +12,7 @@ import { useGetPermissionsQuery } from "@/store/permissions/permissionsApi";
 import { useCreateRoleMutation } from "@/store/roles/rolesApi";
 
 // UI
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,12 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Icons
-import {
-  Shield,
-  CheckSquare,
-  FolderCheck,
-  CircleCheckBig,
-} from "lucide-react";
+import { Shield, CheckSquare, FolderCheck, CircleCheckBig } from "lucide-react";
 
 // Toast
 import { toast } from "sonner";
@@ -51,8 +41,7 @@ const CreateRole = () => {
     skip: !sessionReady,
   });
 
-  const [createRole, { isLoading: isCreating }] =
-    useCreateRoleMutation();
+  const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
 
   /* ===================== FORM STATE ===================== */
   const [name_en, setNameEn] = useState("");
@@ -62,21 +51,17 @@ const CreateRole = () => {
   /* ===================== HELPERS ===================== */
   const toggleControl = (id: number) => {
     setSelected((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
   };
 
   const selectAllPermissions = () => {
     if (!permissions) return;
 
-    const allIds = permissions.flatMap((g) =>
-      g.controls.map((c: any) => c.id)
-    );
+    const allIds = permissions.flatMap((g) => g.controls.map((c: any) => c.id));
 
     setSelected((prev) =>
-      allIds.every((id) => prev.includes(id)) ? [] : allIds
+      allIds.every((id) => prev.includes(id)) ? [] : allIds,
     );
   };
 
@@ -104,15 +89,13 @@ const CreateRole = () => {
       toast.success(res?.message || "Role created successfully");
       router.push("/roles");
     } catch (err: any) {
-      if (err?.errors) {
-        Object.values(err.errors).forEach((e: any) => {
-          Array.isArray(e)
-            ? e.forEach((m) => toast.error(m))
-            : toast.error(e);
-        });
+      const errorData = err?.data ?? err;
+      if (errorData?.errors) {
+        Object.values(errorData.errors).forEach((messages: any) =>
+          messages.forEach((msg: string) => toast.error(msg)),
+        );
         return;
       }
-      toast.error(err?.message || "Create role failed");
     }
   };
 
@@ -133,9 +116,7 @@ const CreateRole = () => {
       {/* Role Info */}
       <Card className="p-6 shadow border">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">
-            Role Details
-          </CardTitle>
+          <CardTitle className="text-lg font-medium">Role Details</CardTitle>
         </CardHeader>
 
         <CardContent className="grid grid-cols-3 gap-4">
@@ -163,9 +144,7 @@ const CreateRole = () => {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <h2 className="text-xl font-semibold">Permissions</h2>
-          <Badge variant="outline">
-            {selected.length} selected
-          </Badge>
+          <Badge variant="outline">{selected.length} selected</Badge>
         </div>
 
         <Button
@@ -194,9 +173,7 @@ const CreateRole = () => {
       )}
 
       {isError && (
-        <p className="text-destructive">
-          Failed to load permissions
-        </p>
+        <p className="text-destructive">Failed to load permissions</p>
       )}
 
       {permissions && (
@@ -215,9 +192,7 @@ const CreateRole = () => {
                   <Button
                     size="sm"
                     variant="secondary"
-                    onClick={() =>
-                      selectGroup(group.controls)
-                    }
+                    onClick={() => selectGroup(group.controls)}
                   >
                     Select Group
                   </Button>
@@ -236,9 +211,7 @@ const CreateRole = () => {
                     >
                       <Checkbox
                         checked={selected.includes(control.id)}
-                        onCheckedChange={() =>
-                          toggleControl(control.id)
-                        }
+                        onCheckedChange={() => toggleControl(control.id)}
                       />
                       <span className="text-sm font-medium">
                         {control.name}
@@ -256,12 +229,7 @@ const CreateRole = () => {
       <Button
         className="w-full py-5 text-lg"
         onClick={handleCreateRole}
-        disabled={
-          isCreating ||
-          !name_en ||
-          !name_ar ||
-          selected.length === 0
-        }
+        disabled={isCreating || !name_en || !name_ar || selected.length === 0}
       >
         <CircleCheckBig className="w-5 h-5 mr-2" />
         {isCreating ? "Creating..." : "Create Role"}
@@ -272,33 +240,6 @@ const CreateRole = () => {
 
 export default CreateRole;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // /* eslint-disable @typescript-eslint/no-explicit-any */
 // "use client";
 
@@ -307,7 +248,6 @@ export default CreateRole;
 
 // import { useGetPermissionsQuery } from "@/store/permissions/permissionsApi";
 // import { useCreateRoleMutation } from "@/store/roles/rolesApi";
- 
 
 // // UI
 // import {
@@ -342,14 +282,12 @@ export default CreateRole;
 //     = useGetPermissionsQuery() as { data: any[] | undefined; isLoading: boolean; error: any };
 //   const [createRole] = useCreateRoleMutation();
 
-
 //   // Form fields
 //   const [name_en, setNameEn] = useState("");
 //   const [name_ar, setNameAr] = useState("");
 
 //   // Permissions selection
 //   const [selected, setSelected] = useState<number[]>([]);
-
 
 //   // Toggle single control
 //   const toggleControl = (id: number) => {
@@ -390,7 +328,6 @@ export default CreateRole;
 //     toast.success("Group permissions toggled");
 //   };
 
-
 //   // Create Role Submit
 //   const handleCreateRole = async () => {
 //     try {
@@ -415,7 +352,6 @@ export default CreateRole;
 //     }
 //   };
 
-
 //   return (
 //     <div className="p-6 space-y-6">
 
@@ -434,8 +370,6 @@ export default CreateRole;
 //         </CardHeader>
 
 //         <CardContent className="grid grid-cols-3 gap-4">
-
-
 
 //           <div className="flex flex-col space-y-2">
 //             <Label>Name (English)</Label>
@@ -457,7 +391,6 @@ export default CreateRole;
 
 //         </CardContent>
 //       </Card>
-
 
 //       {/* Permissions */}
 //       <div className="flex justify-between items-center mt-4">

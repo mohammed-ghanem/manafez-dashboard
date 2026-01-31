@@ -30,7 +30,7 @@ interface DataTableProps<T> {
 export function DataTable<T extends Record<string, any>>({
   data,
   columns,
-  pageSizeOptions = [10, 25, 50, 100],
+  pageSizeOptions = [5 , 10, 25, 50, 100],
   defaultPageSize = 10,
   searchPlaceholder = "Search...",
   onToggleStatus,

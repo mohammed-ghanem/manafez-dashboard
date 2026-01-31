@@ -15,8 +15,12 @@ export const rolesApi = createApi({
       query: () => ({
         url: "/roles",
         method: "get",
-      }),
-      transformResponse: (res: any) => {
+        params: {
+          page: 0,
+          limit: 0,
+        },
+      }), 
+      transformResponse: (res: any ) => {
         return (
           res?.data?.data?.roles ??
           res?.data?.roles ??

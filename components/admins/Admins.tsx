@@ -51,10 +51,7 @@ export default function Admins() {
   const headers = TABLE_HEADERS[lang as "ar" | "en"].admins;
 
   const {
-    data: admins = [],
-    isLoading,
-    isError,
-  } = useGetAdminsQuery(undefined, { skip: !sessionReady });
+    data: admins = [], isLoading } = useGetAdminsQuery(undefined, { skip: !sessionReady });
   const [deleteAdmin] = useDeleteAdminMutation();
   const [toggleStatus] = useToggleAdminStatusMutation();
 
@@ -63,7 +60,7 @@ export default function Admins() {
     {
       getId: (admin) => admin.id,
       getStatus: (admin) => admin.is_active,
-     
+
       onToggle: async (admin) => {
         await toggleStatus(admin.id);
         return;
@@ -142,15 +139,15 @@ export default function Admins() {
         !isProtectedAdmin(admin.roles) ? (
           <div className="flex items-center justify-center gap-2" dir="ltr">
             <Switch
-                className="data-[state=checked]:bg-green-600"
-                checked={getOptimisticStatus(admin)}
-                disabled={isPending(admin)}
-                onCheckedChange={(checked) => {
-                  toggle(admin, checked).catch(() => {
-                    toast.error("فشل تغيير الحالة");
-                  });
-                }}
-              />
+              className="data-[state=checked]:bg-green-600"
+              checked={getOptimisticStatus(admin)}
+              disabled={isPending(admin)}
+              onCheckedChange={(checked) => {
+                toggle(admin, checked).catch(() => {
+                  toast.error("فشل تغيير الحالة");
+                });
+              }}
+            />
 
             <span className="text-sm">
               {getOptimisticStatus(admin)
@@ -230,12 +227,13 @@ export default function Admins() {
   const showSkeleton = !sessionReady || isLoading;
   return (
     <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
-      <div>
+      <h2 className={`titleStyle ${showSkeleton ? "block h-11 w-24!" : ""}`}>
+        {translate?.pages.admins.adminsTitle || ""}
+        </h2>
+      <div className="mt-10">
         <Link
           href={`/${lang}/admins/create`}
-          className={`createBtn mb-4 ${
-            showSkeleton ? "block w-40 h-9 py-2.5 opacity-50" : ""
-          }`}
+          className={`createBtn  ${showSkeleton ? "block w-40 h-9 py-2.5 opacity-50" : ""}`}
         >
           {!showSkeleton &&
             `${translate?.pages.admins.createAdmin.title || ""}`}

@@ -81,7 +81,8 @@
       "editProfile": "تحديث الملف الشخصى"
     },
     "admins": {
-      "searchPlaceholder": "ابحث عن مسؤول...",
+      "adminsTitle": "المسؤولين",
+      "searchPlaceholder": "ابحث عن مسؤول...", 
       "protect": "محمى",
       "active": "نشط",
       "inactive": "غير نشط",
@@ -110,6 +111,37 @@
         "phone": "رقم الجوال",
         "role": "الصلاحيات والمهام",
         "isActive": "مفعل",
+        "processing": "جارى حفظ التغييرات",
+        "editBtn": " حفظ التغييرات"
+      }
+    },
+    "roles": {
+      "rolesTitle": "الصلاحيات والمهام",
+      "searchPlaceholder": "ابحث عن صلاحية...",
+      "protect": "محمى",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "deleteTitle": "تأكيد حذف الصلاحية",
+      "deleteMessage": "هل أنت متأكد أنك تريد حذف هذه الصلاحية؟ لا يمكن التراجع هذا الإجراء.",
+      "cancelBtn": "إلغاء",
+      "deleteBtn": "حذف",
+      "createRole": {
+        "title": "انشاء صلاحية جديدة",
+        "titleDescription": "انشاء بيانات الصلاحية والصلاحيات",
+        "name": "اسم الصلاحية",
+        "description": "وصف الصلاحية",
+        "permissions": "الصلاحيات",
+        "isActive": "نشط",
+        "processing": "جارى انشاء الصلاحية",
+        "createBtn": "انشاء الصلاحية"
+      },
+      "editRole": {
+        "title": "تعديل الصلاحية",
+        "titleUpdate": "تحديث بيانات الصلاحية والصلاحيات",
+        "name": "اسم الصلاحية",
+        "description": "وصف الصلاحية",
+        "permissions": "الصلاحيات",
+        "isActive": "نشط",
         "processing": "جارى حفظ التغييرات",
         "editBtn": " حفظ التغييرات"
       }

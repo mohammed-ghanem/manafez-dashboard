@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "../base/axiosBaseQuery";
-import { IAdmin, ICreateAdminPayload , IUpdateAdminPayload , IApiMessageResponse } from "@/types/admins";
+import { IAdmin, ICreateAdminPayload, IUpdateAdminPayload, IApiMessageResponse } from "@/types/admins";
 
 /* =======================
    NORMALIZER
@@ -26,13 +26,13 @@ function normalizeItem(item: any): IAdmin {
   };
 }
 
-
+ 
 function normalizeAdmin(item: any): IAdmin {
   const user = item?.user ?? item;
 
   // fetch roles
   let roles_ids: number[] = [];
-  
+
   if (user?.roles_ids) {
     if (Array.isArray(user.roles_ids)) {
       roles_ids = user.roles_ids.map((r: any) => Number(r.id));
@@ -74,6 +74,11 @@ export const adminsApi = createApi({
       query: () => ({
         url: "/admins",
         method: "get",
+        params: {
+          page: 0,
+          limit: 0,
+        },
+
       }),
       transformResponse: (response: any) => {
         const raw =
@@ -104,11 +109,11 @@ export const adminsApi = createApi({
           response?.data?.data ??
           response?.data?.data?.user ??
           response?.data?.user;
-    
+
         if (!raw) {
           throw new Error("Admin data not found");
         }
-    
+
         return normalizeAdmin(raw);
       },
       providesTags: (_r, _e, id) => [
@@ -116,7 +121,7 @@ export const adminsApi = createApi({
       ],
     }),
 
-    
+
 
 
     /* =======================
@@ -172,14 +177,14 @@ export const adminsApi = createApi({
           "is_active",
           data.is_active ? "1" : "0"
         );
-      
+
         data.role_id.forEach((rid) =>
           formData.append("role_id[]", String(rid))
         );
 
         return {
           url: `/admins/${id}`,
-          method: "put", 
+          method: "put",
           data: formData,
         };
       },
