@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import LangUseParams from "@/translate/LangUseParams";
 
@@ -16,24 +14,14 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
 import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 import { useSessionReady } from "@/hooks/useSessionReady";
 
-import { Edit3, ShieldX, Trash2 } from "lucide-react";
+import { Edit3, ShieldX } from "lucide-react";
 import { Column, DataTable } from "../datatable/DataTable";
 import { TABLE_HEADERS } from "@/constants/tableHeaders";
 import TranslateHook from "@/translate/TranslateHook";
+import DeleteConfirmDialog from "../shared/DeleteConfirmDialog";
 
 type Admin = {
   id: number;
@@ -68,7 +56,6 @@ export default function Admins() {
     }
   );
 
-  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   /* ========================
      Helpers
@@ -88,10 +75,9 @@ export default function Admins() {
     return roles === "admin" || roles === "أدمن" || roles === "ادمن";
   };
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
+  const handleDelete = async (id: number) => {
     try {
-      const res = await deleteAdmin(deleteId).unwrap();
+      const res = await deleteAdmin(id).unwrap();
       toast.success(res?.message);
     } catch (err: any) {
       const errorData = err?.data ?? err;
@@ -180,40 +166,13 @@ export default function Admins() {
             </Link>
 
             {/* DELETE */}
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  className="cursor-pointer"
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => setDeleteId(admin.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
-
-              <AlertDialogContent>
-                <AlertDialogHeader className="text-start!">
-                  <AlertDialogTitle>
-                    {translate?.pages.admins.deleteTitle || ""}
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {translate?.pages.admins.deleteMessage || ""}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>
-                    {translate?.pages.admins.cancelBtn || ""}
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-red-600"
-                    onClick={handleDelete}
-                  >
-                    {translate?.pages.admins.deleteBtn || ""}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <DeleteConfirmDialog
+              title={translate?.pages.admins.deleteTitle || ""}
+              description={translate?.pages.admins.deleteMessage || ""}
+              confirmText={translate?.pages.admins.deleteBtn || ""}
+              cancelText={translate?.pages.admins.cancelBtn || ""}
+              onConfirm={() => handleDelete(admin.id)}
+            />
           </div>
         ) : (
           <Badge variant="destructive">
@@ -229,7 +188,7 @@ export default function Admins() {
     <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
       <h2 className={`titleStyle ${showSkeleton ? "block h-11 w-24!" : ""}`}>
         {translate?.pages.admins.adminsTitle || ""}
-        </h2>
+      </h2>
       <div className="mt-10">
         <Link
           href={`/${lang}/admins/create`}

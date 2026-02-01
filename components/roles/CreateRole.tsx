@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+// /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 // Hooks
@@ -12,7 +13,12 @@ import { useGetPermissionsQuery } from "@/store/permissions/permissionsApi";
 import { useCreateRoleMutation } from "@/store/roles/rolesApi";
 
 // UI
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,59 +29,85 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Icons
-import { Shield, CheckSquare, FolderCheck, CircleCheckBig } from "lucide-react";
+import {
+  Shield,
+  CheckSquare,
+  FolderCheck,
+  CircleCheckBig,
+  Search,
+} from "lucide-react";
 
 // Toast
 import { toast } from "sonner";
+import TranslateHook from "@/translate/TranslateHook";
+import LangUseParams from "@/translate/LangUseParams";
 
-const CreateRole = () => {
+export default function CreateRole() {
   const router = useRouter();
   const sessionReady = useSessionReady();
-
+  const lang = LangUseParams();
+  const translate = TranslateHook()
   /* ===================== API ===================== */
   const {
     data: permissions,
     isLoading,
-    isError,
-  } = useGetPermissionsQuery(undefined, {
+  } = useGetPermissionsQuery(lang as any, {
     skip: !sessionReady,
   });
 
-  const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
+  const [createRole, { isLoading: isCreating }] =
+    useCreateRoleMutation();
 
-  /* ===================== FORM STATE ===================== */
+  /* ===================== STATE ===================== */
   const [name_en, setNameEn] = useState("");
   const [name_ar, setNameAr] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
+  const [search, setSearch] = useState("");
+  ;
 
   /* ===================== HELPERS ===================== */
   const toggleControl = (id: number) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      prev.includes(id)
+        ? prev.filter((x) => x !== id)
+        : [...prev, id],
+    );
+  };
+
+  const selectGroup = (controls: any[]) => {
+    const ids = controls.map((c) => c.id);
+    setSelected((prev) =>
+      ids.every((id) => prev.includes(id))
+        ? prev.filter((id) => !ids.includes(id))
+        : [...prev, ...ids.filter((id) => !prev.includes(id))],
     );
   };
 
   const selectAllPermissions = () => {
     if (!permissions) return;
-
-    const allIds = permissions.flatMap((g) => g.controls.map((c: any) => c.id));
+    const allIds = permissions.flatMap((g) =>
+      g.controls.map((c: any) => c.id),
+    );
 
     setSelected((prev) =>
       allIds.every((id) => prev.includes(id)) ? [] : allIds,
     );
   };
 
-  const selectGroup = (controls: any[]) => {
-    const ids = controls.map((c) => c.id);
+  /* ===================== SEARCH ===================== */
+  const filteredPermissions = useMemo(() => {
+    if (!permissions) return [];
+    if (!search.trim()) return permissions;
 
-    setSelected((prev) => {
-      const isSelected = ids.every((id) => prev.includes(id));
-      if (isSelected) {
-        return prev.filter((id) => !ids.includes(id));
-      }
-      return [...prev, ...ids.filter((id) => !prev.includes(id))];
-    });
-  };
+    return permissions
+      .map((group) => ({
+        ...group,
+        controls: group.controls.filter((c: any) =>
+          c.name.toLowerCase().includes(search.toLowerCase()),
+        ),
+      }))
+      .filter((g) => g.controls.length > 0);
+  }, [permissions, search]);
 
   /* ===================== SUBMIT ===================== */
   const handleCreateRole = async () => {
@@ -86,85 +118,120 @@ const CreateRole = () => {
         permissions: selected,
       }).unwrap();
 
-      toast.success(res?.message || "Role created successfully");
-      router.push("/roles");
+      toast.success(res?.message, {
+        duration: 1000,
+        onAutoClose: () => {
+          router.push(`/${lang}/roles`);
+        },
+      });
     } catch (err: any) {
       const errorData = err?.data ?? err;
       if (errorData?.errors) {
         Object.values(errorData.errors).forEach((messages: any) =>
           messages.forEach((msg: string) => toast.error(msg)),
         );
-        return;
       }
     }
   };
 
-  /* ===================== GUARDS ===================== */
   if (!sessionReady) return null;
 
   /* ===================== UI ===================== */
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Shield className="w-7 h-7 text-primary" />
-        <h1 className="text-3xl font-semibold">Create Role</h1>
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl icon_bg">
+          <Shield className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-semibold">
+            {translate?.pages.roles.createRole.title || ""}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {translate?.pages.roles.createRole.titleDescription || ""}
+          </p>
+        </div>
       </div>
-
       <Separator />
-
-      {/* Role Info */}
-      <Card className="p-6 shadow border">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">Role Details</CardTitle>
+      {/* Role Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base icon_bg w-fit">
+            {translate?.pages.roles.createRole.roleInfo || ""}
+          </CardTitle>
         </CardHeader>
 
-        <CardContent className="grid grid-cols-3 gap-4">
-          <div className="flex flex-col space-y-2">
-            <Label>Name (English)</Label>
-            <Input
-              value={name_en}
-              onChange={(e) => setNameEn(e.target.value)}
-              placeholder="Role name in English"
-            />
-          </div>
-
-          <div className="flex flex-col space-y-2">
-            <Label>Name (Arabic)</Label>
+        <CardContent className="grid gap-5 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label>
+              {translate?.pages.roles.createRole.nameAr || ""}
+            </Label>
             <Input
               value={name_ar}
               onChange={(e) => setNameAr(e.target.value)}
-              placeholder="Role name in Arabic"
+              placeholder={translate?.pages.roles.createRole.nameArPlaceholder || ""}
+              className="focus-visible:ring-0"
             />
           </div>
+          <div className="space-y-2">
+            <Label>
+              {translate?.pages.roles.createRole.nameEn || ""}
+            </Label>
+            <Input
+              value={name_en}
+              onChange={(e) => setNameEn(e.target.value)}
+              placeholder={translate?.pages.roles.createRole.nameEnPlaceholder || ""}
+              className="focus-visible:ring-0"
+            />
+          </div>
+
+
         </CardContent>
       </Card>
 
       {/* Permissions Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-semibold">Permissions</h2>
-          <Badge variant="outline">{selected.length} selected</Badge>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <h2 className="text-lg font-semibold">
+            {translate?.pages.roles.createRole.permissions || ""}
+          </h2>
+          <Badge className="icon_bg text-black">
+            <span className="mx-1.5">
+              {selected.length}
+            </span>
+            {translate?.pages.roles.createRole.isSelected || ""}
+          </Badge>
         </div>
 
         <Button
-          variant="outline"
+          size="sm"
           onClick={selectAllPermissions}
-          disabled={isLoading || !permissions}
-          className="flex gap-2"
+          disabled={isLoading}
+          className="gap-2 greenBgIcon outline-0 border-0"
         >
-          <CheckSquare className="w-4 h-4" />
-          Select All
+          <CheckSquare className="h-4 w-4 " />
+          {translate?.pages.roles.createRole.selectAll || ""}
         </Button>
       </div>
 
-      {/* Permissions Content */}
+      {/* Search */}
+      <div className={`relative max-w-sm`}>
+        <Search className={`absolute ${lang === "ar" ? "left-3" : "right-3"}  top-3 h-4 w-4 text-muted-foreground`} />
+        <Input
+          className="pl-9 focus-visible:ring-0"
+          placeholder={translate?.pages.roles.createRole.searchPlaceholder || ""}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
+
+      {/* Skeleton */}
       {isLoading && (
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <Card key={i} className="p-4 space-y-3">
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-5 w-32" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-2/3" />
             </Card>
@@ -172,52 +239,59 @@ const CreateRole = () => {
         </div>
       )}
 
-      {isError && (
-        <p className="text-destructive">Failed to load permissions</p>
-      )}
 
-      {permissions && (
-        <ScrollArea className="h-[65vh] pr-4">
-          <div className="grid grid-cols-3 gap-5">
-            {permissions.map((group: any, idx: number) => (
-              <Card key={idx} className="border shadow-sm">
-                <CardHeader className="flex flex-row justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <FolderCheck className="h-5 w-5 text-primary" />
-                    <CardTitle className="capitalize text-base">
+      {/* Permissions */}
+      {filteredPermissions && (
+        <ScrollArea className="h-[60vh] pr-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredPermissions.map((group: any) => (
+              <Card key={group.name}>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div className="flex items-center gap-2 icon_bg p-1 rounded-md">
+                    <FolderCheck className="h-4 w-4 text-primary" />
+                    <CardTitle className="text-sm capitalize  ">
                       {group.name}
                     </CardTitle>
                   </div>
 
                   <Button
                     size="sm"
-                    variant="secondary"
+                    variant="ghost"
                     onClick={() => selectGroup(group.controls)}
+                    className="gap-2 greenBgIcon outline-0 border-0"
                   >
-                    Select Group
+                    {translate?.pages.roles.createRole.selectAll || ""}
+                    <CheckSquare className="h-4 w-4 " />
+
                   </Button>
                 </CardHeader>
 
-                <CardContent className="space-y-2">
-                  {group.controls.map((control: any) => (
-                    <div
-                      key={control.id}
-                      className={`flex items-center gap-3 border rounded-lg p-3
-                        ${
-                          selected.includes(control.id)
-                            ? "bg-primary/10 border-primary"
-                            : ""
-                        }`}
-                    >
-                      <Checkbox
-                        checked={selected.includes(control.id)}
-                        onCheckedChange={() => toggleControl(control.id)}
-                      />
-                      <span className="text-sm font-medium">
-                        {control.name}
-                      </span>
-                    </div>
-                  ))}
+                <CardContent className="space-y-2 ">
+                  {group.controls.map((control: any) => {
+                    const active = selected.includes(control.id);
+                    return (
+                      <label
+                        key={control.id}
+                        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition 
+                           ${lang === "ar" ? "justify-end" : " flex-row-reverse justify-end"}
+                          ${active
+                            ? "border-green-500 bg-green-50 hover:bg-green-100"
+                            : "hover:bg-muted"
+                          }`}
+                      >
+
+                        <span className="text-sm font-medium">
+                          {control.name}
+                        </span>
+                        <Checkbox
+                          checked={active}
+                          onCheckedChange={() =>
+                            toggleControl(control.id)
+                          }
+                        />
+                      </label>
+                    );
+                  })}
                 </CardContent>
               </Card>
             ))}
@@ -226,254 +300,22 @@ const CreateRole = () => {
       )}
 
       {/* Submit */}
-      <Button
-        className="w-full py-5 text-lg"
-        onClick={handleCreateRole}
-        disabled={isCreating || !name_en || !name_ar || selected.length === 0}
-      >
-        <CircleCheckBig className="w-5 h-5 mr-2" />
-        {isCreating ? "Creating..." : "Create Role"}
-      </Button>
+      <div className="flex justify-end">
+        <Button
+          size="lg"
+          className="gap-2 flex submitButton"
+          onClick={handleCreateRole}
+          disabled={isCreating}
+        >
+          <CircleCheckBig className="h-5 w-5" />
+          {isCreating
+            ?
+            `${translate?.pages.roles.createRole.processing}...`
+            :
+            `${translate?.pages.roles.createRole.createBtn}`
+          }
+        </Button>
+      </div>
     </div>
   );
-};
-
-export default CreateRole;
-
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// "use client";
-
-// import { useState } from "react";
-// import { useRouter } from "next/navigation";
-
-// import { useGetPermissionsQuery } from "@/store/permissions/permissionsApi";
-// import { useCreateRoleMutation } from "@/store/roles/rolesApi";
-
-// // UI
-// import {
-//   Card,
-//   CardHeader,
-//   CardTitle,
-//   CardContent,
-// } from "@/components/ui/card";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { Checkbox } from "@/components/ui/checkbox";
-// import { ScrollArea } from "@/components/ui/scroll-area";
-// import { Button } from "@/components/ui/button";
-// import { Badge } from "@/components/ui/badge";
-// import { Separator } from "@/components/ui/separator";
-
-// // Icons
-// import {
-//   Shield,
-//   CheckSquare,
-//   FolderCheck,
-//   CircleCheckBig,
-// } from "lucide-react";
-
-// // Toast
-// import { toast } from "sonner";
-
-// const CreateRole = () => {
-//   const router = useRouter();
-
-//   const { data: permissions, isLoading, error }
-//     = useGetPermissionsQuery() as { data: any[] | undefined; isLoading: boolean; error: any };
-//   const [createRole] = useCreateRoleMutation();
-
-//   // Form fields
-//   const [name_en, setNameEn] = useState("");
-//   const [name_ar, setNameAr] = useState("");
-
-//   // Permissions selection
-//   const [selected, setSelected] = useState<number[]>([]);
-
-//   // Toggle single control
-//   const toggleControl = (id: number) => {
-//     setSelected((prev) =>
-//       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-//     );
-//   };
-
-//   // Select all permissions
-//   const selectAllPermissions = () => {
-//     if (!permissions) return;
-
-//     const allIds = permissions.flatMap((g) =>
-//       g.controls.map((c: any) => c.id)
-//     );
-
-//     setSelected((prev) =>
-//       allIds.every((id) => prev.includes(id)) ? [] : allIds
-//     );
-//   };
-
-//   // Select all inside a group
-//   const selectGroup = (controls: any[]) => {
-//     const ids = controls.map((c) => c.id);
-
-//     setSelected((prev) => {
-//       const isGroupSelected = ids.every((id) => prev.includes(id));
-
-//       if (isGroupSelected) {
-//         // remove group permissions
-//         return prev.filter((id) => !ids.includes(id));
-//       }
-
-//       // add missing group permissions
-//       return [...prev, ...ids.filter((id) => !prev.includes(id))];
-//     });
-
-//     toast.success("Group permissions toggled");
-//   };
-
-//   // Create Role Submit
-//   const handleCreateRole = async () => {
-//     try {
-//       const res = await createRole({
-//         name_en,
-//         name_ar,
-//         permissions: selected,
-//       }).unwrap();
-
-//       toast.success(res?.message || "Role created successfully");
-//       router.push("/roles");
-//     } catch (err: any) {
-//       if (err?.errors) {
-//         Object.values(err.errors).forEach((e: any) => {
-//           if (Array.isArray(e)) e.forEach((m) => toast.error(m));
-//           else toast.error(e);
-//         });
-//         return;
-//       }
-
-//       toast.error(err?.message || "Create role failed");
-//     }
-//   };
-
-//   return (
-//     <div className="p-6 space-y-6">
-
-//       {/* Header */}
-//       <div className="flex items-center gap-2">
-//         <Shield className="w-7 h-7 text-primary" />
-//         <h1 className="text-3xl font-semibold">Create Role</h1>
-//       </div>
-
-//       <Separator />
-
-//       {/* Role Info */}
-//       <Card className="p-6 shadow-md border border-gray-200">
-//         <CardHeader className="pb-2">
-//           <CardTitle className="text-lg font-medium">Role Details</CardTitle>
-//         </CardHeader>
-
-//         <CardContent className="grid grid-cols-3 gap-4">
-
-//           <div className="flex flex-col space-y-2">
-//             <Label>Name (English)</Label>
-//             <Input
-//               placeholder="Role name in English"
-//               value={name_en}
-//               onChange={(e) => setNameEn(e.target.value)}
-//             />
-//           </div>
-
-//           <div className="flex flex-col space-y-2">
-//             <Label>Name (Arabic)</Label>
-//             <Input
-//               placeholder="Role name in Arabic"
-//               value={name_ar}
-//               onChange={(e) => setNameAr(e.target.value)}
-//             />
-//           </div>
-
-//         </CardContent>
-//       </Card>
-
-//       {/* Permissions */}
-//       <div className="flex justify-between items-center mt-4">
-//         <div className="flex items-center gap-3">
-//           <h2 className="text-xl font-semibold">Permissions</h2>
-//           <Badge variant="outline">
-//             {selected.length} selected
-//           </Badge>
-//         </div>
-
-//         <Button
-//           variant="outline"
-//           onClick={selectAllPermissions}
-//           className="flex gap-2"
-//         >
-//           <CheckSquare className="w-4 h-4" />
-//           Select All
-//         </Button>
-//       </div>
-
-//       {isLoading && <p>Loading permissions...</p>}
-//       {error && <p className="text-destructive">Error loading permissions.</p>}
-//       {/* Permissions */}
-//       {permissions && (
-//         <ScrollArea className="h-[65vh] pr-4">
-//           <div className="grid grid-cols-3 gap-5">
-//             {permissions.map((group: any, idx: number) => (
-//               <Card
-//                 key={idx}
-//                 className="border shadow-sm hover:shadow-md transition-all"
-//               >
-//                 <CardHeader className="flex flex-row justify-between items-center">
-//                   <div className="flex items-center gap-2">
-//                     <FolderCheck className="h-5 w-5 text-primary" />
-//                     <CardTitle className="capitalize text-base">
-//                       {group.name}
-//                     </CardTitle>
-//                   </div>
-
-//                   <Button
-//                     size="sm"
-//                     variant="secondary"
-//                     onClick={() => selectGroup(group.controls)}
-//                   >
-//                     Select Group
-//                   </Button>
-//                 </CardHeader>
-
-//                 <CardContent className="space-y-2 mt-2">
-//                   {group.controls?.map((control: any) => (
-//                     <div
-//                       key={control.id}
-//                       className={`flex items-center gap-3 border rounded-lg p-3 transition-all
-//                         ${selected.includes(control.id)
-//                           ? "bg-primary/10 border-primary"
-//                           : "bg-white"
-//                         }
-//                       `}
-//                     >
-//                       <Checkbox
-//                         checked={selected.includes(control.id)}
-//                         onCheckedChange={() => toggleControl(control.id)}
-//                       />
-
-//                       <span className="text-sm font-medium">
-//                         {control.name}
-//                       </span>
-//                     </div>
-//                   ))}
-//                 </CardContent>
-//               </Card>
-//             ))}
-//           </div>
-//         </ScrollArea>
-//       )}
-
-//       {/* Submit */}
-//       <Button className="w-full py-5 text-lg" onClick={handleCreateRole}>
-//         <CircleCheckBig className="w-5 h-5 mr-2" />
-//         Create Role
-//       </Button>
-//     </div>
-//   );
-// };
-
-// export default CreateRole;
+}

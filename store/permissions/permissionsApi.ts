@@ -6,6 +6,7 @@ export interface PermissionControl {
   id: number;
   name: string;
   key: string;
+  
 }
 
 export interface PermissionGroup {

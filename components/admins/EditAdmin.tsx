@@ -152,7 +152,7 @@ export default function EditAdmin() {
                 <div className="relative">
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    className="pl-9 focus-visible:ring-0 border-[#999]"
                     {...register("name", { required: true })}
                     placeholder="Admin name"
                   />
@@ -166,7 +166,7 @@ export default function EditAdmin() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    className="pl-9 focus-visible:ring-0 border-[#999]"
                     {...register("email", { required: true })}
                     placeholder="Email address"
                   />

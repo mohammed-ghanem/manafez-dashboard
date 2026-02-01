@@ -98,6 +98,7 @@ svg {
 .mainBackGroundColor {
   background-color: #ebf5ff;
 }
+
 .titleStyle {
   background: #ebf5ff;
   width: fit-content;
@@ -119,7 +120,7 @@ svg {
   border-radius: 5px;
   margin: auto;
   margin-top: 24px;
-  display: block;
+  /* display: block; */
   background: #28a745;
   font-size: 16px;
   color: #fff;
@@ -170,4 +171,18 @@ svg {
 }
 .fontBold {
   font-weight: bold;
+}
+.icon_bg {
+  background: #ebf5ff;
+  padding: 8px;
+}
+.greenBgIcon {
+  color: #fff;
+  background-color: #46a758;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.greenBgIcon:hover {
+  background-color: #3c8d4e;
 }

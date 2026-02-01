@@ -139,7 +139,7 @@ export default function CreateAdmin() {
                 <div className="relative">
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    className="pl-9 focus-visible:ring-0 border-[#999]"
                     value={form.name}
                     onChange={(e) =>
                       setForm({ ...form, name: e.target.value })
@@ -155,7 +155,7 @@ export default function CreateAdmin() {
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    className="pl-9 focus-visible:ring-0 border-[#999]"
                     type="email"
                     value={form.email}
                     onChange={(e) =>
@@ -193,7 +193,7 @@ export default function CreateAdmin() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    className="pl-9 focus-visible:ring-0 border-[#999]"
                     type="password"
                     value={form.password}
                     onChange={(e) =>
@@ -210,7 +210,7 @@ export default function CreateAdmin() {
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    className="pl-9 focus-visible:border-[#999] border-[#999]"
+                    className="pl-9 focus-visible:ring-0 border-[#999]"
                     type="password"
                     value={form.password_confirmation}
                     onChange={(e) =>
@@ -237,7 +237,7 @@ export default function CreateAdmin() {
                 {roles.map((role: any) => (
                   <div
                     key={role.id}
-                    className="flex items-center gap-2 rounded-md hover:bg-muted px-2 py-1"
+                    className="flex items-center gap-2 rounded-md  px-2 py-1"
                   >
                     <Checkbox
                       checked={form.role_id.includes(role.id)}
