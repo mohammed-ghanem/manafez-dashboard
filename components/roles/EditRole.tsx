@@ -51,7 +51,7 @@ export default function EditRole() {
   const params = useParams();
   const sessionReady = useSessionReady();
   const lang = LangUseParams();
-  const translate = TranslateHook();
+  const translate = TranslateHook(); 
 
   const roleId =
     typeof params.id === "string" ? Number(params.id) : undefined;
@@ -64,10 +64,14 @@ export default function EditRole() {
     skip: !sessionReady,
   });
   //===================== ROLE DATA ===================== //
-  const {
-    data: roleData,
-    isLoading: roleLoading,
-  } = useGetRoleByIdQuery(roleId!, {
+  // const {
+  //   data: roleData,
+  //   isLoading: roleLoading,
+  // } = useGetRoleByIdQuery(roleId!, {
+  //   skip: !sessionReady || !roleId,
+  // });
+  const {data: roleData,isLoading: roleLoading,} = useGetRoleByIdQuery(
+    { id: roleId as number, lang: lang as string }, {
     skip: !sessionReady || !roleId,
   });
 
@@ -159,9 +163,6 @@ export default function EditRole() {
         },
       });
 
-      // toast.success(res?.message);
-
-      // router.push("/roles");
     } catch (err: any) {
       toast.error(err?.message);
     }

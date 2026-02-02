@@ -20,12 +20,14 @@ import {
 
 import { Column, DataTable } from "../datatable/DataTable";
 import { toast } from "sonner";
-import { Edit3 } from "lucide-react";
+import { Edit3, Eye } from "lucide-react";
 import DeleteConfirmDialog from "../shared/DeleteConfirmDialog";
 
 type Role = {
   id: number;
   name: string;
+  name_ar: string;
+  name_en: string;
   is_active: boolean;
 };
 
@@ -40,7 +42,6 @@ export default function RolesPage() {
     data: rolesData = [],
     isLoading,
     isFetching,
-    isError,
   } = useGetRolesQuery(undefined, {
     skip: !sessionReady,
     refetchOnMountOrArgChange: false,
@@ -95,7 +96,7 @@ export default function RolesPage() {
   /* ===================== COLUMNS ===================== */
   const columns: Column<Role>[] = [
     {
-      key: "name",
+      key: `${lang === "ar" ? "name_ar" : "name_en"}`,
       header: headers.name,
     },
     {
@@ -129,13 +130,25 @@ export default function RolesPage() {
       align: "right",
       render: (_, role) => (
         <div className="flex justify-center gap-2">
+          
           {/* EDIT */}
           <Link href={`/${lang}/roles/edit/${role.id}`}>
             <Button
-              className="bg-blue-500 hover:bg-blue-600 focus:ring-2 focus:ring-blue-300 cursor-pointer"
+              className="bg-blue-500 hover:bg-blue-600 focus:ring-2
+               focus:ring-blue-300 cursor-pointer"
               size="sm"
             >
               <Edit3 className="h-4 w-4" />
+            </Button>
+          </Link>
+          {/* view */}
+          <Link href={`/${lang}/roles/view/${role.id}`}>
+            <Button
+              className="greenBgIcon focus:ring-2
+               focus:ring-blue-300 cursor-pointer"
+              size="sm"
+            >
+              <Eye className="w-5 h-5" />
             </Button>
           </Link>
           {/* DELETE */}
@@ -154,20 +167,10 @@ export default function RolesPage() {
   /* ===================== STATES ===================== */
   const showSkeleton = !sessionReady || isLoading || isFetching;
 
-  if (isError) {
-    return (
-      <p className="p-6 text-center text-destructive">
-        {lang === "ar"
-          ? "حدث خطأ أثناء تحميل الأدوار"
-          : "Failed to load roles"}
-      </p>
-    );
-  }
-
   /* ===================== UI ===================== */
   return (
     <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
-      <h2 className={`titleStyle ${showSkeleton ? "block h-11 w-38!" : ""}`}>
+      <h2 className={`titleStyle ${showSkeleton ? "block h-11 w-40!" : ""}`}>
         {translate?.pages.roles.rolesTitle || ""}
       </h2>
 

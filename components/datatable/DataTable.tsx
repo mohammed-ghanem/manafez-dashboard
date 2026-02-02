@@ -99,13 +99,13 @@ export function DataTable<T extends Record<string, any>>({
       {/* Table */}
       <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
         <Table>
-          <TableHeader className="bg-muted">
+          <TableHeader className="bg-slate-100 ">
             <TableRow>
               {columns.map((col) => (
                 <TableHead
                   style={{ borderRight: "1px solid #e5e7eb", textAlign: "start" }}
                   key={String(col.key)}
-                  className={`fontBold ${col.align === "center"
+                  className={`fontBold hover:bg-slate-100! ${col.align === "center"
                     ? "text-right"
                     : col.align === "right"
                       ? "text-right"
@@ -138,10 +138,11 @@ export function DataTable<T extends Record<string, any>>({
               paginatedData.map((row, index) => (
                 <TableRow
                   key={index}
-                  className={`
-                      ${index % 2 === 0 ? "bg-background" : "bg-muted/30"}
-                      hover:bg-muted/50 transition-colors
-                    `}
+                  // odd & even bg colors
+                  className="odd:bg-white hover:odd:bg-white even:bg-slate-50 hover:even:bg-slate-50"
+                  // className={`
+                  //     ${index % 2 === 0 ? "bg-white " : "bg-slate-50"}
+                  //   `}
                 >
                   {columns.map((col) => (
                     <TableCell

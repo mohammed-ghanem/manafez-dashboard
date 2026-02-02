@@ -6,7 +6,7 @@ import { Role } from "./types";
 export const rolesApi = createApi({
   reducerPath: "rolesApi",
   baseQuery: axiosBaseQuery(),
-  tagTypes: ["Roles"],
+  tagTypes: ["Roles" , "Role"],
   endpoints: (builder) => ({
 
     /* ===================== GET ALL ROLES ===================== */
@@ -31,13 +31,14 @@ export const rolesApi = createApi({
       },
       providesTags: ["Roles"],
 
-      keepUnusedDataFor: 300, // 5 دقائق
+      keepUnusedDataFor: 300, // five minutes
 
     }),
 
     /* ===================== GET ROLE BY ID ===================== */
-    getRoleById: builder.query<Role | null, number>({
-      query: (id) => ({
+
+    getRoleById: builder.query<Role | null, { id: number; lang: any }>({
+      query: ({id}) => ({
         url: `/roles/${id}`,
         method: "get",
       }),
@@ -50,6 +51,9 @@ export const rolesApi = createApi({
           null
         );
       },
+      providesTags: (result, error, arg) => [
+        { type: "Role", id: arg.id },
+      ],
       keepUnusedDataFor: 300,
     }),
 
@@ -91,17 +95,14 @@ export const rolesApi = createApi({
           data: formData,
         };
       },
-      invalidatesTags: ["Roles"],
+       invalidatesTags: (result, error, arg) => [
+        "Roles",
+        { type: "Role", id: arg.id },
+      ],
+      
     }),
 
     /* ===================== DELETE ROLE ===================== */
-    // deleteRole: builder.mutation<void, number>({
-    //   query: (id) => ({
-    //     url: `/roles/${id}`,
-    //     method: "delete",
-    //   }),
-    //   // invalidatesTags: ["Roles"],
-    // }),
     deleteRole: builder.mutation<void, number>({
       query: (id) => ({
         url: `/roles/${id}`,
@@ -149,9 +150,14 @@ export const rolesApi = createApi({
         };
       },
 
+      invalidatesTags: (result, error, arg) => [
+        { type: "Role", id: arg.id },
+      ],
+
       async onQueryStarted(
         { id },
         { dispatch, queryFulfilled }
+
       ) {
         const patch = dispatch(
           rolesApi.util.updateQueryData(
@@ -172,8 +178,6 @@ export const rolesApi = createApi({
           patch.undo();
         }
       },
-
-      // invalidatesTags: ["Roles"],
     }),
   }),
 });

@@ -156,6 +156,18 @@
         "searchPlaceholder" : "ابحث عن صلاحية...",
         "processing": "جارى حفظ التغييرات",
         "editBtn": "حفظ التغييرات"
+      },
+      "viewRole": {
+        "title": "عرض الدور",
+        "description": "بيانات الدور والصلاحيات",
+        "nameAr": "الاسم بالعربية",
+        "nameEn": "الاسم بالانجليزية",
+        "status": "حالة الدور",
+        "active" : "نشط",
+        "inactive" : "غير نشط",
+        "permissions": "الصلاحيات",
+        "noPermissions": "لا صلاحيات متاحة",
+        "backBtn": "العودة"
       }
     }
   },

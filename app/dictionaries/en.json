@@ -153,6 +153,18 @@
         "searchPlaceholder" : "Search permissions...",
         "processing": "Processing Save Changes",
         "editBtn": "Save Changes"
+      },
+      "viewRole": {
+        "title": "View Role",
+        "description": "Role details and permissions",
+        "nameAr": "Role Name in Arabic",
+        "nameEn": "Role Name in English",
+        "status": "Role Status",
+        "active" : "Active",
+        "inactive" : "Inactive",
+        "permissions": "Permissions",
+        "noPermissions": "No permissions available",
+        "backBtn": "Back"
       }
     }
   },
