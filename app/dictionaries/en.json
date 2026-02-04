@@ -51,11 +51,14 @@
     },
     "changePassword": {
       "title": "Change Password",
+      "subtitle": "Enter your current password then choose a new password",
       "oldPassword": " old password",
       "password": " new password",
       "confirmPassword": "confirm new password",
+      "passCondition" : "For account security, your password must contain at least: letters (A-Z, a-z), numbers (0-9), and a special character such as: ! @ # $ % ^ & *",
       "processing": "Processing Change Password",
-      "confirmBtn": "confirm"
+      "confirmBtn": "confirm",
+      "cancelBtn" : "cancel"
     },
     "updateProfile": {
       "title": "Update Profile",

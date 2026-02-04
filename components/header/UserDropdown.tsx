@@ -45,11 +45,13 @@ const UserDropdown = ({ showUserName = true }: UserDropdownProps) => {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  
+
   const handleLogout = () => {
-    Cookies.remove("access_token", { path: `/${lang}` });
-    Cookies.remove("reset_token", { path: `/${lang}` });
-    Cookies.remove("user", { path: `/${lang}` });
-    setIsOpen(false); 
+    Cookies.remove("access_token", { path: "/" });
+    Cookies.remove("reset_token", { path: "/" });
+    Cookies.remove("user", { path: "/" });
+    setIsOpen(false);
     router.replace(`/${lang}/login`);
   };
 
