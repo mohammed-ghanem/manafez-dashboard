@@ -78,6 +78,11 @@
       "personalDetails": " Profile Details",
       "editProfile": " Edit Profile"
     },
+    "userDropDown": {
+      "profile": "Profile",
+      "changePassword": "Change Password",
+      "logout": "Logout"
+    },
     "admins": {
       "adminsTitle": "Admins",
       "searchPlaceholder": "Search admins...",
@@ -171,7 +176,10 @@
   "sidebar": {
     "dashboard": "Dashboard",
     "roles": "Roles & Permissions",
-    "admins": "Admins"
+    "admins": "Admins",
+    "settings": "Settings",
+    "privacyPolicy": "Privacy Policy",
+    "profile": "Profile"
   },
   "settings": {
     "privacyPolicy": {

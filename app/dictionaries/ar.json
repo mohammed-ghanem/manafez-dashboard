@@ -2,9 +2,6 @@
   "home": {
     "title": "الصفحة الرئيسية"
   },
-  "loading": {
-    "title": "تحميل"
-  },
   "pages": {
     "login": {
       "loginTitle": "تسجيل الدخول ",
@@ -79,6 +76,11 @@
       "memberSince": "عضو منذ",
       "personalDetails": "بيانات شخصية ",
       "editProfile": "تحديث الملف الشخصى"
+    },
+    "userDropDown": {
+      "profile": "الملف الشخصى",
+      "changePassword": "تغيير كلمة المرور",
+      "logout": "تسجيل الخروج"
     },
     "admins": {
       "adminsTitle": "المسؤولين",
@@ -174,7 +176,10 @@
   "sidebar": {
     "dashboard": "الرئيسية",
     "roles": "الصلاحيات والمهام",
-    "admins": "المستخدمين"
+    "admins": "المستخدمين",
+    "settings": "الإعدادات",
+    "privacyPolicy": "سياسة الخصوصية",
+    "profile": "الملف الشخصى"
   },
   "settings": {
     "privacyPolicy": {
