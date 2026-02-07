@@ -86,7 +86,7 @@ const SideBar = () => {
   return (
     <aside
       className="
-        fixed inset-y-0 start-0 z-52
+        fixed inset-y-0 start-0 z-40
         h-screen
         w-14 md:w-60
         bg-white

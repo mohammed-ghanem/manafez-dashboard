@@ -38,11 +38,11 @@ const Login = () => {
     try {
       const res = await login(form).unwrap();
 
-      toast.success(res?.message || translate?.pages.login.success);
+      toast.success(res?.message);
 
       // Redirect without reload
       router.replace(`/${lang}`);
-    } catch (err: any) {
+    } catch (err: any) { 
       const errorData = err?.data ?? err;
 
       if (errorData?.errors) { 
@@ -52,8 +52,7 @@ const Login = () => {
         return;
       }
 
-      if (errorData?.message) {
-        toast.error(errorData.message);
+      if (errorData?.message) {toast.error(errorData.message);
         return;
       }
     }

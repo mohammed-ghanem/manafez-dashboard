@@ -1,20 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  useGetPrivacyPolicyQuery,
-  useUpdatePrivacyPolicyMutation,
-} from "@/store/settings/privacyPolicyApi";
+import {useGetPrivacyPolicyQuery,useUpdatePrivacyPolicyMutation,} from "@/store/settings/privacyPolicyApi";
 import { toast } from "sonner";
-
-
 import dynamic from "next/dynamic";
-import PrivacyPolicySkeleton, {
-  PrivacyPolicyEditorSkeleton,
-} from "./PrivacyPolicySkeleton";
-
+import PrivacyPolicySkeleton, {PrivacyPolicyEditorSkeleton} from "./PrivacyPolicySkeleton";
 import { useSessionReady } from "@/hooks/useSessionReady";
-
+import TranslateHook from "@/translate/TranslateHook";
+import { CircleCheckBig } from "lucide-react";
 
 const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
   ssr: false,
@@ -23,7 +16,7 @@ const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
 
 export default function PrivacyPolicy() {
     const sessionReady = useSessionReady();
-
+    const translate = TranslateHook();
   const { data, isLoading , isError } = useGetPrivacyPolicyQuery( undefined, {
     skip: !sessionReady,
   });
@@ -49,23 +42,27 @@ export default function PrivacyPolicy() {
   if (isLoading) {
     return <PrivacyPolicySkeleton />;
   }
-
-   if (isError) {
-    return <div>حدث خطأ أثناء تحميل البيانات</div>;
-  }
-
   const submit = async () => {
     try {
-      await updatePolicy(form).unwrap();
-      toast.success("تم الحفظ بنجاح");
-    } catch {
-      toast.error("حدث خطأ");
+      const res = await updatePolicy(form).unwrap();
+      toast.success(res?.message || translate?.settings.privacyPolicy.successMessage);
+    } catch (err: any) {
+      if (err?.data?.errors) {
+        Object.values(err.data.errors).forEach((value: any) => {
+          Array.isArray(value)
+            ? value.forEach((msg: string) => toast.error(msg))
+            : toast.error(value) || toast.error(translate?.settings.privacyPolicy.errorMessage);
+        });
+        return;
+      }
     }
   };
 
   return (
     <div className="p-6 mx-4 my-10 space-y-6 bg-white rounded-2xl border border-solid border-[#ddd]">
-      <h3 className=" font-bold titleStyle cairo-font">سياسة الخصوصية</h3>
+      <h3 className=" font-bold titleStyle cairo-font">
+          {translate?.settings.privacyPolicy.title}
+      </h3>
 
       {!data ? (
         <>
@@ -74,8 +71,9 @@ export default function PrivacyPolicy() {
         </>
       ) : (
         <>
+        {/* arabic content */}
           <div className="m-2">
-            <p className="titleDescription">المحتوى العربي</p>
+            <p className="titleDescription">{translate?.settings.privacyPolicy.arabicContent}</p>
             <CkEditor
               editorData={form.ar}
               handleOnUpdate={(value) =>
@@ -84,8 +82,9 @@ export default function PrivacyPolicy() {
               config={{ language: "ar", direction: "rtl" }}
             />
           </div>
+          {/* english content */}
           <div className="m-2">
-            <p className="titleDescription">المحتوى الانجليزي</p>
+          <p className="titleDescription">{translate?.settings.privacyPolicy.englishContent}</p>
             <CkEditor
               editorData={form.en}
               handleOnUpdate={(value) =>
@@ -94,8 +93,17 @@ export default function PrivacyPolicy() {
               config={{ language: "en", direction: "ltr" }}
             />
           </div>
-          <button onClick={submit} disabled={isSaving} className="submitButton">
-            حفظ
+          <button onClick={submit} 
+             className="submitButton flex items-center"
+             disabled={isSaving}
+             >
+               <CircleCheckBig className="h-4 w-4 me-2" />
+               {isSaving
+                 ?
+                 `${translate?.settings.privacyPolicy.processing}`
+                 :
+                 `${translate?.settings.privacyPolicy.saveBtn}`
+               }
           </button>
         </>
       )}

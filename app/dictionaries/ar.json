@@ -83,7 +83,12 @@
     "userDropDown": {
       "profile": "الملف الشخصى",
       "changePassword": "تغيير كلمة المرور",
-      "logout": "تسجيل الخروج"
+      "logout": "تسجيل الخروج",
+      "confirmLogout" : " تأكيد تسجيل الخروج  ",
+      "confirmLogoutQuestion" : "هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟",
+      "cancelBtn" : "الغاء",
+      "logoutProcissing" : " جارى تسجيل الخروج",
+      "logoutBtn" : "تسجيل الخروج"
     },
     "admins": {
       "adminsTitle": "المسؤولين",
@@ -190,7 +195,9 @@
       "arabicContent": "المحتوى بالعربية",
       "englishContent": "المحتوى بالانجليزية",
       "processing": "جارى حفظ التغييرات",
-      "saveBtn": "حفظ التغييرات"
+      "saveBtn": "حفظ ",
+      "successMessage": "تم حفظ التغييرات بنجاح",
+      "errorMessage": "فشل حفظ التغييرات"
     }
   }
 }

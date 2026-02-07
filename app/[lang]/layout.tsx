@@ -44,7 +44,7 @@ export default async function RootLayout({
             {/* Main Content Area */}
             <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
               {/* Header - Fixed on mobile */}
-              <header className="sticky top-0 z-50 bg-white shadow-sm md:shadow-none">
+              <header className="sticky top-0 bg-white shadow-sm md:shadow-none">
                 <Navbar />
               </header>
 

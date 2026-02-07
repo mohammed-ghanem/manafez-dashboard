@@ -5,6 +5,7 @@ import { axiosBaseQuery } from "../base/axiosBaseQuery";
 interface SettingValue {
   ar: string;
   en?: string;
+  message?: string;
 }
 
 export const privacyPolicyApi = createApi({

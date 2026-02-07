@@ -21,13 +21,13 @@ import "./style.css";
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
 import { useRouter } from "next/navigation";
+import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
 
 function UpdateProfile() {
   const lang = LangUseParams();
   const translate = TranslateHook();
   const router = useRouter();
 
-  // استخدام RTK Query hooks
   const {
     data: profileData,
     isLoading: isLoadingProfile,
@@ -37,10 +37,7 @@ function UpdateProfile() {
   });
 
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
-
-  // استخراج بيانات المستخدم
   const user = profileData?.data || profileData?.user || profileData;
-
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -49,7 +46,6 @@ function UpdateProfile() {
 
   const [initialLoading, setInitialLoading] = useState(true);
 
-  /* hydrate form عند تحميل بيانات المستخدم */
   useEffect(() => {
     if (user) {
       setForm({
@@ -74,84 +70,50 @@ function UpdateProfile() {
 
     if (isUpdating) return;
 
-    // التحقق من صحة البيانات
+   
     if (!form.name.trim()) {
-      toast.error(translate?.pages.updateProfile.nameRequired || "الاسم مطلوب");
+      toast.error(translate?.pages.updateProfile.nameRequired);
       return;
     }
 
     try {
-      // إرسال طلب التحديث
-      const res = await updateProfile({
-        name: form.name,
-        email: form.email,
-        mobile: form.mobile,
-      }).unwrap();
+      const res = await updateProfile({name: form.name,email: form.email,mobile: form.mobile,}).unwrap();
+      toast.success(res?.message);
 
-      // عرض رسالة النجاح
-      toast.success(
-        res?.message ||
-        translate?.pages.updateProfile.success ||
-        "تم تحديث البروفايل بنجاح"
-      );
-
-      // إعادة تحميل بيانات البروفايل
       await refetch();
-
-      // الانتقال إلى صفحة البروفايل بعد 1.5 ثانية
-      setTimeout(() => {
-        router.push(`/${lang}/profile`);
-      }, 1500);
+      router.push(`/${lang}/profile`);
 
     } catch (err: any) {
-      console.error("Update profile error:", err);
+      const errorData = err?.data ?? err;
 
-      // التعامل مع الأخطاء المختلفة
-      if (err?.data?.errors) {
-        // أخطاء التحقق من الصحة
-        Object.values(err.data.errors).forEach((v: any) =>
-          Array.isArray(v)
-            ? v.forEach((m) => toast.error(m))
-            : toast.error(v)
+      if (errorData?.errors) { 
+        Object.values(errorData.errors).forEach((messages: any) =>
+          messages.forEach((msg: string) => toast.error(msg))
         );
-      } else if (err?.data?.message) {
-        // رسالة خطأ من الخادم
-        toast.error(err.data.message);
-      } else if (err?.error) {
-        // خطأ من RTK Query
-        toast.error(err.error);
-      } else {
-        // خطأ عام
-        toast.error(
-          translate?.pages.updateProfile.error || "فشل في تحديث البروفايل"
-        );
+        return;
+      }
+
+      if (errorData?.message) {toast.error(errorData.message);
+        return;
       }
     }
   };
 
-  if (initialLoading || isLoadingProfile) {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-64 gap-4">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-        <p className="text-gray-500">
-          {translate?.pages.updateProfile.loading || "جاري تحميل البيانات..."}
-        </p>
-      </div>
-    );
-  }
+  if (isLoadingProfile) return <ProfileSkeleton />;
+  if (!user) return null;
 
   return (
-    <div className="max-w-md mx-auto p-6" dir="ltr">
+    <div className="max-w-3xl mx-auto p-6" dir="ltr">
       <Card className="shadow-lg border-0">
-        <CardHeader className="text-center pb-4">
+        <CardHeader className="text-center space-y-3 pb-6">
           <div className="mx-auto w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2">
             <User className="w-6 h-6 text-blue-600" />
           </div>
           <CardTitle className="text-xl font-bold">
-            {translate?.pages.updateProfile.title || "تحديث البروفايل"}
+            {translate?.pages.updateProfile.title}
           </CardTitle>
           <CardDescription>
-            {translate?.pages.updateProfile.titleUpdate || "قم بتحديث معلوماتك الشخصية"}
+            {translate?.pages.updateProfile.titleUpdate}
           </CardDescription>
         </CardHeader>
 
@@ -159,8 +121,8 @@ function UpdateProfile() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="name">
-                {translate?.pages.updateProfile.name || "الاسم"} *
+              <Label htmlFor="name" className={`block ${lang === "ar" ? "text-right!" : "text-left"}`}>
+                {translate?.pages.updateProfile.name}
               </Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -169,17 +131,17 @@ function UpdateProfile() {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
-                  className="pl-10"
+                  className="pl-10 focus-visible:ring-0! border-gray-300!"
                   required
-                  placeholder={translate?.pages.updateProfile.namePlaceholder || "أدخل اسمك"}
+                  placeholder={translate?.pages.updateProfile.namePlaceholder}
                 />
               </div>
             </div>
 
-            {/* Email (مقروء فقط) */}
+            {/* Email (Disabled) */}
             <div className="space-y-2">
-              <Label htmlFor="email">
-                {translate?.pages.updateProfile.email || "البريد الإلكتروني"}
+              <Label htmlFor="email" className={`block ${lang === "ar" ? "text-right!" : "text-left"}`}>
+                {translate?.pages.updateProfile.email}
               </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -193,14 +155,14 @@ function UpdateProfile() {
                 />
               </div>
               <p className="text-xs text-gray-500">
-                {translate?.pages.updateProfile.emailNote || "لا يمكن تغيير البريد الإلكتروني"}
+                {translate?.pages.updateProfile.emailNote}
               </p>
             </div>
 
             {/* Phone */}
             <div className="space-y-2">
-              <Label htmlFor="phone">
-                {translate?.pages.updateProfile.phone || "رقم الهاتف"}
+              <Label htmlFor="phone" className={`block ${lang === "ar" ? "text-right!" : "text-left"}`}>
+                {translate?.pages.updateProfile.phone}
               </Label>
               <PhoneInput
                 country="eg"
@@ -220,15 +182,15 @@ function UpdateProfile() {
               <Button
                 type="submit"
                 disabled={isUpdating}
-                className="flex-1 text-white bkMainColor hover:bkMainColor/90"
-              >
+                className="flex items-center w-fit m-auto font-semibold rounded-xl greenBgIcon"
+                >
                 {isUpdating ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    {translate?.pages.updateProfile.processing || "جاري المعالجة..."}
+                    {translate?.pages.updateProfile.processing} ...
                   </>
                 ) : (
-                  translate?.pages.updateProfile.confirmBtn || "تأكيد التحديث"
+                  translate?.pages.updateProfile.confirmBtn
                 )}
               </Button>
 

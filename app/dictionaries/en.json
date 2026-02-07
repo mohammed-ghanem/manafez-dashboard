@@ -84,7 +84,12 @@
     "userDropDown": {
       "profile": "Profile",
       "changePassword": "Change Password",
-      "logout": "Logout"
+      "logout": "Logout",
+      "confirmLogout" : "Confirm Logout",
+      "confirmLogoutQuestion": " Are you sure you want to logout ?",
+      "cancelBtn" : "Cancel",
+      "logoutProcissing" : "Processing Logout",
+      "logoutBtn" : "Logout"
     },
     "admins": {
       "adminsTitle": "Admins",
@@ -190,7 +195,10 @@
       "arabicContent": " Arabic Content",
       "englishContent": " English Content",
       "processing": "Processing Save Changes",
-      "saveBtn": "Save Changes"
+      "saveBtn": "Save Changes",
+      "successMessage": "Changes saved successfully",
+      "errorMessage": "Failed to save changes"
+
     }
   }
 }

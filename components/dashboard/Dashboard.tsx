@@ -64,6 +64,10 @@ export default function AdminsPage() {
   ];
 
   return (
+    <div>
+        <div className="h-100 w-full bg-red-950">
+          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+        </div>
     <DataTable
       data={admins}
       columns={columns}
@@ -76,5 +80,6 @@ export default function AdminsPage() {
         )
       }
     />
+    </div>
   );
 }

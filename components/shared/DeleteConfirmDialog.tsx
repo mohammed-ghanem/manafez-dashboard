@@ -33,7 +33,7 @@ export default function DeleteConfirmDialog({
     isLoading,
 }: DeleteConfirmDialogProps) {
     return (
-        <AlertDialog>
+        <AlertDialog> 
             <AlertDialogTrigger asChild>
                 <Button size="sm" variant="destructive" className="cursor-pointer">
                     <Trash2 className="h-4 w-4" />

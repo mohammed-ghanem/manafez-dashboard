@@ -28,7 +28,7 @@ const Navbar = () => {
   );
 
   return (
-    <nav className="top-0 z-30 " dir={lang === "ar" ? "rtl" : "ltr"}>
+    <nav className="top-0 z-20 " dir={lang === "ar" ? "rtl" : "ltr"}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 ms-10 md:ms-0">
           {/* Desktop Navigation */}

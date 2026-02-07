@@ -1,4 +1,3 @@
-/* app/[lang]/forget-password/page.tsx */
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -31,20 +30,13 @@ const ForgetPassword = () => {
     try {
       const res = await sendResetCode({ email }).unwrap();
 
-      toast.success(
-        res?.message ||
-          translate?.pages.forgetPassword?.sent ||
-          "Reset code sent"
-      );
+      toast.success(res?.message);
 
       router.push(
         `/${lang}/verify-code?email=${encodeURIComponent(email)}`
       );
     } catch (err: any) {
-
       const errorData = err?.data ?? err;
-
-      // Laravel validation errors (422)
       if (errorData?.errors) {
         Object.values(errorData.errors).forEach((messages: any) => {
           if (Array.isArray(messages)) {
@@ -55,15 +47,10 @@ const ForgetPassword = () => {
       }
 
       // Generic backend message
-      if (errorData?.message) {
-        toast.error(errorData.message);
+      if (errorData?.message) {toast.error(errorData.message);
         return;
       }
-
-      toast.error(
-        translate?.pages.forgetPassword?.failed ||
-          "Failed to send reset code"
-      );
+      toast.error(translate?.pages.forgetPassword?.failed);
     }
   };
 
@@ -86,7 +73,7 @@ const ForgetPassword = () => {
                   lang === "en" ? "text-start" : "text-end"
                 }`}
               >
-                {translate?.pages.forgetPassword?.email || "Email"}
+                {translate?.pages.forgetPassword?.email}
               </label>
               <input
                 type="email"
@@ -106,11 +93,10 @@ const ForgetPassword = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    {translate?.pages.forgetPassword?.sending || "Sending..."}
+                    {translate?.pages.forgetPassword?.sending} ...
                   </>
                 ) : (
-                  translate?.pages.forgetPassword?.send || "Send code"
-                )}
+                  translate?.pages.forgetPassword?.send)}
               </button>
             </div>
           </form>

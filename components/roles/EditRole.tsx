@@ -64,12 +64,6 @@ export default function EditRole() {
     skip: !sessionReady,
   });
   //===================== ROLE DATA ===================== //
-  // const {
-  //   data: roleData,
-  //   isLoading: roleLoading,
-  // } = useGetRoleByIdQuery(roleId!, {
-  //   skip: !sessionReady || !roleId,
-  // });
   const {data: roleData,isLoading: roleLoading,} = useGetRoleByIdQuery(
     { id: roleId as number, lang: lang as string }, {
     skip: !sessionReady || !roleId,
