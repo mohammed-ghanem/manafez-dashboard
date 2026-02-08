@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import whiteAuthBk from "@/public/assets/images/Vector.svg";
 import forgetPass from "@/public/assets/images/forgetPass.svg";
+import ForgetPasswordSkeleton from "./ForgetPasswordSkeleton";
 
 const ForgetPassword = () => {
   const [sendResetCode, { isLoading }] = useSendResetCodeMutation();
@@ -50,9 +51,12 @@ const ForgetPassword = () => {
       if (errorData?.message) {toast.error(errorData.message);
         return;
       }
-      toast.error(translate?.pages.forgetPassword?.failed);
     }
   };
+
+  if (!translate) {
+    return <ForgetPasswordSkeleton />;
+  }
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>
@@ -60,7 +64,7 @@ const ForgetPassword = () => {
         {/* Form */}
         <div className="my-10" style={{ direction: "ltr" }}>
           <h1 className="text-center font-bold text-2xl md:text-4xl mainColor">
-            {translate?.pages.forgetPassword?.title || "Forgot Password"}
+            {translate?.pages.forgetPassword?.title}
           </h1>
 
           <form

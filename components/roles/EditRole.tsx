@@ -45,6 +45,7 @@ import {
 
 // Toast
 import { toast } from "sonner";
+import RoleFormSkeleton from "./RoleFormSkeleton";
 
 export default function EditRole() {
   const router = useRouter();
@@ -166,14 +167,10 @@ export default function EditRole() {
 
   /* ===================== SKELETON ===================== */
   if (roleLoading || permLoading) {
-    return (
-      <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-32 w-full" />
-        <Skeleton className="h-96 w-full" />
-      </div>
-    );
+    return <RoleFormSkeleton />;
   }
+
+
 
   /* ===================== UI ===================== */
   return (
@@ -232,13 +229,13 @@ export default function EditRole() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold">
-            {translate?.pages.roles.editRole.permissions || ""}
+            {translate?.pages.roles.editRole.permissions}
           </h2>
           <Badge className="icon_bg text-black">
             <span className="mx-1.5">
               {selected.length}
             </span>
-            {translate?.pages.roles.editRole.isSelected || ""}
+            {translate?.pages.roles.editRole.isSelected}
           </Badge>
         </div>
 
@@ -287,7 +284,7 @@ export default function EditRole() {
                   onClick={() => selectGroup(group.controls)}
                   className="gap-2 greenBgIcon"
                 >
-                  {translate?.pages.roles.editRole.selectAll || ""}
+                  {translate?.pages.roles.editRole.selectAll}
                   <CheckSquare className="h-4 w-4" />
                 </Button>
               </CardHeader>

@@ -12,6 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import whiteAuthBk from "@/public/assets/images/Vector.svg";
 import restpass from "@/public/assets/images/restpass.svg";
+import ResetPasswordSkeleton from "./ResetPasswordSkeleton";
 
 const ResetPassword = () => {
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
@@ -28,7 +29,7 @@ const ResetPassword = () => {
   const [confirm, setConfirm] = useState("");
 
   /**
-   * 🔴 Protect direct access
+   * Protect direct access
    */
   useEffect(() => {
     if (!email || !code) {
@@ -41,9 +42,7 @@ const ResetPassword = () => {
 
     if (password !== confirm) {
       toast.error(
-        translate?.pages.resetPassword?.passwordMismatch ||
-          "Passwords do not match"
-      );
+        translate?.pages.resetPassword?.passwordMismatch);
       return;
     }
 
@@ -57,9 +56,7 @@ const ResetPassword = () => {
 
       toast.success(
         res?.message ||
-          translate?.pages.resetPassword?.success ||
-          "Password reset successful"
-      );
+          translate?.pages.resetPassword?.success);
 
       router.replace(`/${lang}/login`);
     } catch (err: any) {
@@ -71,22 +68,19 @@ const ResetPassword = () => {
         );
         return;
       }
-
-      if (errorData?.message) {
-        toast.error(errorData.message);
-        return;
-      }
-
-      toast.error("Reset failed");
     }
   };
+
+  if (!translate) {
+    return <ResetPasswordSkeleton />;
+  }
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>
       <div className="grid lg:grid-cols-2 gap-4 items-center">
         <div className="my-10" style={{ direction: "ltr" }}>
           <h1 className="text-center font-bold text-2xl md:text-4xl mainColor">
-            {translate?.pages.resetPassword?.title || "Reset Password"}
+            {translate?.pages.resetPassword.title}
           </h1>
 
           <form
@@ -94,8 +88,12 @@ const ResetPassword = () => {
             className="p-4 w-[95%] md:w-[80%] mx-auto"
           >
             {[
-              { label: "password", value: password, set: setPassword },
-              { label: "confirmPassword", value: confirm, set: setConfirm },
+              { label:`${translate?.pages.resetPassword.password}`,
+               value: password, set: setPassword },
+
+              { label:`${translate?.pages.resetPassword.confirmPassword}`,
+               value: confirm, set: setConfirm },
+
             ].map((f, i) => (
               <div key={i} className="mb-4">
                 <label className="block text-sm font-bold mainColor">
@@ -106,7 +104,9 @@ const ResetPassword = () => {
                   required
                   value={f.value}
                   onChange={(e) => f.set(e.target.value)}
-                  className="mt-1 block w-full p-2 border bg-white rounded-md"
+                  className={`mt-1 block w-full p-2 border bg-white rounded-md
+                             ${lang === "ar" ? "text-right!" : "text-left"}
+                  `}
                 />
               </div>
             ))}
@@ -114,17 +114,16 @@ const ResetPassword = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bkMainColor text-white font-bold py-3 mt-5 rounded-lg flex justify-center"
+              className="w-fit greenBgIcon text-white font-bold py-3 mt-5 
+              rounded-lg flex justify-center"
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  {translate?.pages.resetPassword?.processing || "Processing"}
+                  {translate?.pages.resetPassword?.processing}
                 </>
               ) : (
-                translate?.pages.resetPassword?.confirmBtn ||
-                "Reset Password"
-              )}
+                translate?.pages.resetPassword?.confirmBtn)}
             </button>
           </form>
         </div>

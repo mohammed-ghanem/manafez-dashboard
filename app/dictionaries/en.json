@@ -38,10 +38,14 @@
       "title": "Verification Code",
       "email": "Email Address",
       "code": "Verification Code",
-      "verify": " verify"
+      "placeholder": "Enter verification code consisting of 4 digits",
+      "processing" : "Processing Verification",
+      "verify": " verify",
+      "resendCode" : " Resend Verification Code"
+
     },
     "resetPassword": {
-      "title": "Password Recovery",
+      "title": "Enter your new password",
       "email": "Email Address",
       "code": " Verification Code",
       "password": " new password",
@@ -76,7 +80,7 @@
       "phone": " Phone Number",
       "processing": " Processing Update Profile",
       "confirmBtn": " Confirm",
-      "noData": " No data available",
+      "noData": " No data available", 
       "memberSince": " Member Since",
       "personalDetails": " Profile Details",
       "editProfile": " Edit Profile"

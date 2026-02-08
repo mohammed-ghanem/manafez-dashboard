@@ -137,13 +137,13 @@ export default function Admins() {
 
             <span className="text-sm">
               {getOptimisticStatus(admin)
-                ? translate?.pages.admins.active || ""
-                : translate?.pages.admins.inactive || ""}
+                ? translate?.pages.admins.active
+                : translate?.pages.admins.inactive}
             </span>
           </div>
         ) : (
           <Badge variant="destructive">
-            {translate?.pages.admins.protect || ""}
+            {translate?.pages.admins.protect}
             <ShieldX />
           </Badge>
         ),
@@ -167,16 +167,16 @@ export default function Admins() {
 
             {/* DELETE */}
             <DeleteConfirmDialog
-              title={translate?.pages.admins.deleteTitle || ""}
-              description={translate?.pages.admins.deleteMessage || ""}
-              confirmText={translate?.pages.admins.deleteBtn || ""}
-              cancelText={translate?.pages.admins.cancelBtn || ""}
+              title={translate?.pages.admins.deleteTitle}
+              description={translate?.pages.admins.deleteMessage}
+              confirmText={translate?.pages.admins.deleteBtn }
+              cancelText={translate?.pages.admins.cancelBtn}
               onConfirm={() => handleDelete(admin.id)}
             />
           </div>
         ) : (
           <Badge variant="destructive">
-            {translate?.pages.admins.protect || ""}
+            {translate?.pages.admins.protect}
             <ShieldX />
           </Badge>
         ),
@@ -195,7 +195,7 @@ export default function Admins() {
           className={`createBtn  ${showSkeleton ? "block w-40 h-9 py-2.5 opacity-50" : ""}`}
         >
           {!showSkeleton &&
-            `${translate?.pages.admins.createAdmin.title || ""}`}
+            `${translate?.pages.admins.createAdmin.title}`}
         </Link>
       </div>
 
@@ -203,7 +203,7 @@ export default function Admins() {
         data={admins}
         columns={columns}
         isSkeleton={showSkeleton}
-        searchPlaceholder={`${translate?.pages.admins.searchPlaceholder || ""}`}
+        searchPlaceholder={`${translate?.pages.admins.searchPlaceholder}`}
       />
     </div>
   );

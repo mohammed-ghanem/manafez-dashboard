@@ -15,7 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
-import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
+import ProfileSkeleton from "@/components/auth/profile/ProfileSkeleton";
 
 function ProfileDetails() {
   const lang = LangUseParams();

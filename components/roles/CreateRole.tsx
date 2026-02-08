@@ -41,6 +41,7 @@ import {
 import { toast } from "sonner";
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
+import RoleFormSkeleton from "./RoleFormSkeleton";
 
 export default function CreateRole() {
   const router = useRouter();
@@ -136,6 +137,10 @@ export default function CreateRole() {
 
   if (!sessionReady) return null;
 
+  if (isLoading) {
+    return <RoleFormSkeleton />;
+  }
+
   /* ===================== UI ===================== */
   return (
     <div className="p-6 mx-4 my-10 bg-white rounded-2xl border space-y-6">
@@ -146,10 +151,10 @@ export default function CreateRole() {
         </div>
         <div>
           <h1 className="text-2xl font-semibold">
-            {translate?.pages.roles.createRole.title || ""}
+            {translate?.pages.roles.createRole.title}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {translate?.pages.roles.createRole.titleDescription || ""}
+            {translate?.pages.roles.createRole.titleDescription}
           </p>
         </div>
       </div>
@@ -158,30 +163,30 @@ export default function CreateRole() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base icon_bg w-fit">
-            {translate?.pages.roles.createRole.roleInfo || ""}
+            {translate?.pages.roles.createRole.roleInfo}
           </CardTitle>
         </CardHeader>
 
         <CardContent className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2">
             <Label>
-              {translate?.pages.roles.createRole.nameAr || ""}
+              {translate?.pages.roles.createRole.nameAr}
             </Label>
             <Input
               value={name_ar}
               onChange={(e) => setNameAr(e.target.value)}
-              placeholder={translate?.pages.roles.createRole.nameArPlaceholder || ""}
+              placeholder={translate?.pages.roles.createRole.nameArPlaceholder}
               className="focus-visible:ring-0"
             />
           </div>
           <div className="space-y-2">
             <Label>
-              {translate?.pages.roles.createRole.nameEn || ""}
+              {translate?.pages.roles.createRole.nameEn}
             </Label>
             <Input
               value={name_en}
               onChange={(e) => setNameEn(e.target.value)}
-              placeholder={translate?.pages.roles.createRole.nameEnPlaceholder || ""}
+              placeholder={translate?.pages.roles.createRole.nameEnPlaceholder}
               className="focus-visible:ring-0"
             />
           </div>
@@ -194,13 +199,13 @@ export default function CreateRole() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-semibold">
-            {translate?.pages.roles.createRole.permissions || ""}
+            {translate?.pages.roles.createRole.permissions}
           </h2>
           <Badge className="icon_bg text-black">
             <span className="mx-1.5">
               {selected.length}
             </span>
-            {translate?.pages.roles.createRole.isSelected || ""}
+            {translate?.pages.roles.createRole.isSelected}
           </Badge>
         </div>
 
@@ -211,7 +216,7 @@ export default function CreateRole() {
           className="gap-2 greenBgIcon outline-0 border-0"
         >
           <CheckSquare className="h-4 w-4 " />
-          {translate?.pages.roles.createRole.selectAll || ""}
+          {translate?.pages.roles.createRole.selectAll}
         </Button>
       </div>
 
@@ -220,25 +225,11 @@ export default function CreateRole() {
         <Search className={`absolute ${lang === "ar" ? "left-3" : "right-3"}  top-3 h-4 w-4 text-muted-foreground`} />
         <Input
           className="pl-9 focus-visible:ring-0"
-          placeholder={translate?.pages.roles.createRole.searchPlaceholder || ""}
+          placeholder={translate?.pages.roles.createRole.searchPlaceholder}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
       </div>
-
-      {/* Skeleton */}
-      {isLoading && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Card key={i} className="p-4 space-y-3">
-              <Skeleton className="h-5 w-32" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-2/3" />
-            </Card>
-          ))}
-        </div>
-      )}
-
 
       {/* Permissions */}
       {filteredPermissions && (
@@ -260,7 +251,7 @@ export default function CreateRole() {
                     onClick={() => selectGroup(group.controls)}
                     className="gap-2 greenBgIcon outline-0 border-0"
                   >
-                    {translate?.pages.roles.createRole.selectAll || ""}
+                    {translate?.pages.roles.createRole.selectAll}
                     <CheckSquare className="h-4 w-4 " />
 
                   </Button>
