@@ -148,6 +148,15 @@ svg {
 .mainColor {
   color: #69909d;
 }
+.titleColor {
+  color : #4a46eb
+}
+.bgTitleColor {
+  background-color: #4a46eb
+}
+.bgTitleColor:hover {
+  background-color: #4e4af2cf
+}
 .bkMainColor {
   background: #69909d4f;
   color: #000;
