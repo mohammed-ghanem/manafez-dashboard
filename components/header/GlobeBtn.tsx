@@ -26,7 +26,7 @@ const GlobeBtn = () => {
     };
     return (
         <div>
-            <Globe className="w-5 h-5 me-2 cursor-pointer mainColor" onClick={toggleLanguage} />
+            <Globe className="w-5 h-5 me-2 cursor-pointer iconBar" onClick={toggleLanguage} />
         </div>
     )
 }

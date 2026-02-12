@@ -132,7 +132,7 @@ svg {
   border-color: #1e7e34;
 }
 .createBtn{
-  background: #007bff;
+  background: #4a46eb;
   color: #fff;
   padding: 4px 16px;
   border: none;
@@ -157,8 +157,12 @@ svg {
 .bgTitleColor:hover {
   background-color: #4e4af2cf
 }
+.iconBar {
+  color: #4a46eb!important;
+}
 .bkMainColor {
-  background: #69909d4f;
+  /* background: #69909d4f; */
+  background: #ebf5ff;
   color: #000;
 }
 .hover-mainColor:hover {
