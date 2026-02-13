@@ -8,10 +8,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 import Image from "next/image";
 
-import whiteAuthBk from "@/public/assets/images/Vector.svg";
-import otp from "@/public/assets/images/otp.svg";
+import otp from "@/public/assets/images/otp.webp";
 
-import { useVerifyCodeMutation } from "@/store/auth/authApi";
+import { useResendOtpMutation, useVerifyCodeMutation } from "@/store/auth/authApi";
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 import VerifyCodeSkeleton from "./VerifyCodeSkeleton";
@@ -20,6 +19,7 @@ const CODE_LENGTH = 4;
 
 const VerifyCode = () => {
   const [verifyCode, { isLoading }] = useVerifyCodeMutation();
+  const [resendOtp, { isLoading: isResending }] = useResendOtpMutation();
   const router = useRouter();
   const search = useSearchParams();
   const lang = LangUseParams();
@@ -117,17 +117,32 @@ const VerifyCode = () => {
     }
   };
 
+  const handleResend = async () => {
+    try {
+      const res = await resendOtp({ email }).unwrap();
+      toast.success(res?.message);
+    } catch (err: any) {
+      const errorData = err?.data ?? err;
+      if (errorData?.errors) {
+        Object.values(errorData.errors).forEach((messages: any) => {
+          messages.forEach((msg: string) => toast.error(msg));
+        });
+      }
+    }
+  };
+
+
   if (!translate || !email) {
     return <VerifyCodeSkeleton />;
   }
-  
+
 
   return (
     <div className="relative grdianBK font-cairo" style={{ direction: "rtl" }}>
       <div className="grid lg:grid-cols-2 gap-4 items-center">
         {/* Form */}
         <div className="my-10" style={{ direction: "ltr" }}>
-          <h1 className="text-center font-bold text-xl mainColor">
+          <h1 className="text-center font-bold text-xl md:text-2xl titleColor">
             {translate?.pages.verifyCode.title}
           </h1>
 
@@ -137,9 +152,10 @@ const VerifyCode = () => {
           >
             {/* Email */}
             <div className="mb-6">
-              <label className={`block text-sm font-bold mb-2 mainColor 
-              ${lang === "ar" ? "text-right!" : "text-left"}
-              `}>
+              <label
+                className={`block text-[13px] mb-3 font-bold titleColor ${lang === "ar" ? "text-right!" : "text-left"
+                  }`}
+              >
                 {translate?.pages.verifyCode.email}
               </label>
               <input
@@ -152,9 +168,10 @@ const VerifyCode = () => {
 
             {/* OTP */}
             <div className="mb-6">
-            <label className={`block text-sm font-bold mb-2 mainColor 
-              ${lang === "ar" ? "text-right!" : "text-left"}
-              `}>
+              <label
+                className={`block text-[13px] mb-3 font-bold titleColor ${lang === "ar" ? "text-right!" : "text-left"
+                  }`}
+              >
                 {translate?.pages.verifyCode.code}
               </label>
 
@@ -162,7 +179,7 @@ const VerifyCode = () => {
                 {code.map((digit, index) => (
                   <input
                     key={index}
-                    ref={(el) => {inputsRef.current[index] = el}}                    
+                    ref={(el) => { inputsRef.current[index] = el }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
@@ -174,7 +191,7 @@ const VerifyCode = () => {
                       handleKeyDown(e, index)
                     }
                     onPaste={handlePaste}
-                    className="w-14 h-14 text-center text-xl font-bold border rounded-md ring-2 ring-blue-500"
+                    className="w-14 h-14 text-center text-xl font-bold border rounded-md ring-2 ring-green-500"
                   />
                 ))}
               </div>
@@ -184,9 +201,8 @@ const VerifyCode = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-fit greenBgIcon
-               text-white font-bold py-3 px-28! m-auto rounded-lg flex justify-center
-                items-center transition-colors disabled:opacity-50 mb-3"
+              className="w-[50%] mx-auto  bgTitleColor cursor-pointer text-white py-3 mt-8 rounded-lg flex justify-center"
+
             >
               {isLoading ? (
                 <>
@@ -202,28 +218,24 @@ const VerifyCode = () => {
             <div className="mt-4 text-center text-sm">
               <button
                 type="button"
-                onClick={() =>
-                  router.push(
-                    `/${lang}/forget-password?email=${email}`
-                  )
-                }
-                className="createBtn mt-5 font-semibold"
+                onClick={handleResend}
+                disabled={isResending}
+                className="greenBgIcon mt-5 font-semibold"
               >
-                {translate?.pages.verifyCode.resendCode}
+                {isResending
+                  ? <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  : translate?.pages.verifyCode.resendCode}
               </button>
+
             </div>
           </form>
         </div>
 
         {/* Image */}
-        <div className="relative lg:block hidden">
-          <Image src={whiteAuthBk} className="w-full" alt="auth background" />
-          <Image
-            src={otp}
-            fill
-            className="max-w-[70%] max-h-[50%] m-auto"
-            alt="OTP verification"
-          />
+        <div className="relative hidden lg:flex bkMainColor h-screen items-center justify-center">
+          <div className="h-[50%]">
+            <Image src={otp} alt="bg" width={500} height={700} />
+          </div>
         </div>
       </div>
     </div>

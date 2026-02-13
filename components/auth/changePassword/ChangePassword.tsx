@@ -8,7 +8,7 @@ import { useChangePasswordMutation } from "@/store/auth/authApi";
 import TranslateHook from "@/translate/TranslateHook";
 import LangUseParams from "@/translate/LangUseParams";
 
-import {Card,CardContent,CardDescription,CardHeader,CardTitle} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -27,7 +27,7 @@ const ChangePassword = () => {
     password_confirmation: "",
   });
 
-  const [showPassword, setShowPassword] = useState({old: false,new: false,confirm: false,});
+  const [showPassword, setShowPassword] = useState({ old: false, new: false, confirm: false, });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -67,8 +67,8 @@ const ChangePassword = () => {
 
     try {
       const res = await changePassword(form).unwrap();
-      toast.success(res?.message );
-      
+      toast.success(res?.message);
+
       setForm({
         old_password: "",
         password: "",
@@ -77,14 +77,14 @@ const ChangePassword = () => {
 
       setTimeout(() => {
         router.push(`/${lang}`);
-      }, 1500);
+      }, 1000);
     } catch (err: any) {
-      if (err?.data?.errors) {
-        Object.values(err.data.errors).forEach((value: any) => {
-          Array.isArray(value)
-            ? value.forEach((msg: string) => toast.error(msg))
-            : toast.error(value);
-        });
+      const errorData = err?.data ?? err;
+
+      if (errorData?.errors) {
+        Object.values(errorData.errors).forEach((messages: any) =>
+          messages.forEach((msg: string) => toast.error(msg))
+        );
         return;
       }
     }
@@ -112,7 +112,7 @@ const ChangePassword = () => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Old Password */}
             <div className="space-y-2">
-              <Label dir={`${ lang === "ar" ? "rtl" : "ltr"}`}>
+              <Label dir={`${lang === "ar" ? "rtl" : "ltr"}`}>
                 {translate?.pages.changePassword.oldPassword}
               </Label>
               <div className="relative">
@@ -121,6 +121,8 @@ const ChangePassword = () => {
                   name="old_password"
                   value={form.old_password}
                   onChange={handleChange}
+                  className=" focus-visible:ring-0! focus-visible:[box-shadow:none]! focus-visible:border-gray-400 "
+
                 />
                 <button
                   type="button"
@@ -138,7 +140,7 @@ const ChangePassword = () => {
 
             {/* New Password */}
             <div className="space-y-2">
-              <Label dir={`${ lang === "ar" ? "rtl" : "ltr"}`}>
+              <Label dir={`${lang === "ar" ? "rtl" : "ltr"}`}>
                 {translate?.pages.changePassword.password}
               </Label>
               <div className="relative">
@@ -147,6 +149,7 @@ const ChangePassword = () => {
                   name="password"
                   value={form.password}
                   onChange={handleChange}
+                  className=" focus-visible:ring-0! focus-visible:[box-shadow:none]! focus-visible:border-gray-400 "
                 />
                 <button
                   type="button"
@@ -160,14 +163,14 @@ const ChangePassword = () => {
                   )}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground" dir={`${ lang === "ar" ? "rtl" : "ltr"}`}>
+              <p className="text-xs text-muted-foreground" dir={`${lang === "ar" ? "rtl" : "ltr"}`}>
                 {translate?.pages.changePassword.passCondition}
               </p>
             </div>
 
             {/* Confirm Password */}
             <div className="space-y-2">
-              <Label dir={`${ lang === "ar" ? "rtl" : "ltr"}`}>
+              <Label dir={`${lang === "ar" ? "rtl" : "ltr"}`} >
                 {translate?.pages.changePassword.confirmPassword}
               </Label>
               <div className="relative">
@@ -176,6 +179,8 @@ const ChangePassword = () => {
                   name="password_confirmation"
                   value={form.password_confirmation}
                   onChange={handleChange}
+                  className=" focus-visible:ring-0! focus-visible:[box-shadow:none]! focus-visible:border-gray-400 "
+
                 />
                 <button
                   type="button"
@@ -192,7 +197,7 @@ const ChangePassword = () => {
             </div>
 
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end justify-center! items-center! space-x-3 my-2">
-            <Button
+              <Button
                 type="submit"
                 className=" greenBgIcon p-5!"
                 disabled={isLoading}

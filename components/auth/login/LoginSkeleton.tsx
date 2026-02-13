@@ -50,14 +50,14 @@ const LoginSkeleton = () => {
             </div>
 
             {/* Button */}
-            <Skeleton className="h-12 w-full rounded-lg mt-5" />
+            <Skeleton className="h-12 w-[50%] mx-auto rounded-lg mt-5" />
           </div>
         </div>
 
         {/* Image */}
         <div className="relative hidden lg:flex bkMainColor h-screen items-center justify-center">
           <div className="h-[50%]">
-            <Image src={loginIcon} alt="bg" width={500} height={700} />
+            <Image src={loginIcon} alt="bg" width={600} height={800} />
           </div>
         </div>
       </div>

@@ -3,14 +3,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useSendResetCodeMutation } from "@/store/auth/authApi";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail } from "lucide-react";
 import { toast } from "sonner";
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import whiteAuthBk from "@/public/assets/images/Vector.svg";
-import forgetPass from "@/public/assets/images/forgetPass.svg";
+import forgetPass from "@/public/assets/images/forgetPass.webp";
 import ForgetPasswordSkeleton from "./ForgetPasswordSkeleton";
 
 const ForgetPassword = () => {
@@ -48,7 +47,8 @@ const ForgetPassword = () => {
       }
 
       // Generic backend message
-      if (errorData?.message) {toast.error(errorData.message);
+      if (errorData?.message) {
+        toast.error(errorData.message);
         return;
       }
     }
@@ -63,7 +63,7 @@ const ForgetPassword = () => {
       <div className="grid lg:grid-cols-2 gap-4 items-center">
         {/* Form */}
         <div className="my-10" style={{ direction: "ltr" }}>
-          <h1 className="text-center font-bold text-2xl md:text-4xl mainColor">
+          <h1 className="text-center font-bold text-xl md:text-2xl titleColor">
             {translate?.pages.forgetPassword?.title}
           </h1>
 
@@ -73,26 +73,29 @@ const ForgetPassword = () => {
           >
             <div className="mb-4">
               <label
-                className={`block text-sm font-bold leading-6 mainColor ${
-                  lang === "en" ? "text-start" : "text-end"
-                }`}
+                className={`block text-[13px] font-bold titleColor ${lang === "ar" ? "text-right!" : "text-left"
+                  }`}
               >
                 {translate?.pages.forgetPassword?.email}
               </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border bg-white border-gray-300 rounded-md shadow-sm outline-none"
-              />
+              <div className="relative">
+                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400! w-5 h-5" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={handleChange}
+                  className="mt-1 block w-full p-2 border bg-white border-gray-300 rounded-md shadow-sm outline-none"
+                />
+              </div>
+
             </div>
 
             <div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bkMainColor text-white font-bold py-3 px-4 mt-5 rounded-lg flex justify-center items-center"
+                className="w-[50%] mx-auto  bgTitleColor cursor-pointer text-white py-3 mt-8 rounded-lg flex justify-center"
               >
                 {isLoading ? (
                   <>
@@ -107,19 +110,10 @@ const ForgetPassword = () => {
         </div>
 
         {/* Image */}
-        <div className="relative lg:block">
-          <Image
-            src={whiteAuthBk}
-            className="w-full"
-            height={100}
-            alt="auth background"
-          />
-          <Image
-            src={forgetPass}
-            fill
-            className="max-w-[70%] max-h-[50%] m-auto"
-            alt="forget password illustration"
-          />
+        <div className="relative hidden lg:flex bkMainColor h-screen items-center justify-center">
+          <div className="h-[50%]">
+            <Image src={forgetPass} alt="bg" width={500} height={700} />
+          </div>
         </div>
       </div>
     </div>

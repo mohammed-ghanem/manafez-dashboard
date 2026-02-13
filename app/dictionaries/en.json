@@ -7,7 +7,7 @@
   },
   "pages": { 
     "login": {
-      "loginTitle": "Log In",
+      "loginTitle": "Admins Dashboard",
       "email": "Email Address",
       "passwordName": "Password",
       "forgetPassword": "Forget Password ?",
@@ -25,7 +25,8 @@
       "InvalidEmailOrPassword": "Invalid email or password",
       "InvalidEmailOrPasswordSwal": "'Login Failed', 'Invalid email or password. Please try again.', 'error'",
       "NetworkError": "Network Error', 'Please check your network connection and try again.', 'error'",
-      "SomethingWentWrong": "'Error', 'Something went wrong. Please try again later.', 'error'"
+      "SomethingWentWrong": "'Error', 'Something went wrong. Please try again later.', 'error'" ,
+        "rememberMe": "Remember Me"
     },
     "forgetPassword": {
       "title": "Forget Password",

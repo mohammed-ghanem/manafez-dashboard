@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
-import {useGetPrivacyPolicyQuery,useUpdatePrivacyPolicyMutation,} from "@/store/settings/privacyPolicyApi";
+import { useGetPrivacyPolicyQuery, useUpdatePrivacyPolicyMutation, } from "@/store/settings/privacyPolicyApi";
 import { toast } from "sonner";
 import dynamic from "next/dynamic";
-import PrivacyPolicySkeleton, {PrivacyPolicyEditorSkeleton} from "./PrivacyPolicySkeleton";
+import PrivacyPolicySkeleton, { PrivacyPolicyEditorSkeleton } from "./PrivacyPolicySkeleton";
 import { useSessionReady } from "@/hooks/useSessionReady";
 import TranslateHook from "@/translate/TranslateHook";
 import { CircleCheckBig } from "lucide-react";
@@ -15,9 +16,9 @@ const CkEditor = dynamic(() => import("@/components/ckEditor/CKEditor"), {
 });
 
 export default function PrivacyPolicy() {
-    const sessionReady = useSessionReady();
-    const translate = TranslateHook();
-  const { data, isLoading , isError } = useGetPrivacyPolicyQuery( undefined, {
+  const sessionReady = useSessionReady();
+  const translate = TranslateHook();
+  const { data, isLoading } = useGetPrivacyPolicyQuery(undefined, {
     skip: !sessionReady,
   });
   const [updatePolicy, { isLoading: isSaving }] =
@@ -35,7 +36,7 @@ export default function PrivacyPolicy() {
 
   // const isPageLoading = isLoading || !data;
 
-   if (!sessionReady) {
+  if (!sessionReady) {
     return <PrivacyPolicySkeleton />;
   }
 
@@ -45,14 +46,14 @@ export default function PrivacyPolicy() {
   const submit = async () => {
     try {
       const res = await updatePolicy(form).unwrap();
-      toast.success(res?.message || translate?.settings.privacyPolicy.successMessage);
+      toast.success(res?.message);
     } catch (err: any) {
-      if (err?.data?.errors) {
-        Object.values(err.data.errors).forEach((value: any) => {
-          Array.isArray(value)
-            ? value.forEach((msg: string) => toast.error(msg))
-            : toast.error(value) || toast.error(translate?.settings.privacyPolicy.errorMessage);
-        });
+      const errorData = err?.data ?? err;
+
+      if (errorData?.errors) {
+        Object.values(errorData.errors).forEach((messages: any) =>
+          messages.forEach((msg: string) => toast.error(msg))
+        );
         return;
       }
     }
@@ -61,7 +62,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="p-6 mx-4 my-10 space-y-6 bg-white rounded-2xl border border-solid border-[#ddd]">
       <h3 className=" font-bold titleStyle cairo-font">
-          {translate?.settings.privacyPolicy.title}
+        {translate?.settings.privacyPolicy.title}
       </h3>
 
       {!data ? (
@@ -71,7 +72,7 @@ export default function PrivacyPolicy() {
         </>
       ) : (
         <>
-        {/* arabic content */}
+          {/* arabic content */}
           <div className="m-2">
             <p className="titleDescription">{translate?.settings.privacyPolicy.arabicContent}</p>
             <CkEditor
@@ -84,7 +85,7 @@ export default function PrivacyPolicy() {
           </div>
           {/* english content */}
           <div className="m-2">
-          <p className="titleDescription">{translate?.settings.privacyPolicy.englishContent}</p>
+            <p className="titleDescription">{translate?.settings.privacyPolicy.englishContent}</p>
             <CkEditor
               editorData={form.en}
               handleOnUpdate={(value) =>
@@ -93,17 +94,17 @@ export default function PrivacyPolicy() {
               config={{ language: "en", direction: "ltr" }}
             />
           </div>
-          <button onClick={submit} 
-             className="submitButton flex items-center"
-             disabled={isSaving}
-             >
-               <CircleCheckBig className="h-4 w-4 me-2" />
-               {isSaving
-                 ?
-                 `${translate?.settings.privacyPolicy.processing}`
-                 :
-                 `${translate?.settings.privacyPolicy.saveBtn}`
-               }
+          <button onClick={submit}
+            className="submitButton flex items-center"
+            disabled={isSaving}
+          >
+            <CircleCheckBig className="h-4 w-4 me-2" />
+            {isSaving
+              ?
+              `${translate?.settings.privacyPolicy.processing}`
+              :
+              `${translate?.settings.privacyPolicy.saveBtn}`
+            }
           </button>
         </>
       )}

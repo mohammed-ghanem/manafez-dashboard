@@ -144,7 +144,7 @@ const Login = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="w-4 h-4"
                 />
-                {translate.pages.login.rememberMe ?? "تذكرني"}
+                {translate.pages.login.rememberMe}
               </label>
               {/* forget password */}
               <a
@@ -159,7 +159,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bgTitleColor cursor-pointer text-white py-3 mt-5 rounded-lg flex justify-center"
+              className="w-[50%] mx-auto  bgTitleColor cursor-pointer text-white py-3 mt-8 rounded-lg flex justify-center"
             >
               {isLoading ? (
                 <>
@@ -177,7 +177,7 @@ const Login = () => {
 
         <div className="relative hidden lg:flex bkMainColor h-screen items-center justify-center">
           <div className="h-[50%]">
-            <Image src={loginIcon} alt="bg" width={500} height={700} />
+            <Image src={loginIcon} alt="bg" width={600} height={800} />
           </div>
         </div>
 

@@ -125,6 +125,23 @@ export const authApi = createApi({
                 }
             },
         }),
+        // ---------------- RESEND OTP ----------------
+        resendOtp: builder.mutation<any, { email: string }>({
+            query: (body) => {
+                const token = Cookies.get("reset_token");
+
+                return {
+                    url: "/auth/resend-otp", // تأكد أنه نفس الموجود في Postman
+                    method: "POST",
+                    data: { email: body.email },
+                    headers: token
+                        ? { Authorization: `Bearer ${token}` }
+                        : undefined,
+                    withCsrf: true,
+                };
+            },
+        }),
+
         // ---------------- RESET PASSWORD ----------------
         resetPassword: builder.mutation<
             any,
@@ -243,4 +260,5 @@ export const {
     useChangePasswordMutation,
     useGetProfileQuery,
     useUpdateProfileMutation,
+    useResendOtpMutation,
 } = authApi;
