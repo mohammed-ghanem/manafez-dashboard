@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-
 import LangUseParams from "@/translate/LangUseParams";
 import TranslateHook from "@/translate/TranslateHook";
 import SidebarSkeleton from "./SidebarSkeleton";
