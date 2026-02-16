@@ -39,7 +39,7 @@ type FormState = {
   role_id: number[];
   is_active: boolean;
 };
-
+ 
 export default function CreateAdmin() {
   const sessionReady = useSessionReady();
   const router = useRouter();
@@ -78,6 +78,7 @@ export default function CreateAdmin() {
   };
 
   const submit = async (e: React.FormEvent) => {
+    
     e.preventDefault();
 
     try {
@@ -120,11 +121,14 @@ export default function CreateAdmin() {
       <Card className="rounded-2xl shadow-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-bold">
-            <User className="w-5 h-5" />
-            {translate?.pages.admins.createAdmin.title || ""}
+            <div className="flex items-center gap-2 rounded-xl icon_bg">
+              <User className="w-5 h-5 " />
+            </div>
+            
+            {translate?.pages.admins.createAdmin.title}
           </CardTitle>
           <CardDescription>
-            {translate?.pages.admins.createAdmin.description || ""}
+            {translate?.pages.admins.createAdmin.description}
           </CardDescription>
         </CardHeader>
 
@@ -133,8 +137,8 @@ export default function CreateAdmin() {
             {/* BASIC INFO */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label className="font-semibold">
-                  {translate?.pages.admins.createAdmin.name || ""}
+                <Label className="font-semibold mb-2">
+                  {translate?.pages.admins.createAdmin.name}
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -149,8 +153,8 @@ export default function CreateAdmin() {
               </div>
 
               <div className="space-y-1">
-                <Label className="font-semibold">
-                  {translate?.pages.admins.createAdmin.email || ""}
+                <Label className="font-semibold mb-2">
+                  {translate?.pages.admins.createAdmin.email}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -168,8 +172,8 @@ export default function CreateAdmin() {
 
             {/* PHONE */}
             <div className="space-y-1">
-              <Label className="font-semibold">
-                {translate?.pages.admins.createAdmin.phone || ""}
+              <Label className="font-semibold mb-2">
+                {translate?.pages.admins.createAdmin.phone}
               </Label>
               <div dir="ltr">
                 <PhoneInput
@@ -187,8 +191,8 @@ export default function CreateAdmin() {
             {/* PASSWORD */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label className="font-semibold">
-                  {translate?.pages.admins.createAdmin.password || ""}
+                <Label className="font-semibold mb-2">
+                  {translate?.pages.admins.createAdmin.password}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -204,8 +208,8 @@ export default function CreateAdmin() {
               </div>
 
               <div className="space-y-1">
-                <Label className="font-semibold">
-                  {translate?.pages.admins.createAdmin.confirmPassword || ""}
+                <Label className="font-semibold mb-2">
+                  {translate?.pages.admins.createAdmin.confirmPassword}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -228,26 +232,33 @@ export default function CreateAdmin() {
 
             {/* ROLES */}
             <div className="space-y-3">
-              <Label className="flex items-center gap-2 font-semibold">
-                <ShieldCheck className="w-4 h-4" />
-                {translate?.pages.admins.createAdmin.roles || ""}
+              <Label className="flex items-center gap-2 font-bold">
+                <div className="flex items-center gap-2 rounded-xl icon_bg">
+                    <ShieldCheck className="w-4 h-4" />
+                </div>
+                {translate?.pages.admins.createAdmin.roles}
               </Label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border rounded-lg p-4">
-                {roles.map((role: any) => (
-                  <div
-                    key={role.id}
-                    className="flex items-center gap-2 rounded-md  px-2 py-1"
-                  >
-                    <Checkbox
-                      checked={form.role_id.includes(role.id)}
-                      onCheckedChange={() =>
-                        toggleRole(role.id)
-                      }
-                    />
-                    <span className="text-sm">{role.name}</span>
-                  </div>
-                ))}
+                  {roles.map((role: any) => (
+                     <label
+                     key={role.id}
+                     htmlFor={`role-${role.id}`}
+                     className={`flex items-center gap-2 rounded-md 
+                     px-2 py-2 cursor-pointer hover:bg-gray-50 border 
+                     ${form.role_id.includes(role.id) 
+                       ? 'border-green-500 bg-green-50' 
+                       : 'border-gray-200'
+                     }`}
+                   >
+                      <Checkbox
+                        id={`role-${role.id}`}
+                        checked={form.role_id.includes(role.id)}
+                        onCheckedChange={() => toggleRole(role.id)}
+                      />
+                      <span className="text-sm">{role.name}</span>
+                    </label>
+                  ))}
               </div>
             </div>
 
@@ -260,7 +271,7 @@ export default function CreateAdmin() {
                 }
               />
               <span className="text-sm">
-                {translate?.pages.admins.createAdmin.isActive || ""}
+                {translate?.pages.admins.createAdmin.isActive}
               </span>
             </div>
 

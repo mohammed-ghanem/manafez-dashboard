@@ -12,8 +12,8 @@ const api = axios.create({
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
   headers: {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
+    // "Accept": "application/json",
+    // "Content-Type": "application/json",
     "api-key": API_KEY,
     "Api-Version": "v1",
   },
@@ -26,8 +26,8 @@ export const sanctumApi = axios.create({
   xsrfCookieName: "XSRF-TOKEN",
   xsrfHeaderName: "X-XSRF-TOKEN",
   headers: {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
+    // "Accept": "application/json",
+    // "Content-Type": "application/json",
   },
 });
 
@@ -63,6 +63,12 @@ api.interceptors.request.use(
         config.headers["X-XSRF-TOKEN"] = csrf;
       }
     }
+
+      // إذا لم يكن FormData → اجعله JSON
+      if (!(config.data instanceof FormData)) {
+        config.headers["Content-Type"] = "application/json";
+      }
+
     return config;
   },
   (error) => Promise.reject(error)

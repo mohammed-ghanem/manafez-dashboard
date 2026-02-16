@@ -132,12 +132,14 @@ export default function EditAdmin() {
     <div className="max-w-3xl mx-auto py-10 px-4">
       <Card className="rounded-2xl shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-bold">
-            <User className="w-5 h-5" />
-            {translate?.pages.admins.editAdmin.title || ""}
+          <CardTitle className="flex items-center gap-2 font-bold ">
+          <div className="flex items-center gap-2 rounded-xl icon_bg">
+              <User className="w-5 h-5 " />
+            </div>
+            {translate?.pages.admins.editAdmin.title}
           </CardTitle>
-          <CardDescription className="mr-1">
-            {translate?.pages.admins.editAdmin.titleUpdate || ""}
+          <CardDescription className="mr-1 font-semibold">
+            {translate?.pages.admins.editAdmin.titleUpdate}
           </CardDescription>
         </CardHeader>
 
@@ -146,8 +148,8 @@ export default function EditAdmin() {
             {/* BASIC INFO */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label className="font-semibold">
-                  {translate?.pages.admins.editAdmin.name || ""}
+                <Label className="font-semibold mb-2">
+                  {translate?.pages.admins.editAdmin.name}
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -160,8 +162,8 @@ export default function EditAdmin() {
               </div>
 
               <div className="space-y-1">
-                <Label className="font-semibold">
-                  {translate?.pages.admins.editAdmin.email || ""}
+                <Label className="font-semibold mb-2">
+                  {translate?.pages.admins.editAdmin.email}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -176,8 +178,8 @@ export default function EditAdmin() {
 
             {/* PHONE */}
             <div className="space-y-1">
-                <Label className="font-semibold">
-                {translate?.pages.admins.editAdmin.phone || "" }
+                <Label className="font-semibold mb-2">
+                {translate?.pages.admins.editAdmin.phone}
                 </Label>
               <div dir="ltr" className="focus-visible:border-[#999] border-[#999]">
                 <Controller
@@ -201,32 +203,41 @@ export default function EditAdmin() {
 
             {/* ROLES */}
             <div className="space-y-3">
-              <Label className="flex items-center gap-2 font-semibold">
-                <ShieldCheck className="w-4 h-4" />
-                {translate?.pages.admins.editAdmin.role || ""}
+              <Label className="flex items-center gap-2 font-bold">
+              <div className="flex items-center gap-2 rounded-xl icon_bg">
+                    <ShieldCheck className="w-4 h-4" />
+                </div>
+                {translate?.pages.admins.editAdmin.role}
               </Label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border rounded-lg p-4">
                 {roles.map((role: any) => (
-                  <div
-                    key={role.id}
-                    className="flex items-center gap-2 rounded-md hover:bg-muted px-2 py-1"
-                  >
+                  <label
+                        key={role.id}
+                        htmlFor={`role-${role.id}`}
+                        className={`flex items-center gap-2 rounded-md 
+                          px-2 py-2 cursor-pointer hover:bg-gray-50 border
+                          ${selectedRoles.includes(role.id) 
+                            ? 'border-green-500 bg-green-50' 
+                            : 'border-gray-200'
+                          }`}
+                      >  
                     <Checkbox
-                      className=" border-stone-400!"
-                      checked={selectedRoles.includes(role.id)}
-                      onCheckedChange={(checked) => {
-                        const newRoles = checked
-                          ? [...selectedRoles, role.id]
-                          : selectedRoles.filter((rid) => rid !== role.id);
+                        id={`role-${role.id}`}
+                        className="border-stone-400"
+                        checked={selectedRoles.includes(role.id)}
+                        onCheckedChange={(checked) => {
+                          const newRoles = checked
+                            ? [...selectedRoles, role.id]
+                            : selectedRoles.filter((rid) => rid !== role.id);
 
-                        setValue("roles_ids", newRoles, {
-                          shouldDirty: true,
-                        });
-                      }}
-                    />
+                          setValue("roles_ids", newRoles, {
+                            shouldDirty: true,
+                          });
+                        }}
+                      />
                     <span className="text-sm">{role.name}</span>
-                  </div>
+                  </label>
                 ))}
               </div>
             </div>
@@ -241,7 +252,7 @@ export default function EditAdmin() {
                 }
               />
               <span className="text-sm">
-                {translate?.pages.admins.editAdmin.isActive || ""}
+                {translate?.pages.admins.editAdmin.isActive}
               </span>
             </div>
 

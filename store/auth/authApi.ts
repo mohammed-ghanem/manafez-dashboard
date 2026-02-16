@@ -229,7 +229,8 @@ export const authApi = createApi({
         // ---------------- UPDATE PROFILE ----------------
         updateProfile: builder.mutation<
             any,
-            { name: string; email: string; mobile?: string }
+            FormData
+            
         >({
             query: (body) => ({
                 url: "/auth/update-profile",
