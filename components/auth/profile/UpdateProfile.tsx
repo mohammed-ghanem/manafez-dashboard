@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
@@ -60,11 +61,11 @@ function UpdateProfile() {
         name: user.name ?? "",
         email: user.email ?? "",
         mobile: user.mobile ?? "",
-        image: user.image,
+        image: user.avatar ?? "",
       });
       
-      if (user.image) {
-        setImagePreview(user.image);
+      if (user.avatar) {
+        setImagePreview(user.avatar);
       }
       
       setInitialLoading(false);

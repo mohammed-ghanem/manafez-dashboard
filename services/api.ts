@@ -2,8 +2,8 @@
 import axios from "axios";
 // import Cookies from "js-cookie";
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL || "https://backend.wecandevmode.online";
-const API_KEY = process.env.NEXT_PUBLIC_API_KEY || "";
+const BASE = process.env.NEXT_PUBLIC_BASE_URL ;
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY ;
 
 // Main API instance
 const api = axios.create({

@@ -27,6 +27,8 @@ function ProfileDetails() {
 
   const user = data?.data || data?.user || data;
 
+
+
   if (isLoading) return <ProfileSkeleton />;
   if (!user) return null;
 
@@ -37,16 +39,16 @@ function ProfileDetails() {
         <CardHeader className="text-center space-y-3 pb-6">
           <div className="mx-auto relative">
             <div className="w-20 h-20 rounded-full bg-linear-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-              {user.image ? (
+              {user.avatar ? (
                 <Image
-                  src={user.image}
+                  src={user.avatar}
                   alt={user.name}
                   width={80}
                   height={80}
                   className="w-20 h-20 rounded-full object-cover"
                 />
               ) : (
-                <User className="w-9 h-9 text-primary" />
+                <User className="w-10 h-10 text-blue-600" />
               )}
             </div>
           </div>

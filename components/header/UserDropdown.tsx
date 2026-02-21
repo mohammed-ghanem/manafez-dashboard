@@ -69,9 +69,9 @@ export default function UserDropdown({
         className="flex items-center gap-2 rounded-lg p-1 hover:bg-gray-100"
       >
         <div className="w-10 h-10 rounded-full overflow-hidden border">
-          {user.image ? (
+          {user.avatar ? (
             <Image
-              src={user.image}
+              src={user.avatar}
               alt={user.name}
               width={40}
               height={40}
