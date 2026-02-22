@@ -16,12 +16,12 @@ export const privacyPolicyApi = createApi({
     getPrivacyPolicy: builder.query<SettingValue, void>({
       query: () => ({
         url: "/settings",
-        method: "post",
+        method: "get",
         params: { key: "privacy-policy" },
       }),
-      transformResponse: (response: any) =>
-        response.data.setting.value,
-      providesTags: ["PrivacyPolicy"],
+      transformResponse: (response: any) => {
+        return response?.data?.data?.[0]?.value ?? { ar: "", en: "" };
+      },
       keepUnusedDataFor: 300, // 5 دقائق
     }),
 
@@ -34,9 +34,11 @@ export const privacyPolicyApi = createApi({
         method: "post",
         params: { key: "privacy-policy" },
         data: { value },
+        auth: true,
+        withCsrf: true,
       }),
       transformResponse: (response: any) =>
-        response.data.setting.value,
+       response.data.data[0]?.value,
       invalidatesTags: ["PrivacyPolicy"],
     }),
   }),
