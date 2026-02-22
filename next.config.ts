@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "backend-academy.sorooj.org",
+        hostname: "backend.wecandevmode.online",
       },
       
     ],
